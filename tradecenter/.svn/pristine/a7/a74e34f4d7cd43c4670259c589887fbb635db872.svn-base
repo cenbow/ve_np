@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"    
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   
+   xmlns:context="http://www.springframework.org/schema/context"    
+   xsi:schemaLocation="http://www.springframework.org/schema/beans    
+            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd    
+            http://www.springframework.org/schema/context    
+            http://www.springframework.org/schema/context/spring-context-3.0.xsd"   
+            default-autowire="byName"> 
+	<context:component-scan base-package="com.aliyun.rds.rdscenter.service.action.cart" />
+	<context:component-scan base-package="com.aliyun.rds.rdscenter.service.action.order" />
+	
+	
+	<bean id="tradeService" class="com.ve.tradecenter.core.api.impl.TradeServiceImpl"/>	
+	<bean id="requestDispatcher" class="com.ve.tradecenter.core.service.RequestDispatcher"/>
+	<bean id="actionHoloder" class="com.ve.tradecenter.core.service.action.ActionHolder"/>
+	
+	<!-- 添加购物车项Action处理类 -->
+	<bean id="addCartItem" class="com.ve.tradecenter.core.service.action.cart.AddCartItem"/>
+	
+	<!-- 已登入用户添加购物车 -->
+	<bean id="addUserCartItem" class="com.ve.tradecenter.core.service.action.cart.AddUserCartItem"/>
+	
+	<!-- 移除购物车项Action处理类 -->
+	<bean id="deleteCartItem" class="com.ve.tradecenter.core.service.action.cart.DeleteCartItem"/>
+	
+	<!-- 修改购物车商品数量 -->
+	<bean id="upateCartItem" class="com.ve.tradecenter.core.service.action.cart.UpdateCartItem"/>
+	
+	<!-- 移除用户购物车商品 -->
+	<bean id="deleteUserCartItem" class="com.ve.tradecenter.core.service.action.cart.DeleteUserCartItem"/>
+	
+	<!-- 清空购物车 -->
+	<bean id="cleanCart" class="com.ve.tradecenter.core.service.action.cart.CleanCart"/>
+	
+	<!-- 清空用户购物车 -->
+	<bean id="cleanUserCart" class="com.ve.tradecenter.core.service.action.cart.CleanUserCart"/>
+	
+	<!--  购物车列表 -->
+	<bean id="queryCartItems" class="com.ve.tradecenter.core.service.action.cart.QueryCartItems"/>
+	
+	<!--  用户购物车列表  -->
+	<bean id="queryUserCartItems" class="com.ve.tradecenter.core.service.action.cart.QueryUserCartItems"/>
+	
+	<!-- 修改用户购物车商品数量   -->
+	<bean id="updateUserCartItem" class="com.ve.tradecenter.core.service.action.cart.UpdateUserCartItem"/>	
+	
+	<!-- 同步用户购物和 -->
+	<bean id="syncUserCart" class="com.ve.tradecenter.core.service.action.cart.SyncUserCart"/>
+		
+	<!--  用户下单 -->
+	<bean id="addOrder" class="com.ve.tradecenter.core.service.action.order.AddOrder"/>
+	
+	<!-- <bean id="actionHoloder" class="com.aliyun.rds.rdscenter.service.action.ActionHolder"/>
+	<bean id="appContext" class="com.aliyun.rds.rdscenter.service.AppContext"/>
+	<bean id="requestDispatcher" class="com.aliyun.rds.rdscenter.service.DefaultRequestDispatcher">
+		<property name="actionHoloder" ref="actionHoloder" />
+		<property name="appContext" ref="appContext"/>
+	</bean> -->
+</beans>

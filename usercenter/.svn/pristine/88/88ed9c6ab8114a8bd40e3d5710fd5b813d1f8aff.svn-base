@@ -1,0 +1,99 @@
+package com.ve.usercenter.core;
+
+import javax.annotation.Resource;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.ve.usercenter.common.api.BaseRequest;
+import com.ve.usercenter.common.api.Request;
+import com.ve.usercenter.common.api.Response;
+import com.ve.usercenter.common.api.UserService;
+import com.ve.usercenter.common.qto.SupplierCompanyQTO;
+import com.ve.usercenter.core.service.action.ActionEnum;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:applicationContext.xml" })
+public class CompanyTest {
+	@Resource
+	private UserService userService;
+
+	@Test
+	public void test() {
+		System.out.println(1);
+		Request request = new BaseRequest();
+
+		SupplierCompanyQTO companyQto = new SupplierCompanyQTO();
+
+		companyQto.setIndex(0);
+		companyQto.setPageSize(5);
+		request.setParam("companyQto", companyQto);
+
+		request.setCommand(ActionEnum.QUERY_SUPPLIER_COMPANY.getActionName());
+
+		/*
+		 * request.setParam("name", "绍兴公司"); request.setParam("sort", 6);
+		 * request.setCommand(ActionEnum.ADD_SUPPLIER_COMPANY.getActionName());
+		 */
+		/*
+		 * request.setParam("id", 4); request.setParam("name", "南昌公司");
+		 * request.setParam("sort", 10);
+		 * 
+		 * request.setCommand(ActionEnum.UPDATE_SUPPLIER_COMPANY.getActionName())
+		 * ;
+		 */
+		/*
+		 * request.setParam("id", 3);
+		 * request.setCommand(ActionEnum.DELETE_SUPPLIER_COMPANY
+		 * .getActionName());
+		 */
+
+		Response response = userService.execute(request);
+
+		System.out.println(2);
+
+	}
+
+	@Test
+	public void addCompany() {
+		Request request = new BaseRequest();
+		request.setParam("name", "飞机公司");
+		request.setParam("sort", 10);
+		request.setCommand(ActionEnum.ADD_SUPPLIER_COMPANY.getActionName());
+		Response response = userService.execute(request);
+	}
+
+	@Test
+	public void updateCompany() {
+		Request request = new BaseRequest();
+		request.setParam("id", 4);
+		request.setParam("name", "大飞机公司");
+		request.setParam("sort", 10);
+		request.setCommand(ActionEnum.UPDATE_SUPPLIER_COMPANY.getActionName());
+		Response response = userService.execute(request);
+	}
+
+	@Test
+	public void delCompany() {
+		Request request = new BaseRequest();
+		request.setParam("id", 4);
+		request.setCommand(ActionEnum.DELETE_SUPPLIER_COMPANY.getActionName());
+		Response response = userService.execute(request);
+	}
+
+	@Test
+	public void queryCompany() {
+		Request request = new BaseRequest();
+		SupplierCompanyQTO companyQto = new SupplierCompanyQTO();
+
+		companyQto.setIndex(0);
+		companyQto.setPageSize(5);
+		request.setParam("companyQto", companyQto);
+
+		request.setCommand(ActionEnum.QUERY_SUPPLIER_COMPANY.getActionName());
+		Response response = userService.execute(request);
+	}
+
+}

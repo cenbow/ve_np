@@ -1,0 +1,73 @@
+package com.ve.deliverycenter.core.crud.inf;
+
+import java.util.List;
+
+import com.ve.deliverycenter.core.crud.pojo.BaseObject;
+
+/**
+ * 增删改查 接口
+ * 
+ * @author dong.dong
+ */
+public interface Crud {
+
+	/**
+	 * 增加
+	 * 
+	 * @param bo
+	 * @return
+	 */
+	public Object insert(BaseObject bo);
+
+	/**
+	 * 删除
+	 * 
+	 * @param bo
+	 * @return
+	 */
+	public int delete(BaseObject bo);
+
+	/**
+	 * 修改
+	 * 
+	 * @param bo
+	 * @return
+	 */
+	public int update(BaseObject bo);
+
+	/**
+	 * 查询对象
+	 * 
+	 * @param statementName
+	 * @param obj
+	 * @return
+	 */
+	public Object queryForObject(String statementName, Object obj);
+
+	/**
+	 * 查询列表
+	 * 
+	 * @param statementName
+	 * @param obj
+	 * @return
+	 */
+	public List queryForList(String statementName, Object obj);
+
+	/**
+	 * 查询缓存对象
+	 * 
+	 * @param statementName
+	 * @param obj
+	 * @return
+	 */
+	public Object queryCachedObject(String statementName, Object cacheKey);
+
+	/**
+	 * 查询缓存列表
+	 * 
+	 * @param statementName
+	 * @param obj
+	 * @return
+	 */
+	public List queryCachedList(String statementName, Object cacheKey);
+}

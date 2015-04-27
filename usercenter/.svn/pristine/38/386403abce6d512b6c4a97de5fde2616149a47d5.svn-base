@@ -1,0 +1,10 @@
+jdbc.driverClass=com.mysql.jdbc.Driver
+
+######### database ######################
+dataBaseIp=192.168.62.197:3306
+#dataBaseIp=172.16.1.254:5432
+
+jdbc.ethnicUrl=jdbc:mysql://${dataBaseIp}/ve_java_user
+jdbc.user=zvecn
+jdbc.password=Jf8ZnN0pMo
+

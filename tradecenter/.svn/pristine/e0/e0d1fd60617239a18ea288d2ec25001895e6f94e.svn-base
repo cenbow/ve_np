@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN" "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+<sqlMapConfig>
+    <!-- <sqlMap resource="sqlmap/order-sqlmap.xml"/> -->
+    
+    <settings 
+	  cacheModelsEnabled="false" 
+	  enhancementEnabled="false"
+	  lazyLoadingEnabled="false" 
+	  maxRequests="3000" 
+	  maxSessions="3000"
+	  maxTransactions="3000"
+	  useStatementNamespaces="true"
+	/>
+	
+    <!-- 未登入用户购物车表 -->
+    <sqlMap resource="sqlmap/shopping_cart_SqlMap.xml"/>
+    
+   	<!-- 已登入用户购物车表 -->
+    <sqlMap resource="sqlmap/user_cart_SqlMap.xml"/>
+    
+    <!-- 订单表  -->
+    <sqlMap resource="sqlmap/order_SqlMap.xml"/>
+    
+    <!--  订单流水 -->
+	<sqlMap resource="sqlmap/order_seq_SqlMap.xml"/>
+    
+</sqlMapConfig>

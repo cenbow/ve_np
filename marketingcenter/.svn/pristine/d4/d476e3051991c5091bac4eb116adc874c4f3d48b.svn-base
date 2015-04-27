@@ -1,0 +1,43 @@
+package com.ve.marketingcenter.core.service.action.engine.tools;
+
+import java.util.List;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import javax.annotation.Resource;
+
+import com.google.common.cache.Cache;
+import com.ve.marketingcenter.common.domain.dto.FavorableInfo;
+import com.ve.marketingcenter.common.domain.dto.MarketingItemDTO;
+import com.ve.marketingcenter.core.domain.ActualParamDO;
+import com.ve.marketingcenter.core.exception.MarketingException;
+import com.ve.marketingcenter.core.manager.actualParam.ActualParamManager;
+
+public class GeThenSubstract implements Tool {
+	
+	@Resource(name = "actualParamManager")
+	private ActualParamManager actualParamManager;
+	
+	private String condition;
+	
+	private String action;
+	
+//	private String userType;
+
+	@Override
+	public FavorableInfo parse(Entry<Long,Set<Long>> actId_itemId, String utype,
+			Cache<Long, MarketingItemDTO> itemsCache) throws MarketingException {
+		FavorableInfo info = new FavorableInfo();
+		
+		List<ActualParamDO> apdos = actualParamManager.queryActualParamsByActId(actId_itemId.getKey());
+		if(!ToolsHelper.isUtypeInTarget(apdos, utype)){
+			return info;
+		}
+		
+		
+		
+		
+		return info;
+	}
+
+}

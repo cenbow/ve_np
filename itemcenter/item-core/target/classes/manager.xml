@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans default-autowire="byName">
+	<!-- 商品管理器 -->
+	<bean id="itemManager"	class="com.ve.itemcenter.core.manager.impl.ItemManagerImpl" />
+	<!-- 商品图片管理器 -->
+	<bean id="itemImageManager"	class="com.ve.itemcenter.core.manager.impl.ItemImageManagerImpl" />
+	<!-- 商品品牌管理器 -->
+	<bean id="itemBrandManager"	class="com.ve.itemcenter.core.manager.impl.ItemBrandManagerImpl" />
+	<!-- 商品评论管理器 -->
+	<bean id="itemCommentManager" class="com.ve.itemcenter.core.manager.impl.ItemCommentManagerImpl" />
+	<!-- 商品销售属性(ItemSku)管理器 -->
+	<bean id="itemSkuManager" class="com.ve.itemcenter.core.manager.impl.ItemSkuManagerImpl" />
+	<!-- 商品类目管理器 -->
+	<bean id="itemCategoryManager" class="com.ve.itemcenter.core.manager.impl.ItemCategoryManagerImpl" />
+	<!-- 商品属性模板管理器 -->
+	<bean id="itemPropertyTmplManager" class="com.ve.itemcenter.core.manager.impl.ItemPropertyTmplManagerImpl" />
+	<!-- 商品属性管理器 -->
+	<bean id="itemPropertyManager" class="com.ve.itemcenter.core.manager.impl.ItemPropertyManagerImpl" />
+	<!-- SKU属性模板管理器 -->
+	<bean id="skuPropertyTmplManager" class="com.ve.itemcenter.core.manager.impl.SkuPropertyTmplManagerImpl" />
+	
+	<!-- 全局属性管理器 -->
+	<bean id="globalPropertyManager" class="com.ve.itemcenter.core.manager.impl.GlobalPropertyManagerImpl" />
+	<!-- 全局属性值域管理器 -->
+	<bean id="globalPropertyValueManager" class="com.ve.itemcenter.core.manager.impl.GlobalPropertyValueManagerImpl" />
+	
+	<!-- SKU属性管理器 -->
+	<bean id="skuPropertyManager" class="com.ve.itemcenter.core.manager.impl.SkuPropertyManagerImpl" />
+	<!-- SPU属性模板管理器 -->
+	<bean id="spuPropertyTmplManager" class="com.ve.itemcenter.core.manager.impl.SpuPropertyTmplManagerImpl" />
+	<!-- SPU属性管理器 -->
+	<bean id="spuPropertyManager" class="com.ve.itemcenter.core.manager.impl.SpuPropertyManagerImpl" />
+	<!-- SPU_INFO属性管理器 -->
+	<bean id="spuInfoManager" class="com.ve.itemcenter.core.manager.impl.SpuInfoManagerImpl" />
+	
+</beans>

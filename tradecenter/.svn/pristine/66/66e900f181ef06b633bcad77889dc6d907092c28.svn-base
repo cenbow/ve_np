@@ -1,0 +1,153 @@
+package com.ve.tradecenter.core.service.action;
+
+
+	/************************************订单相关操作接口********************************************/
+public enum ActionEnum {
+	/**
+	 * 添加订单
+	 */
+	ADD_ORDER("addOrder"),
+	
+	/**
+	 * 取消订单
+	 */
+	CANCEL_ORDER("cancelOrder"),
+	
+	/**
+	 * 删除订单
+	 */
+	DELETE_ORDER("deleteOrder"),
+	
+	/**
+	 * 根据订单id和用户id查询订单
+	 */
+	GET_ORDER("getOrder"),
+	
+	/**
+	 * 跟新订单备注
+	 */
+	UPDATE_ORDER_MEMO("updateOrderMemo"),
+	
+	/**
+	 * 确认收货 整单收货
+	 */
+	CONFIRM_RECEIVAL("confirmReceival"),
+	
+	/**
+	 * 订单发货
+	 */
+	DELIVERY_GOODS("deliverGoods"),
+	
+	/**
+	 * 申请退货
+	 */
+	APPLY_RETURN("applyReturn"),
+	/**
+	 * 审核用户客退申请
+	 */
+	AUDIT_RETURN_APPLY("AuditReturnApply"),
+	/**
+	 * 更新收货信息
+	 */
+	UPDATE_CONSINEE_INFO("UpdateConsigneeInfo"),
+	
+	/**************************************购物车相关接口*******************************************/
+	/**
+	 * 购物车相关接口
+	 */
+	CLEAN_CART("cleanCart"),
+	/**
+	 * 
+	 */
+	CLEAN_USER_CART("cleanUserCart"),
+	/**
+	 * 移除购物车项
+	 */
+	REMOVE_CART_ITEM("deleteCartItem"),
+	/**
+	 * 未登入用戶添加购物车选项
+	 */
+	ADD_CART_ITEM("addCartItem"),
+	/**
+	 * 已登入用戶添加购物车项
+	 */
+	ADD_USER_CART_ITEM("addUserCartItem"),
+	/**
+	 * 已登入用户移除购物车
+	 */
+	DELETE_USER_CART_ITEM("deleteUserCartItem"),
+	/**
+	 * 更新购物车数量 
+	 */
+	UPDATE_CART_ITEM("updateCartItem"),
+	/**
+	 * 更新已的登入用户购物车的商品数
+	 */
+	UPDATE_USER_CART_ITEM("updateUserCartItem"),
+	/**
+	 * 同步购物车
+	 */
+	SYNC_USER_CART("syncUserCart"),
+	/**
+	 * 已登入用户的购物车商品列表
+	 */
+	QUERY_CART_ITEMS("queryCartItems"),
+	/**
+	 * 已登入用户的购物车商品列表
+	 */
+	QUERY_USER_CART_ITEMS("queryUserCartItems"),
+	/**
+	 * 未登入购物车信息
+	 */
+	GET_CART_INFO("getUserCartInfo"),
+	/**
+	 * 已登入用户购物车信息
+	 */
+	GET_USER_CART_INFO("getUserCartInfo"),
+	
+	/**************************************支付相关接口*******************************************/
+	/**
+	 * 支付宝支付回调接口
+	 */
+	ALIPAY_CALLBACK("alipayCallback"),
+	/**
+	 * 微信支付回调接口
+	 */
+	WECHAT_PAY_CALLBACK("wechatPayCallback"),
+	/**
+	 * 确认已退款
+	 */
+	CONFIRM_REFUND("confirmRefund"),
+	/**
+	 * 添加支付方式
+	 */
+	ADD_PAYMENT("addPayment"),
+	/**
+	 * 删除支付方式
+	 */
+	DELETE_PAYMENT("deletePayment"),
+	/**************************************订单操作记录相关接口*******************************************/
+	/**
+	 * 查询订单的操作日志
+	 */
+	GET_USER_ORDER_LOG("getUserOrderLog");
+	
+	
+	private String actionName;
+	private ActionEnum(String actionName){
+		this.actionName = actionName;
+	}
+	public static ActionEnum getActionEnum(String actionName){
+		for(ActionEnum ae: ActionEnum.values()){
+			if(ae.actionName.equals(actionName)){
+				return ae;
+			}
+		}
+		return null;
+	}
+	
+	public String getActionName() {
+		return actionName;
+	}
+}
+

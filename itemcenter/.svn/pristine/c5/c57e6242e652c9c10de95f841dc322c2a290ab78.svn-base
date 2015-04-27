@@ -1,0 +1,77 @@
+package com.ve.itemcenter.core.manager.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.constant.ResCodeNum;
+import com.ve.itemcenter.common.domain.ItemCommentDTO;
+import com.ve.itemcenter.common.domain.ItemCommentQTO;
+import com.ve.itemcenter.core.dao.ItemCommentDAO;
+import com.ve.itemcenter.core.domain.ItemCommentDO;
+import com.ve.itemcenter.core.exception.ItemException;
+import com.ve.itemcenter.core.manager.ItemCommentManager;
+import com.ve.itemcenter.core.util.ExceptionUtil;
+import com.ve.itemcenter.core.util.ItemUtil;
+
+@Service
+public class ItemCommentManagerImpl implements ItemCommentManager {
+	@Resource
+	private ItemCommentDAO itemCommentDAO;
+
+	@Override
+	public ItemCommentDTO addItemComment(ItemCommentDTO itemCommentDTO) throws ItemException {
+		try {
+			// TODO 验证itemCommentDTO内的属性
+			if (!verifyItemCommentDTOProperty(itemCommentDTO)) {
+				throw ExceptionUtil.getException(ResCodeNum.PARAM_E_INVALID, "itemCommentDTO property incorrect");
+			}
+			itemCommentDTO.setAuditStatus(DBConst.NOT_AUDITED.getCode());// 默认未审核状态
+			ItemCommentDO itemCommentDO = new ItemCommentDO();
+			ItemUtil.copyProperties(itemCommentDTO, itemCommentDO);// DTO转DO
+			long newInsertedId = itemCommentDAO.addItemComment(itemCommentDO);// 新增的记录返回的ID
+			return getItemComment(newInsertedId);// 新增加的记录对应的itemCommentDTO
+		} catch (Exception e) {
+			throw new ItemException(ResCodeNum.SYS_E_DEFAULT_ERROR, e);
+		}
+	}
+
+	public ItemCommentDTO getItemComment(long id) throws ItemException {
+		ItemCommentDO itemCommentDO = itemCommentDAO.getItemComment(id);
+		ItemCommentDTO itemCommentDTO = new ItemCommentDTO();
+		ItemUtil.copyProperties(itemCommentDO, itemCommentDTO);// DO转DTO
+		return itemCommentDTO;
+	}
+
+	@Override
+	public boolean deleteItemComment(long id) throws ItemException {
+		// TODO 校验id
+		ItemCommentDO itemCommentDO = new ItemCommentDO();
+		itemCommentDO.setId(id);
+		itemCommentDO.setIsDeleted(DBConst.DELETED.getCode());
+		int num = itemCommentDAO.updateItemComment(itemCommentDO);
+		return num > 0 ? true : false;
+	}
+
+	@Override
+	public boolean verifyItemCommentDTOProperty(ItemCommentDTO itemCommentDTO) throws ItemException {
+		// TODO 验证ItemCommentDTO字段属性
+		return true;
+	}
+
+	public List<ItemCommentDTO> queryItemComment(ItemCommentQTO itemCommentQTO) throws ItemException {
+		List<ItemCommentDO> list = itemCommentDAO.queryItemCommentByItemId(itemCommentQTO);
+		ArrayList<ItemCommentDTO> DTOList = new ArrayList<ItemCommentDTO>();
+		for (ItemCommentDO itemCommentDO : list) {
+			ItemCommentDTO itemCommentDTO = new ItemCommentDTO();
+			ItemUtil.copyProperties(itemCommentDO, itemCommentDTO);
+			DTOList.add(itemCommentDTO);
+		}
+		return DTOList;
+	}
+
+}

@@ -1,0 +1,71 @@
+package com.ve.itemcenter.core.service;
+
+import com.ve.itemcenter.common.api.Response;
+import com.ve.itemcenter.common.constant.ResCodeNum;
+
+public class ItemResponse<T> implements Response<T> {
+	private static final long serialVersionUID = 8295766534182699773L;
+
+	private T module;
+	private String errorCode;
+	private String message;
+	private long totalCount = 0;
+
+	public ItemResponse(String errorCode) {
+		this.errorCode = errorCode;
+	}
+
+	public ItemResponse(String errorCode, String message) {
+		this.errorCode = errorCode;
+		this.message = message;
+	}
+
+	public ItemResponse(ResCodeNum resCodeNum) {
+		this.errorCode = resCodeNum.getCode();
+		this.message = resCodeNum.getComment();
+	}
+
+	public ItemResponse(ResCodeNum resCodeNum, String message) {
+		this.errorCode = resCodeNum.getCode();
+		this.message = message;
+	}
+
+	public ItemResponse(T module) {
+		this.module = module;
+		totalCount = 1;
+	}
+
+	public ItemResponse(T module, long totalCount) {
+		this.module = module;
+		this.totalCount = totalCount;
+	}
+
+	public T getModule() {
+		return module;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public long getTotalCount() {
+		return totalCount;
+	}
+
+	public void setTotalCount(long totalCount) {
+		this.totalCount = totalCount;
+	}
+
+	public String getErrorCode() {
+		return errorCode;
+	}
+
+	public void setErrorCode(String errorCode) {
+		this.errorCode = errorCode;
+	}
+
+}

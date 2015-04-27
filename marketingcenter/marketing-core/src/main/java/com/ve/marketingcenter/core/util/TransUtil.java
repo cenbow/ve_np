@@ -1,0 +1,49 @@
+package com.ve.marketingcenter.core.util;
+
+import org.springframework.beans.BeanUtils;
+
+import com.ve.marketingcenter.common.constant.ReturnCodeEnum;
+import com.ve.marketingcenter.common.domain.dto.coupon.BaseDTO;
+import com.ve.marketingcenter.common.domain.qto.BaseQTO;
+import com.ve.marketingcenter.core.domain.coupon.BaseDo;
+import com.ve.marketingcenter.core.exception.MarketingException;
+
+public class TransUtil {
+	public static BaseDo trans2Do(BaseDTO dto, BaseDo domain)
+			throws MarketingException {
+		if (dto == null) {
+			return null;
+		}
+		checkNull(domain);
+		BeanUtils.copyProperties(dto, domain);
+		return domain;
+	}
+
+	public static BaseDTO trans2Dto(BaseDTO dto, BaseDo domain)
+			throws MarketingException {
+		if (domain == null) {
+			return null;
+		}
+		checkNull(dto);
+		BeanUtils.copyProperties(domain, dto);
+		return dto;
+	}
+
+	public static BaseQTO trans2Qto(BaseDTO dto, BaseQTO qto)
+			throws MarketingException {
+		if (dto == null) {
+			return null;
+		}
+		checkNull(qto);
+		BeanUtils.copyProperties(dto, qto);
+		return qto;
+	}
+
+	private static void checkNull(Object target) throws MarketingException {
+		if (target == null) {
+			throw new MarketingException(ReturnCodeEnum.PARAMETER_NULL.getCode(),
+					"trans target is null");
+		}
+
+	}
+}

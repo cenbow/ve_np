@@ -1,0 +1,5 @@
+package com.ve.tradecenter.common.domain;
+
+public class OrderDTO {
+
+}

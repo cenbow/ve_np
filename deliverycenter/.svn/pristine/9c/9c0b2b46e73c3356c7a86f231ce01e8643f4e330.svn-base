@@ -1,0 +1,44 @@
+package com.ve.deliverycenter.core.util.app;
+
+import java.io.IOException;
+
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
+import net.sf.json.JsonConfig;
+
+/**
+ * JSON解析工具类
+ * 
+ * @author dongdong
+ */
+public class JsonUtil {
+
+	/**
+	 * 将JSON字符串反序列化为java对象
+	 * 
+	 * @throws IOException
+	 */
+	public static <T> T toObj(String jsonStr, Class<T> clazz) {
+		JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON(jsonStr);
+		JsonConfig jsonConfig = new JsonConfig();
+		jsonConfig.setRootClass(clazz);
+		@SuppressWarnings("unchecked")
+		T obj = (T) JSONSerializer.toJava(jsonObject, jsonConfig);
+		return obj;
+	}
+
+	/**
+	 * 将java对象转换成json字符串
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	public static String toStr(Object obj) {
+		try {
+			return JSONSerializer.toJSON(obj).toString();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+}

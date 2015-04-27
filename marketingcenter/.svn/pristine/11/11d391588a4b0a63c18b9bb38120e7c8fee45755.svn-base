@@ -1,0 +1,31 @@
+package com.ve.marketingcenter.core.service.action.engine.tools;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import com.ve.marketingcenter.common.domain.dto.FavorableInfo;
+import com.ve.marketingcenter.common.domain.dto.MarketingItemDTO;
+import com.ve.marketingcenter.core.domain.ActualParamDO;
+import com.ve.marketingcenter.core.exception.MarketingException;
+/**
+ * 营销工具接口
+ * @author pengfei.zhu
+ *
+ */
+public interface Tool {
+	/**
+	 * set工具实参
+	 * @param actualParams
+	 */
+	void setToolParams(List<ActualParamDO> actualParams);
+	/**
+	 * 
+	 * @param activityId 活动id
+	 * @param utype 用户类型
+	 * @param itemsCache 商品列表缓存
+	 * @return
+	 */
+	FavorableInfo parse(Entry<Long, Set<Long>> actWithItems,String utype,Map<Long,MarketingItemDTO> itemsCache) throws MarketingException;
+}

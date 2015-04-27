@@ -1,0 +1,45 @@
+package com.ve.itemcenter.core.dao;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.domain.SkuPropertyQTO;
+import com.ve.itemcenter.core.domain.SkuPropertyDO;
+
+@Service
+public interface SkuPropertyDAO {
+
+	/**
+	 * 增加SKU属性
+	 * 
+	 * @param skuPropertyDO
+	 * @return
+	 */
+	Long addSkuProperty(SkuPropertyDO skuPropertyDO);
+
+	/**
+	 * 根据id获取SKU属性
+	 * 
+	 * @param id
+	 * @return
+	 */
+	SkuPropertyDO getSkuProperty(Long id);
+
+	/**
+	 * 更新SKU属性信息
+	 * 
+	 * @param skuPropertyDO
+	 * @return
+	 */
+	int updateSkuProperty(SkuPropertyDO skuPropertyDO);
+
+	/**
+	 * 返回SKU属性列表
+	 * 
+	 * @param skuPropertyQTO
+	 * @return
+	 */
+	List<SkuPropertyDO> querySkuProperty(SkuPropertyQTO skuPropertyQTO);
+
+}

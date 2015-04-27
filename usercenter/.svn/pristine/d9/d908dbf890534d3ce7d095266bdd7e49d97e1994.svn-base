@@ -1,0 +1,50 @@
+package com.ve.usercenter.core.service.action.user;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.dto.UserDTO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserManager;
+import com.ve.usercenter.core.service.RequestContext;
+import com.ve.usercenter.core.service.UserRequest;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.service.action.Action;
+import com.ve.usercenter.core.service.action.ActionEnum;
+
+@Service
+public class GetUserByEmailAction implements Action {
+
+	@Resource
+	private UserManager userManager;
+
+	@Override
+	public UserResponse execute(RequestContext context) throws UserException {
+		// TODO Auto-generated method stub
+		UserResponse response = null;
+		UserRequest request = context.getRequest();
+		String email = (String) request.getParam("email");
+		UserDTO userDto = null;
+
+		log.info("email:", email);
+
+		try {
+			userDto = userManager.getUserByEmail(email);
+		} catch (UserException e) {
+			return new UserResponse(e.getResponseCode().getCode(),
+					e.getMessage());
+		}
+
+		response = new UserResponse(userDto);
+
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return ActionEnum.GET_USER_BY_EMAIL.getActionName();
+	}
+
+}

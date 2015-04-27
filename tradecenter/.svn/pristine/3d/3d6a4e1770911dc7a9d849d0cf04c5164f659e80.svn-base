@@ -1,0 +1,5 @@
+package com.ve.tradecenter.core.domain;
+
+public class OrderDO {
+
+}

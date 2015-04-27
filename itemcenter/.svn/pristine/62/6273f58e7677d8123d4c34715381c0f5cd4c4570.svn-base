@@ -1,0 +1,97 @@
+package com.ve.itemcenter.core.manager.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.constant.ResCodeNum;
+import com.ve.itemcenter.common.domain.ItemCategoryDTO;
+import com.ve.itemcenter.common.domain.ItemCategoryQTO;
+import com.ve.itemcenter.core.dao.ItemCategoryDAO;
+import com.ve.itemcenter.core.domain.ItemCategoryDO;
+import com.ve.itemcenter.core.exception.ItemException;
+import com.ve.itemcenter.core.manager.ItemCategoryManager;
+import com.ve.itemcenter.core.util.ExceptionUtil;
+import com.ve.itemcenter.core.util.ItemUtil;
+
+@Service
+public class ItemCategoryManagerImpl implements ItemCategoryManager {
+	@Resource
+	private ItemCategoryDAO itemCategoryDAO;
+
+	@Override
+	public ItemCategoryDTO addItemCategory(ItemCategoryDTO itemCategoryDTO) throws ItemException {
+		try {
+			// 验证itemCategoryDTO内的属性
+			if (!verifyItemCategoryDTOProperty(itemCategoryDTO)) {
+				throw ExceptionUtil.getException(ResCodeNum.PARAM_E_INVALID, "itemCategoryDTO property incorrect");
+			}
+			ItemCategoryDO itemCategoryDO = new ItemCategoryDO();
+			ItemUtil.copyProperties(itemCategoryDTO, itemCategoryDO);// DTO转DO
+			int newInsertedId = itemCategoryDAO.addItemCategory(itemCategoryDO);// 新增的记录返回的ID
+			itemCategoryDTO = getItemCategory(newInsertedId);// 新增加的记录对应的itemCategoryDO
+			return itemCategoryDTO;
+		} catch (Exception e) {
+			throw new ItemException(ResCodeNum.SYS_E_DEFAULT_ERROR, e);
+		}
+	}
+
+	@Override
+	public boolean updateItemCategory(ItemCategoryDTO itemCategoryDTO) throws ItemException {
+		// 验证参数
+		if (itemCategoryDTO.getId() == null) {
+			throw ExceptionUtil.getException(ResCodeNum.PARAM_E_MISSING, "itemCategoryDTO is null");
+		}
+		if (!verifyItemCategoryDTOProperty(itemCategoryDTO)) {
+			throw ExceptionUtil.getException(ResCodeNum.PARAM_E_INVALID, "itemCategoryDTO property incorrect");
+		}
+		ItemCategoryDO itemCategoryDO = new ItemCategoryDO();
+		ItemUtil.copyProperties(itemCategoryDTO, itemCategoryDO);
+		int num = itemCategoryDAO.updateItemCategory(itemCategoryDO);
+		return num > 0 ? true : false;
+	}
+
+	@Override
+	public ItemCategoryDTO getItemCategory(int id) throws ItemException {
+		ItemCategoryDO itemCategoryDO = itemCategoryDAO.getItemCategory(id);
+		if (itemCategoryDO == null) {
+			throw ExceptionUtil.getException(ResCodeNum.BASE_PARAM_E_RECORD_NOT_EXIST, "Cannot find requested record");
+		}
+		ItemCategoryDTO itemCategoryDTO = new ItemCategoryDTO();
+		ItemUtil.copyProperties(itemCategoryDO, itemCategoryDTO);
+		return itemCategoryDTO;
+	}
+
+	@Override
+	public boolean deleteItemCategory(int id) throws ItemException {
+		// TODO 验证id
+
+		ItemCategoryDO itemCategoryDO = new ItemCategoryDO();
+		itemCategoryDO.setId(id);
+		itemCategoryDO.setIsDeleted(DBConst.DELETED.getCode());
+		int num = itemCategoryDAO.updateItemCategory(itemCategoryDO);
+		return num > 0 ? true : false;
+	}
+
+	@Override
+	public boolean verifyItemCategoryDTOProperty(ItemCategoryDTO itemCategoryDTO) throws ItemException {
+		// TODO 验证ItemCategoryDTO字段属性
+		return true;
+	}
+
+	public List<ItemCategoryDTO> queryItemCategory(ItemCategoryQTO itemCategoryQTO) throws ItemException {
+		List<ItemCategoryDO> list = itemCategoryDAO.queryItemCategory(itemCategoryQTO);
+		List<ItemCategoryDTO> itemCategoryDTOList = new ArrayList<ItemCategoryDTO>();// 需要返回的DTO列表
+		for (ItemCategoryDO itemCategoryDO : list) {
+			ItemCategoryDTO dto = new ItemCategoryDTO();
+			ItemUtil.copyProperties(itemCategoryDO, dto);
+			itemCategoryDTOList.add(dto);
+		}
+		return itemCategoryDTOList;
+	}
+
+}

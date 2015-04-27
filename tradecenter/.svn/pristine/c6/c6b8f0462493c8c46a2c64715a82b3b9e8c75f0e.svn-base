@@ -1,0 +1,215 @@
+package com.ve.tradecenter.core.service.action.cart;
+
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.ve.tradecenter.common.api.TradeResponse;
+import com.ve.tradecenter.common.constant.ResponseCode;
+import com.ve.tradecenter.common.domain.CartDTO;
+import com.ve.tradecenter.common.domain.CartItemDTO;
+import com.ve.tradecenter.common.domain.FavorableInfoDTO;
+import com.ve.tradecenter.common.domain.ItemSkuDTO;
+import com.ve.tradecenter.common.domain.ItemSkuQTO;
+import com.ve.tradecenter.core.constants.TradeConstants;
+import com.ve.tradecenter.core.domain.CartItemDO;
+import com.ve.tradecenter.core.exception.TradeException;
+import com.ve.tradecenter.core.manager.CartItemManager;
+import com.ve.tradecenter.core.manager.ItemManager;
+import com.ve.tradecenter.core.manager.PromotionManager;
+import com.ve.tradecenter.core.manager.UserCartItemManager;
+import com.ve.tradecenter.core.service.RequestContext;
+import com.ve.tradecenter.core.service.ResponseUtils;
+import com.ve.tradecenter.core.service.TradeRequest;
+import com.ve.tradecenter.core.service.action.Action;
+import com.ve.tradecenter.core.service.action.ActionEnum;
+/**
+ * 未登入用户添加购物车 
+ * 1 根据商品id和供应商id查询商品平台获取最新的价格、名称等信息
+ * 2 查询所有的购物车商品 ，判断是否有重复 （重复则更新为最新的价格、数目累加）,不重复则新加入
+ * 3 根据所有的商品列表促销平台查询优惠信息（是否包邮、优惠金额、赠品）
+ * 4 返回邮费、优惠、赠品给调用方 
+ * @author cwr
+ */
+public class AddUserCartItem implements Action {
+	private static final Logger log = LoggerFactory.getLogger(AddUserCartItem.class);
+	
+	@Resource
+	private TransactionTemplate transactionTemplate;
+
+	@Resource
+	private UserCartItemManager userCartItemManager;
+	
+	@Resource
+	private CartItemManager cartItemManager;
+	
+	@Resource
+	private ItemManager itemManager;
+	
+	@Resource 
+	private PromotionManager promotionManager;
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public TradeResponse<CartDTO> execute(RequestContext context){
+		TradeRequest request = context.getRequest();
+		TradeResponse<CartDTO> response;
+		if(request.getParam("cartItemDTO") == null){
+			log.error("cartItemDTO is null");
+			return ResponseUtils.getFailResponse(ResponseCode.PARAM_E_PARAM_MISSING,"cartItemDTO is null");
+		}
+		CartItemDTO cartItemDTO = (CartItemDTO)request.getParam("cartItemDTO");
+		
+		// 字段验证
+		String errorMsg = this.userCartItemManager.validateCartItemFields(cartItemDTO);
+		if(!StringUtils.isEmpty(errorMsg)){
+			log.error(errorMsg);
+			return ResponseUtils.getFailResponse(ResponseCode.PARAM_E_PARAM_MISSING,errorMsg);
+		}
+		
+		// 必要的字段
+		Long itemSkuId = cartItemDTO.getItemSkuId();
+		Long supplierId = cartItemDTO.getSupplierId();
+		long userId = cartItemDTO.getUserId(); 
+		Integer number  = cartItemDTO.getNumber();
+		String sessionId = cartItemDTO.getSessionId();
+		Integer source = cartItemDTO.getSource()==null? TradeConstants.OrderSource.PC : cartItemDTO.getSource(); // 默认来自于pc端 	
+		boolean isWireless = source!=TradeConstants.OrderSource.PC ? true : false; // 判断是不是无线来源， 需要享受专享价
+		
+		// 商品平台查询商品详细信息
+		ItemSkuDTO itemSku = null;
+		try{
+			itemSku = getItemSku(itemSkuId, supplierId);
+		}catch(TradeException e){
+			log.error("getItemSku error",e);
+			return ResponseUtils.getFailResponse(ResponseCode.SYS_E_REMOTE_CALL_ERROR);
+		}
+		if(itemSku == null){
+			log.error("itemSku doesn't exist : itemSkuId:  "+ itemSkuId + ", supplierId: " + supplierId);
+			return ResponseUtils.getFailResponse(ResponseCode.BIZ_E_RECORD_NOT_EXIST,"itemSku doesn't exist ");
+		}
+		
+		long result = 0;
+		List<CartItemDO> cartItems = null; // 数据库购物车的商品的列表
+		CartDTO cartDTO = null;
+		
+		try{
+			// 获取已有的购物车列表
+			cartItems = this.userCartItemManager.queryUserCartItems(userId);
+			// 判断购物车是否已经有该商品
+			int index = -1;
+			CartItemDO existingCartItem = null ;
+			for(int i =0,len=cartItems.size() ;i<len;i++){
+				CartItemDO item = cartItems.get(i);
+				if(!item.getIsGift() && item.getItemSkuId().equals(itemSkuId)  && item.getSupplierId().equals(supplierId) ){
+					existingCartItem = item;
+					index = i;
+				}
+			}
+			
+			Date now = new Date();
+			// 拼接购物车商品参数
+			CartItemDO newCartItem = new CartItemDO();
+			//newCartItem.setName(itemSku.getName()); // 商品名称
+			newCartItem.setItemSkuId(itemSkuId); // 
+			newCartItem.setSupplierId(supplierId); // 供应商id
+			newCartItem.setUserId(userId); // 未登入时候无用户id
+			newCartItem.setItemId(itemSku.getItemId());
+			newCartItem.setSubName(itemSku.getName()); // 
+			newCartItem.setSessionId(sessionId); 
+			newCartItem.setOriginPrice(itemSku.getCurrentPrice()); // 市场价
+			if(isWireless){ //如果是无线端  取无线价格 
+				if(itemSku.getWirelessPrice() != null && itemSku.getWirelessPrice() < itemSku.getCurrentPrice()){
+					newCartItem.setUnitPrice(itemSku.getWirelessPrice());
+				}else{
+					newCartItem.setUnitPrice(itemSku.getCurrentPrice()); 
+				}
+			}else{
+				newCartItem.setUnitPrice(itemSku.getCurrentPrice());
+			}
+			newCartItem.setNumber(number);
+			newCartItem.setTotalPrice(newCartItem.getUnitPrice() * number);
+			Long savePrice = (newCartItem.getUnitPrice()==null || newCartItem.getOriginPrice()==null)? null: newCartItem.getOriginPrice() - newCartItem.getUnitPrice();// 节省金额
+			if(savePrice != null){
+				savePrice = savePrice < 0 ? 0 : savePrice; // 防止小于 0
+			}
+			newCartItem.setSavePrice(savePrice);
+			newCartItem.setTotalSave(savePrice == null ? null:savePrice * number);
+			newCartItem.setReturnMoney(itemSku.getReturnMoney()); // 返现金额
+			newCartItem.setReturnTotalMoney(itemSku.getReturnMoney()==null ? null : itemSku.getReturnMoney()*number); // 返现总金额
+			newCartItem.setIsGift(itemSku.getIsGift()); // 是否是礼品
+			newCartItem.setSource(source);  
+			
+			// TODO 积分字段完善 
+			newCartItem.setGmtModified(now);
+			newCartItem.setGmtCreated(now);
+			
+			if(index > -1){  // 如果新添加的商品已经在购物车存在    则更新购物车该商品数量
+				int totalNumber = existingCartItem.getNumber() + number;
+				newCartItem.setId(existingCartItem.getId()); // id赋值用于更新条件
+				newCartItem.setNumber(totalNumber);
+				newCartItem.setTotalPrice(totalNumber * newCartItem.getUnitPrice());
+				newCartItem.setTotalSave(savePrice ==null ? null:savePrice * totalNumber);
+				result = this.userCartItemManager.updateUserCartItem(newCartItem); // 更新数量和总价
+				cartItems.set(index, newCartItem);  // 
+			}else{
+				result = userCartItemManager.addUserCartItem(newCartItem); //如果数据库不存在 则新写入
+				cartItems.add(newCartItem);
+			}
+			
+			List<ItemSkuQTO> promotionQueryList = new ArrayList<ItemSkuQTO>();
+			for(CartItemDO item : cartItems){
+				if(!item.getIsGift()){// 将已有的是礼品的排除在外
+					ItemSkuQTO itemSkuQTO  = new ItemSkuQTO(); 
+					itemSkuQTO.setNumber(item.getNumber()); //
+					itemSkuQTO.setSupplierId(item.getSupplierId()); //
+					itemSkuQTO.setId(item.getItemSkuId()); //
+					itemSkuQTO.setPrice(item.getUnitPrice()); //单价
+					promotionQueryList.add(itemSkuQTO);
+				}
+			}
+			
+			// 根据商品列表、平台   去促销系统查询赠品  优惠金额  和是否包邮
+			List<FavorableInfoDTO> activityList= null; // 促销活动列表
+			activityList = this.promotionManager.getPromotionItems(promotionQueryList);
+			
+			cartDTO = this.cartItemManager.handlePromotionInfo(activityList, cartItems);
+			
+		}catch(TradeException e){
+			log.error("db error: ",e);
+			return ResponseUtils.getFailResponse(e.getErrorCode());
+		}
+		
+		if(cartDTO != null){
+			return ResponseUtils.getSuccessResponse(cartDTO);
+		}else{
+			return ResponseUtils.getSuccessResponse(null);
+		}
+	}
+
+	@Override
+	public String getName() {
+		return ActionEnum.ADD_USER_CART_ITEM.getActionName();
+	}
+	
+	/**
+	 * 查询商品平台获取商品的价格等信息
+	 * @param itemSkuId
+	 * @param supplierID
+	 * @return
+	 */
+	private ItemSkuDTO getItemSku(Long itemSkuId,Long supplierId)throws TradeException{
+		/*
+		 * 测试数据
+		 */
+		return this.itemManager.getItemSku(itemSkuId, supplierId);
+	}
+}	

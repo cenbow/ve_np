@@ -1,0 +1,42 @@
+package com.ve.itemcenter.core.dao.impl;
+
+import java.util.List;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.domain.ItemCommentQTO;
+import com.ve.itemcenter.core.dao.ItemCommentDAO;
+import com.ve.itemcenter.core.domain.ItemCommentDO;
+
+@Service
+public class ItemCommentDAOImpl extends SqlMapClientDaoSupport implements ItemCommentDAO {
+
+	public ItemCommentDAOImpl() {
+		super();
+	}
+
+	public Long addItemComment(ItemCommentDO itemCommentDO) {
+		itemCommentDO.setIsDeleted(DBConst.UN_DELETED.getCode());
+		Long newInsertedId = (Long) getSqlMapClientTemplate().insert("ItemCommentDAO.addItemComment", itemCommentDO);
+		return newInsertedId;
+	}
+
+	public ItemCommentDO getItemComment(Long id) {
+		ItemCommentDO record = (ItemCommentDO) getSqlMapClientTemplate()
+				.queryForObject("ItemCommentDAO.getItemComment", id);
+		return record;
+	}
+
+	public int updateItemComment(ItemCommentDO itemCommentDO) {
+		int rows = getSqlMapClientTemplate().update("ItemCommentDAO.updateItemComment", itemCommentDO);
+		return rows;
+	}
+
+	public List<ItemCommentDO> queryItemCommentByItemId(ItemCommentQTO itemCommentQTO) {
+		List<ItemCommentDO> list = getSqlMapClientTemplate()
+				.queryForList("ItemCommentDAO.queryItemCommentByItemId", itemCommentQTO);
+		return list;
+	}
+}

@@ -1,0 +1,54 @@
+package com.ve.usercenter.core.manager;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.dto.SupplierExtraInfoDTO;
+import com.ve.usercenter.common.dto.SupplierInfoDTO;
+import com.ve.usercenter.core.exception.UserException;
+
+@Service
+public interface SupplierExtraInfoManager {
+
+	public SupplierExtraInfoDTO addSupplierExtraInfo(
+			SupplierExtraInfoDTO supplierExtraDto) throws UserException;
+
+	/**
+	 * 根据id查询供应商的扩展信息
+	 * */
+	public SupplierExtraInfoDTO getSupplierExtraInfoById(Long id)
+			throws UserException;
+
+	/**
+	 * 根据用户id查询供应商的扩展信息
+	 * */
+	public SupplierExtraInfoDTO getSupplierExtraInfoByUserId(Long usreId)
+			throws UserException;
+
+	/**
+	 * 修改供应商的扩展信息
+	 * */
+	public int updateSupplierExtraInfo(SupplierExtraInfoDTO supplierExtraDto)
+			throws UserException;
+
+	/**
+	 * 供应商审核通过
+	 * */
+	public int supplierIdentified(Long userId) throws UserException;
+
+	/**
+	 * 供应商审核失败，退回修改
+	 * */
+	public int supplierFailIdentified(Long userId) throws UserException;
+
+	/**
+	 * 供应商审核忽略
+	 * */
+	public int ignoreSupplierIdentity(Long userId) throws UserException;
+
+	/**
+	 * 供应商入驻
+	 * */
+	public SupplierInfoDTO supplierResident(SupplierInfoDTO supplierInfoDto)
+			throws UserException;
+
+}

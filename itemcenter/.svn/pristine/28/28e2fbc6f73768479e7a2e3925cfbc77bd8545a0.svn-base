@@ -1,0 +1,45 @@
+package com.ve.itemcenter.core.dao;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.domain.ItemImageQTO;
+import com.ve.itemcenter.core.domain.ItemImageDO;
+
+@Service
+public interface ItemImageDAO {
+
+	/**
+	 * 增加商品图片
+	 * 
+	 * @param itemImageDO
+	 * @return
+	 */
+	Long addItemImage(ItemImageDO itemImageDO);
+
+	/**
+	 * 根据id获取商品图片
+	 * 
+	 * @param id
+	 * @return
+	 */
+	ItemImageDO getItemImage(Long id);
+
+	/**
+	 * 更新商品图片信息
+	 * 
+	 * @param itemImageDO
+	 * @return
+	 */
+	int updateItemImage(ItemImageDO itemPropertyDO);
+
+	/**
+	 * 返回商品图片列表
+	 * 
+	 * @param itemImageQTO
+	 * @return
+	 */
+	List<ItemImageDO> queryItemImage(ItemImageQTO itemImageQTO);
+
+}

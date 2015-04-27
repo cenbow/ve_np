@@ -1,0 +1,68 @@
+package com.ve.deliverycenter.core.service.action.express;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.ve.deliverycenter.common.constant.ActionEnum;
+import com.ve.deliverycenter.common.dto.express.ExpressDTO;
+import com.ve.deliverycenter.common.dto.express.ExpressPropertyDTO;
+import com.ve.deliverycenter.core.exception.DeliveryException;
+import com.ve.deliverycenter.core.manager.express.intef.ExpressManager;
+import com.ve.deliverycenter.core.manager.express.intef.ExpressPropertyManager;
+import com.ve.deliverycenter.core.service.DeliveryResponse;
+import com.ve.deliverycenter.core.service.RequestContext;
+import com.ve.deliverycenter.core.service.action.Action;
+import com.ve.deliverycenter.core.util.ResponseUtil;
+
+@Service
+public class AddExpress implements Action {
+	@Resource
+	ExpressManager expressManager;
+	@Resource
+	ExpressPropertyManager expressPropertyManager;
+	@Resource
+	TransactionTemplate transactionTemplate;
+
+	/**
+	 * 新增快递接口
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public DeliveryResponse execute(final RequestContext context)
+			throws DeliveryException {
+		@SuppressWarnings("rawtypes")
+		DeliveryResponse response = transactionTemplate
+				.execute(new TransactionCallback() {
+					@Override
+					public Object doInTransaction(TransactionStatus status) {
+						// 获取参数
+						ExpressDTO expressDTO = (ExpressDTO) context
+								.getRequest().getAttribute("expressDTO");
+						// 新增快递
+						expressManager.addExpress(expressDTO);
+						// 新增快递属性
+						List<ExpressPropertyDTO> expressPropertyDTOList = expressPropertyManager
+								.addExpressProperty(expressDTO
+										.getExpressPropertyDTOList());
+						// 属性设置到快递DTO中
+						expressDTO
+								.setExpressPropertyDTOList(expressPropertyDTOList);
+						// 返回response对象
+						return ResponseUtil.getResponse(expressDTO);
+					}
+				});
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return ActionEnum.ADD_EXPRESS.getActionName();
+	}
+}

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans default-autowire="byName">
+	<!-- Manager配置 -->
+	<bean id="expressManager" class="com.ve.deliverycenter.core.manager.express.impl.ExpressManagerImpl"/>
+	<bean id="expressPropertyManager" class="com.ve.deliverycenter.core.manager.express.impl.ExpressPropertyManagerImpl"/>
+	<bean id="stdFeeManager" class="com.ve.deliverycenter.core.manager.fee.impl.StdFeeManagerImpl"/>
+	<bean id="regionFeeManager" class="com.ve.deliverycenter.core.manager.fee.impl.RegionFeeManagerImpl"/>
+</beans>

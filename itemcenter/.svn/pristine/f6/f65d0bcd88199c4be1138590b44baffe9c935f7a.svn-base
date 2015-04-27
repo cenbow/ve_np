@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="item_property">
+	<typeAlias alias="ItemPropertyDO" type="com.ve.itemcenter.core.domain.ItemPropertyDO" />
+	<typeAlias alias="ItemPropertyDTO"	type="com.ve.itemcenter.common.domain.ItemPropertyDTO" />
+	<typeAlias alias="ItemPropertyQTO"	type="com.ve.itemcenter.common.domain.ItemPropertyQTO" />
+
+	<resultMap class="ItemPropertyDO" id="ItemPropertyDOResult">
+		 <result column="id" property="id"  />
+	    <result column="item_id" property="itemId"  />
+	    <result column="supplier_id" property="supplierId"  />
+	    <result column="property_type" property="propertyType"  />
+	    <result column="key_name" property="keyName"  />
+	    <result column="val" property="val"  />
+	    <result column="val_type" property="valType"  />
+	    <result column="sort" property="sort"  />
+	    <result column="biz_mark" property="bizMark"  />
+	    <result column="img_url" property="imgUrl"  />
+	    <result column="is_deleted" property="isDeleted"  />
+	    <result column="gmt_created" property="gmtCreated"  />
+	    <result column="gmt_modified" property="gmtModified"  />
+	</resultMap>
+
+	<sql id="ItemPropertyFields">
+		 id, item_id, supplier_id, property_type, key_name, val, val_type, sort, biz_mark, img_url, 
+    is_deleted, gmt_created, gmt_modified
+	</sql>
+
+	<insert id="ItemPropertyDAO.addItemProperty" parameterClass="ItemPropertyDO">
+		insert into item_property(
+		<include refid="ItemPropertyFields" />
+		)values(
+		#id#,
+		#itemId#,
+		#supplierId#,
+		#propertyType#,
+		#keyName#,
+		#val#,
+		#valType#,
+		#sort#,
+		#bizMark#,
+		#imgUrl#,
+		#isDeleted#,
+		now(),
+		now()
+		)
+		<selectKey keyProperty="id" resultClass="Long">
+			SELECT
+			LAST_INSERT_ID();
+		</selectKey>
+	</insert>
+
+	<sql id="item_property_Base_Column_List">
+		 id, item_id, supplier_id, property_type, key_name, val, val_type, sort, biz_mark, img_url, 
+    is_deleted, gmt_created, gmt_modified
+	</sql>
+	
+	<update id="ItemPropertyDAO.updateItemProperty" parameterClass="ItemPropertyDO">
+		update item_property
+		set gmt_modified=now()
+		<dynamic prepend="">
+	      <isNotNull prepend="," property="itemId" >
+	        item_id = #itemId#
+	      </isNotNull>
+	      <isNotNull prepend="," property="supplierId" >
+	        supplier_id = #supplierId#
+	      </isNotNull>
+	      <isNotNull prepend="," property="propertyType" >
+	        property_type = #propertyType#
+	      </isNotNull>
+	      <isNotNull prepend="," property="keyName" >
+	        key_name = #keyName#
+	      </isNotNull>
+	      <isNotNull prepend="," property="val" >
+	        val = #val#
+	      </isNotNull>
+	      <isNotNull prepend="," property="valType" >
+	        val_type = #valType#
+	      </isNotNull>
+	      <isNotNull prepend="," property="sort" >
+	        sort = #sort#
+	      </isNotNull>
+	      <isNotNull prepend="," property="bizMark" >
+	        biz_mark = #bizMark#
+	      </isNotNull>
+	      <isNotNull prepend="," property="imgUrl" >
+	        img_url = #imgUrl#
+	      </isNotNull>
+	      <isNotNull prepend="," property="isDeleted" >
+	        is_deleted = #isDeleted#
+	      </isNotNull>
+		</dynamic>
+		where id = #id# and is_deleted=0
+	</update>
+	
+	<select id="ItemPropertyDAO.getItemProperty" resultMap="ItemPropertyDOResult"
+		parameterClass="Long">
+		select
+		<include refid="item_property_Base_Column_List" />
+		from item_property
+		where id = #id# and is_deleted=0
+	</select>
+	
+	<select id="ItemPropertyDAO.queryItemProperty" resultMap="ItemPropertyDOResult"
+		parameterClass="ItemPropertyQTO">
+		select
+		<include refid="item_property_Base_Column_List" />
+		from item_property 
+		<dynamic prepend="where">
+				<isNotNull property="itemId" prepend="and">
+					item_id=#itemId#
+				</isNotNull>
+				<isNotNull property="supplierId" prepend="and">
+					supplier_id=#supplierId#
+				</isNotNull>
+			</dynamic>
+		and is_deleted=0
+		 limit #currentPage#,#pageSize#
+	</select>
+</sqlMap>

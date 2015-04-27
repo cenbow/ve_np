@@ -1,0 +1,51 @@
+package com.ve.deliverycenter.common.constant;
+
+/**
+ * 类RetCodeEnum.java的实现描述：返回结果代码
+ * 
+ * @author dong.dong
+ */
+public enum RetCodeEnum {
+	/**
+	 * 成功
+	 */
+	SUCCESS("200", "success"),
+	/**
+	 * 新增出错
+	 */
+	ADD_ERROR("B001", "add error"),
+	/**
+	 * 修改出错
+	 */
+	UPDATE_ERROR("B002", "update error"),
+	/**
+	 * 删除出错
+	 */
+	DELETE_ERROR("B003", "delete error"),
+	/**
+	 * 系统错误
+	 */
+	SYSTEM_ERROR("S001", "system error"),
+	/**
+	 * 参数为空
+	 */
+	PARAMERTER_NULL("P001", "parameter is null");
+	;
+
+	private String code;
+
+	private String message;
+
+	private RetCodeEnum(String code, String message) {
+		this.code = code;
+		this.message = message;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public String getCode() {
+		return code;
+	}
+}

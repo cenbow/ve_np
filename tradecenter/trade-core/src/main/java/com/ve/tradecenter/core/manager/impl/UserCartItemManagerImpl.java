@@ -1,0 +1,139 @@
+package com.ve.tradecenter.core.manager.impl;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.ve.tradecenter.common.constant.ErrorCode;
+import com.ve.tradecenter.common.constant.ResponseCode;
+import com.ve.tradecenter.common.domain.CartItemDTO;
+import com.ve.tradecenter.core.dao.UserCartItemDao;
+import com.ve.tradecenter.core.domain.CartItemDO;
+import com.ve.tradecenter.core.exception.TradeException;
+import com.ve.tradecenter.core.manager.UserCartItemManager;
+import com.ve.tradecenter.core.service.action.cart.SyncUserCart;
+
+public class UserCartItemManagerImpl implements UserCartItemManager{
+	private static final Logger log = LoggerFactory.getLogger(SyncUserCart.class);
+
+	@Resource
+	private UserCartItemDao userCartItemDao;
+	
+	@Override
+	public Long addUserCartItem(CartItemDO carItemDO)throws TradeException{
+		log.info("enter addUserCartItem ,itemSkuId " + carItemDO.getItemSkuId() + ",userId:  " + carItemDO.getUserId());
+		long result = 0;
+		try{
+			result = this.userCartItemDao.addUserCartItem(carItemDO);
+		}catch(Exception e){
+			throw new TradeException(ResponseCode.SYS_E_DATABASE_ERROR,e.getMessage());
+		}
+		log.info("exit addUserCartItem ,id : "+ result);
+		return result;
+				
+	}
+	
+	@Override
+	public int deleteUserCartItem(CartItemDO cartItemDO)throws TradeException{
+		try{
+			return this.userCartItemDao.deleteUserCartItem(cartItemDO);
+		}catch(Exception e){
+			throw new TradeException(ResponseCode.SYS_E_DATABASE_ERROR,e.getMessage());
+		}
+	}
+
+	@Override
+	public int cleanUserCart(Long userId) throws TradeException{
+		log.info("enter cleanUserCart : " + userId);
+		int result=0;
+		try{
+			result = this.userCartItemDao.cleanUserCart(userId);
+		}catch(Exception e){
+			throw new TradeException(ResponseCode.SYS_E_DATABASE_ERROR,e.getMessage());
+		}
+		log.info("exit cleanUserCart: " + result);
+		return result;
+	}
+
+	@Override
+	public int updateUserCartItem(CartItemDO cartItemDO)
+			throws TradeException {
+		return this.userCartItemDao.updateUserCartItem(cartItemDO);
+	}
+
+	@Override
+	public List<CartItemDO> queryUserCartItems(Long userId)
+			throws TradeException {
+		log.info("enter queryUserCartItems: " + userId);
+		List<CartItemDO> result = this.userCartItemDao.queryUserCartItems(userId);
+		log.info("exit queryUserCartItems ,size: " + result.size());
+		return result;
+	}
+
+	@Override
+	public List<Long> queryUserCartItemId(Long userId) throws TradeException {
+		log.info("enter  queryUserCartItemId:" + userId);
+		List<Long> result = this.userCartItemDao.queryUserCartItemId(userId);
+		log.info("exit queryUserCartItemId: " + result);
+		return result;
+	}
+
+	@Override
+	public int addBatchUserCartItem(List<CartItemDO> cartItemDOList)
+			throws TradeException {
+		log.info("enter addBatchUserCartItem ,size: " + cartItemDOList.size());
+		int result =  this.userCartItemDao.addCartItems(cartItemDOList);
+		log.info("exit addBatchUserCartItem ,result : " + result );
+		return result;
+	}
+	
+	@Override
+    public int deleteGiftItems(Long userId)throws TradeException{
+		log.info("enter deleteGiftItems: "+ userId);
+		int result = 0;
+		try{
+			result = this.userCartItemDao.deleteGiftItems(userId);
+		}catch(Exception e){
+			throw new TradeException(ResponseCode.SYS_E_DATABASE_ERROR);
+		}
+		log.info("exit deleteGiftItems : " + result);
+		return result;
+	}
+
+	
+	@Override
+	public String validateCartItemFields4Add(CartItemDTO cartItem){
+		if(cartItem.getNumber() == null){
+			return "number is null";
+		}else if(cartItem.getNumber() < 1){  // 数量不能小于1
+			return "number must be greater than 0";
+		}else if(cartItem.getItemSkuId() == null){
+			return "itemSkuId is null";
+		}else if(cartItem.getSupplierId() == null){
+			return "supplierId is null";
+		}else if(cartItem.getUserId() == null){
+			return "userId is null";
+		}
+		return null;
+	}
+	
+	@Override
+	public int updateUserCartItemNumber(CartItemDO cartItemDO)throws TradeException{
+		log.info("enter updateUserCartItemNumber : "+ cartItemDO.getId() + " " + cartItemDO.getNumber());
+		int result =0;
+		
+		try{
+			this.userCartItemDao.updateUserCartItemNumber(cartItemDO);
+		}catch(Exception e){
+			throw new TradeException(ResponseCode.SYS_E_DATABASE_ERROR,e);
+		}
+		log.info("exit updateUserCartItemNumber : " + result);
+		
+		return result;
+	}
+
+
+}

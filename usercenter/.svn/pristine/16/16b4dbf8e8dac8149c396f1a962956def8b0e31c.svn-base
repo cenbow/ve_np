@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans    
+            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd    
+            http://www.springframework.org/schema/context    
+            http://www.springframework.org/schema/context/spring-context-3.0.xsd"
+	default-autowire="byName">
+	<bean id="actionHoloder" class="com.ve.usercenter.core.service.action.ActionHolder" />
+	<bean id="appContext" class="com.ve.usercenter.core.service.AppContext" />
+	<bean id="requestDispatcher" class="com.ve.usercenter.core.service.RequestDispatcher">
+		<property name="actionHoloder" ref="actionHoloder" />
+		<property name="appContext" ref="appContext" />
+	</bean>
+	<bean id="userService" class="com.ve.usercenter.core.api.UserServiceImpl" />
+	
+	
+	<bean id="addUserAction"
+		class="com.ve.usercenter.core.service.action.user.AddUserAction" />
+	<bean id="updateEmailAction" class="com.ve.usercenter.core.service.action.user.UpdateEmailAction"/>
+	<bean id="updateMobileAction" class="com.ve.usercenter.core.service.action.user.UpdateMobileAction"/>
+	<bean id="updatePwdAction" class="com.ve.usercenter.core.service.action.user.UpdatePwdAction"/>
+	<bean id="activeUserAction" class="com.ve.usercenter.core.service.action.user.ActiveUserAction" />
+	<bean id="freezeUserAction" class="com.ve.usercenter.core.service.action.user.FreezeUserAction"/>
+	<bean id="moveUserAction" class="com.ve.usercenter.core.service.action.user.MoveUserAction"/>
+	<bean id="deleteUserAction" class="com.ve.usercenter.core.service.action.user.DeleteUserAction"/>
+	<bean id="getUserById" class="com.ve.usercenter.core.service.action.user.GetUserByIdAction"/>
+	<bean id="getUserByName" class="com.ve.usercenter.core.service.action.user.GetUserByNameAction"/>
+	<bean id="getUserByMobile" class="com.ve.usercenter.core.service.action.user.GetUserByMobileAction"/>
+
+</beans>

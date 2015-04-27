@@ -1,0 +1,53 @@
+package com.ve.usercenter.core.service.action.suppliercompany;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.dto.SupplierCompanyDTO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.CompanyManager;
+import com.ve.usercenter.core.service.RequestContext;
+import com.ve.usercenter.core.service.UserRequest;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.service.action.Action;
+import com.ve.usercenter.core.service.action.ActionEnum;
+
+@Service
+public class UpdateCompanyAction implements Action {
+
+	@Resource
+	private CompanyManager companyManager;
+
+	@Override
+	public UserResponse execute(RequestContext context) throws UserException {
+
+		UserResponse response = null;
+		SupplierCompanyDTO supplierCompanyDto = null;
+
+		UserRequest userRequest = context.getRequest();
+		Integer id = (Integer) userRequest.getParam("id");
+		String name = (String) userRequest.getParam("name");
+		int sort = (Integer) userRequest.getParam("sort");
+
+		log.info("id:", id);
+		log.info("name:", name);
+		log.info("sort:", sort);
+
+		try {
+			companyManager.updateCompany(id, name, sort);
+		} catch (UserException e) {
+			return new UserResponse(e.getResponseCode().getCode(),
+					e.getMessage());
+		}
+		response = new UserResponse(true);
+		return response;
+	}
+
+	@Override
+	public String getName() {
+
+		return ActionEnum.UPDATE_SUPPLIER_COMPANY.getActionName();
+	}
+
+}

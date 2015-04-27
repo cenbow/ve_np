@@ -1,0 +1,23 @@
+package com.ve.usercenter.core.service.action;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.service.RequestContext;
+
+
+
+/**
+ * 操作对像基类
+ * @author wujin.zzq
+ *
+ */
+@Service
+public interface Action {
+	
+	@SuppressWarnings("rawtypes")
+	public UserResponse execute(RequestContext context) throws UserException;
+	
+	public String getName();
+}

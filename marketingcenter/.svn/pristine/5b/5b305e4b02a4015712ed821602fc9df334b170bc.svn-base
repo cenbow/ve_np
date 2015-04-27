@@ -1,0 +1,198 @@
+package com.ve.marketingcenter.core.service.action.coupon;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.marketingcenter.common.api.MarketingResponse;
+import com.ve.marketingcenter.common.constant.ActionEnum;
+import com.ve.marketingcenter.common.constant.ReturnCodeEnum;
+import com.ve.marketingcenter.common.constant.coupon.CouponConstant;
+import com.ve.marketingcenter.common.constant.coupon.CouponGrantStatus;
+import com.ve.marketingcenter.common.constant.coupon.CouponStatus;
+import com.ve.marketingcenter.common.constant.coupon.CouponTypeStatus;
+import com.ve.marketingcenter.common.domain.qto.coupon.ActivityCouponQTO;
+import com.ve.marketingcenter.core.domain.ActivityDO;
+import com.ve.marketingcenter.core.domain.coupon.ActivityCoupon;
+import com.ve.marketingcenter.core.domain.coupon.GrantedCoupon;
+import com.ve.marketingcenter.core.domain.coupon.ReceivedCoupon;
+import com.ve.marketingcenter.core.exception.MarketingException;
+import com.ve.marketingcenter.core.manager.coupon.ActivityCouponManager;
+import com.ve.marketingcenter.core.manager.coupon.GrantedCouponManager;
+import com.ve.marketingcenter.core.manager.coupon.ReceivedCouponManager;
+import com.ve.marketingcenter.core.service.RequestContext;
+import com.ve.marketingcenter.core.service.action.Action;
+import com.ve.marketingcenter.core.util.ResponseUtil;
+
+@Service
+public class GrantActivityCoupon implements Action {
+	@Resource
+	ActivityCouponManager activityCouponManager;
+	@Resource
+	GrantedCouponManager grantedCouponManager;
+	@Resource
+	ReceivedCouponManager receivedCouponManager;
+
+	/**
+	 * 发放(领用)营销活动优惠券
+	 */
+	@Override
+	public MarketingResponse execute(RequestContext context)
+			throws MarketingException {
+		// 获取参数
+		Long activityId = (Long) context.getRequest().getParam("activityId");
+		List<Long> userIdList = (List<Long>) context.getRequest().getParam(
+				"userIdList");
+		if (activityId == null) {
+			throw new MarketingException(ReturnCodeEnum.PARAMETER_NULL.getCode(),
+					"activityId is null");
+		}
+		if (userIdList == null) {
+			throw new MarketingException(ReturnCodeEnum.PARAMETER_NULL.getCode(),
+					"userIdList is null");
+		}
+		// 根据活动ID取活动
+		ActivityDO activityDO = activityCouponManager.getActivity(activityId);
+		if (activityDO == null) {
+			throw new MarketingException(ReturnCodeEnum.PARAMETER_NULL.getCode(),
+					"activityId:" + activityId + " not exist");
+		}
+		// 判断活动是否过期
+		Date now = new Date();
+		if (now.compareTo(activityDO.getStartTime()) < 0
+				|| now.compareTo(activityDO.getEndTime()) > 0) {
+			throw new MarketingException(ReturnCodeEnum.PARAMETER_ERROR.getCode(),
+					"activityId:" + activityId + " expired");
+		}
+		// 根据活动ID取未发放的优惠券
+		ActivityCouponQTO activityCouponQTO = new ActivityCouponQTO();
+		activityCouponQTO.setActivityId(activityId);
+		activityCouponQTO.setSuppliedUserId(activityDO.getCreatorUserId());
+		int pageCount = 1;
+		activityCouponQTO.setPageNo(pageCount);
+		activityCouponQTO.setPageSize(CouponConstant.MAX_PAGE_SIZE);
+		activityCouponQTO.setStatus(CouponGrantStatus.UN_GRANTED.getValue());
+		List<ActivityCoupon> activityCouponList = activityCouponManager
+				.queryActivityCoupon(activityCouponQTO);
+		// 校验剩余的优惠券数量是否能够发放
+		if (getUnGrantedCount(activityDO.getCouponType(), activityCouponList,
+				activityCouponQTO).longValue() < userIdList.size()) {
+			throw new MarketingException(ReturnCodeEnum.NO_ENOUGH_COUPON);
+		}
+		List<ActivityCoupon> unGrantedCouponList = new ArrayList<ActivityCoupon>();
+		unGrantedCouponList.addAll(activityCouponList);
+		// 有码的优惠券，循环页数查询未发放的优惠券
+		if (activityDO.getCouponType() == CouponTypeStatus.CODE.getValue()
+				.intValue()) {
+			while (unGrantedCouponList.size() < userIdList.size()) {
+				pageCount++;
+				activityCouponQTO.setPageNo(pageCount);
+				activityCouponList = activityCouponManager
+						.queryActivityCoupon(activityCouponQTO);
+				unGrantedCouponList.addAll(activityCouponList);
+				// 到最后一页了，退出
+				if (activityCouponList.size() < CouponConstant.MAX_PAGE_SIZE) {
+					break;
+				}
+			}
+		}
+		// 循环用户发放优惠券
+		List<ReceivedCoupon> receivedCouponList = new ArrayList<ReceivedCoupon>();
+		List<GrantedCoupon> grantedCouponList = new ArrayList<GrantedCoupon>();
+		for (int userIndex = 0; userIndex < userIdList.size(); userIndex++) {
+			Long couponId = getUnGrantedCouponId(activityDO.getCouponType(),
+					userIndex, unGrantedCouponList);
+			// 先存储已被领用的营销活动券
+			ReceivedCoupon receivedCoupon = new ReceivedCoupon();
+			receivedCoupon.setCouponId(couponId);
+			receivedCoupon.setGrantorUserId(activityDO.getCreatorUserId());
+			receivedCoupon.setReceiverUserId(userIdList.get(userIndex));
+			receivedCoupon.setStatus(CouponStatus.UN_USE.getValue());
+			receivedCoupon.setActivityId(activityDO.getId());
+			receivedCoupon.setEndTime(activityDO.getEndTime());
+			receivedCoupon.setStartTime(activityDO.getStartTime());
+			receivedCouponList.add(receivedCoupon);
+			// 列表达到增量时新增一次
+			if (receivedCouponList.size() % CouponConstant.INCREASE_COUNT == 0) {
+				receivedCouponManager
+						.batchAddReceivedCoupon(receivedCouponList);
+				receivedCouponList.clear();
+			}
+
+			// 在存储已被发放的营销活动券
+			GrantedCoupon grantedCoupon = new GrantedCoupon();
+			grantedCoupon.setCouponId(couponId);
+			grantedCoupon.setGrantorUserId(activityDO.getCreatorUserId());
+			grantedCoupon.setReceiverUserId(userIdList.get(userIndex));
+			grantedCoupon.setStatus(CouponStatus.UN_USE.getValue());
+			grantedCoupon.setActivityId(activityDO.getId());
+			grantedCoupon.setEndTime(activityDO.getEndTime());
+			grantedCoupon.setStartTime(activityDO.getStartTime());
+			grantedCouponList.add(grantedCoupon);
+			// 列表达到增量时新增一次
+			if (grantedCouponList.size() % CouponConstant.INCREASE_COUNT == 0) {
+				grantedCouponManager.batchAddGrantedCoupon(grantedCouponList);
+				grantedCouponList.clear();
+			}
+		}
+		// 剩余的在新增一次
+		if (receivedCouponList.size() > 0) {
+			receivedCouponManager.batchAddReceivedCoupon(receivedCouponList);
+		}
+		// 剩余的在新增一次
+		if (grantedCouponList.size() > 0) {
+			grantedCouponManager.batchAddGrantedCoupon(grantedCouponList);
+		}
+		// 更新优惠券发放数量
+		int row = activityCouponManager.updateGrantedCount(unGrantedCouponList);
+		if (row == 0) {
+			throw new MarketingException(ReturnCodeEnum.UPDATE_ERROR.getCode(),
+					"increaseGrantedCount error");
+		}
+		// 返回response对象
+		return ResponseUtil.getResponse(true);
+	}
+
+	private Long getUnGrantedCouponId(int couponType, int userIndex,
+			List<ActivityCoupon> unGrantedCouponList) {
+		ActivityCoupon selectedCoupon = null;
+		if (couponType == CouponTypeStatus.CODE.getValue().intValue()) {
+			selectedCoupon = unGrantedCouponList.get(userIndex);
+		} else if (couponType == CouponTypeStatus.NO_CODE.getValue().intValue()) {
+			for (ActivityCoupon activityCoupon : unGrantedCouponList) {
+				if (activityCoupon.getGrantedCount().longValue() < activityCoupon
+						.getTotalCount().longValue()) {
+					selectedCoupon = activityCoupon;
+					break;
+				}
+			}
+		}
+		selectedCoupon.setGrantedCount(selectedCoupon.getGrantedCount() + 1);
+		return selectedCoupon.getId();
+	}
+
+	private Long getUnGrantedCount(int couponType,
+			List<ActivityCoupon> activityCouponList,
+			ActivityCouponQTO activityCouponQTO) {
+		Long unGrantedCount = 0l;
+		if (couponType == CouponTypeStatus.CODE.getValue().intValue()) {
+			unGrantedCount = activityCouponQTO.getTotalCount();
+		} else if (couponType == CouponTypeStatus.NO_CODE.getValue().intValue()) {
+			for (ActivityCoupon activityCoupon : activityCouponList) {
+				unGrantedCount += activityCoupon.getTotalCount()
+						- activityCoupon.getGrantedCount();
+			}
+		}
+		return unGrantedCount;
+
+	}
+
+	@Override
+	public String getName() {
+		return ActionEnum.GRANT_ACTIVITY_COUPON.getActionName();
+	}
+}

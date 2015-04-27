@@ -1,0 +1,33 @@
+package com.ve.tradecenter.core.manager;
+
+import java.sql.Date;
+
+import com.ve.tradecenter.core.domain.OrderSeqDO;
+import com.ve.tradecenter.core.exception.TradeException;
+
+public interface OrderSeqManager {
+	
+	/**
+	 * 更新订单一天的流水
+	 * @return
+	 * @throws TradeException
+	 */
+	public Integer updateOrderSeq(Date date)throws TradeException;
+	
+	/**
+	 * 获取订单一天的流水
+	 * @param date
+	 * @return
+	 * @throws TradeException
+	 */
+	public Integer getOrderSeq(Date date)throws TradeException;
+	
+	/**
+	 * 获取订单的一天的流水
+	 * @param date
+	 * @return
+	 * @throws TradesException
+	 */
+	public Integer addOrderSeq(OrderSeqDO orderSeqDO)throws TradeException;
+	
+}

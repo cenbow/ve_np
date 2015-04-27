@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans default-autowire="byName">
+	<!-- <bean id="orderManager" class="com.ve.tradecenter.core.manager.impl.DefaultOrderManager"/> -->
+	
+	<bean id="cartItemManager" class="com.ve.tradecenter.core.manager.impl.CartItemManagerImpl"/>
+	
+	<bean id="userCartItemManager" class="com.ve.tradecenter.core.manager.impl.UserCartItemManagerImpl"/>
+	
+	<bean id="orderManager" class="com.ve.tradecenter.core.manager.impl.OrderManagerImpl"/>
+	
+	<bean id="orderSeqManager" class="com.ve.tradecenter.core.manager.impl.OrderSeqManagerImpl"/>
+	
+	<bean id="paymentNoticeManager" class="com.ve.tradecenter.core.manager.impl.PaymentNoticeManagerImpl"/>
+	
+</beans>

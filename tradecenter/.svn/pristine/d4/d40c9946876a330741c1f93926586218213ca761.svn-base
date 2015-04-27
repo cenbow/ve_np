@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="user_order">
+	
+	<!-- <typeAlias alias="itemBrandQTO"	type="com.ve.itemcenter.common.domain.ItemBrandQTO" /> -->
+
+	<resultMap class="com.ve.tradecenter.core.domain.OrderDO" id="BaseResultMap">
+		<result column="id" jdbcType="BIGINT" property="id" />
+		<result column="order_sn" jdbcType="VARCHAR" property="orderSn" />
+		<result column="type" jdbcType="TINYINT" property="type" />
+		<result column="user_id" jdbcType="BIGINT" property="userId" />
+		<result column="supplier_id" jdbcType="BIGINT" property="supplierId" />
+		<result column="pay_status" jdbcType="TINYINT" property="payStatus" />
+		<result column="total_to_pay" jdbcType="BIGINT" property="totalToPay" />
+		<result column="paid_amount" jdbcType="BIGINT" property="paidAmount" />
+		<result column="delivery_status" jdbcType="TINYINT" property="deliveryStatus" />
+		<result column="order_status" jdbcType="TINYINT" property="orderStatus" />
+		<result column="refund_amount" jdbcType="BIGINT" property="refundAmount" />
+		<result column="address" jdbcType="VARCHAR" property="address" />
+		<result column="address_id" jdbcType="BIGINT" property="addressId" />
+		<result column="tel" jdbcType="VARCHAR" property="tel" />
+		<result column="mobile" jdbcType="VARCHAR" property="mobile" />
+		<result column="consignee" jdbcType="VARCHAR" property="consignee" />
+		<result column="item_total_price" jdbcType="BIGINT" property="itemTotalPrice" />
+		<result column="discount_price" jdbcType="BIGINT" property="discountPrice" />
+		<result column="delivery_fee" jdbcType="BIGINT" property="deliveryFee" />
+		<result column="delivery_id" jdbcType="INTEGER" property="deliveryId" />
+		<result column="payment_id" jdbcType="TINYINT" property="paymentId" />
+		<result column="payment_fee" jdbcType="BIGINT" property="paymentFee" />
+		<result column="return_total_money" jdbcType="BIGINT" property="returnTotalMoney" />
+		<result column="after_sale" jdbcType="TINYINT" property="afterSale" />
+		<result column="refund_money" jdbcType="BIGINT" property="refundMoney" />
+		<result column="bank_code" jdbcType="VARCHAR" property="bankCode" />
+		<result column="user_name" jdbcType="VARCHAR" property="userName" />
+		<result column="refund_status" jdbcType="TINYINT" property="refundStatus" />
+		<result column="retake_status" jdbcType="TINYINT" property="retakeStatus" />
+		<result column="coupon_mobile" jdbcType="VARCHAR" property="couponMobile" />
+		<result column="is_cod" jdbcType="TINYINT" property="isCod" />
+		<result column="invoice_status" jdbcType="TINYINT" property="invoiceStatus" />
+		<result column="invoice_class" jdbcType="TINYINT" property="invoiceClass" />
+		<result column="invoice_type" jdbcType="TINYINT" property="invoiceType" />
+		<result column="invoice_title" jdbcType="VARCHAR" property="invoiceTitle" />
+		<result column="coupon_discount" jdbcType="BIGINT" property="couponDiscount" />
+		<result column="promotion_discount" jdbcType="BIGINT"
+			property="promotionDiscount" />
+		<result column="gmt_created" jdbcType="DATE" property="gmtCreated" />
+		<result column="gmt_modified" jdbcType="DATE" property="gmtModified" />
+		<result column="is_active" jdbcType="TINYINT" property="isActive" />
+		<result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+		<result column="user_memo" jdbcType="VARCHAR" property="userMemo" />
+		<result column="seller_memo" jdbcType="VARCHAR" property="sellerMemo" />
+		<result column="admin_memo" jdbcType="VARCHAR" property="adminMemo" />
+		<result column="extra_status" jdbcType="TINYINT" property="extraStatus" />
+		<result column="port" jdbcType="TINYINT" property="port" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, order_sn, type, user_id, supplier_id, pay_status,
+		total_to_pay,
+		paid_amount,
+		delivery_status, order_status, refund_amount,
+		address, address_id, tel, mobile,
+		consignee,
+		item_total_price,
+		discount_price, delivery_fee, delivery_id, payment_id, payment_fee,
+		return_total_money, after_sale, refund_money, bank_code, user_name,
+		refund_status,
+		retake_status, coupon_mobile, is_cod, invoice_status,
+		invoice_class, invoice_type,
+		invoice_title, coupon_discount,
+		promotion_discount, gmt_created,
+		gmt_modified, is_active,
+		is_delete,
+		userMemo, seller_memo, admin_memo, extra_status, port
+	</sql>
+
+	<select id="getOrder" parameterClass="com.ve.tradecenter.core.domain.OrderDO" resultMap="BaseResultMap">
+		select
+		<include refid="user_order.Base_Column_List" />
+		from user_order
+		where user_id = #userId#  and  id = #id# and is_delete = 0
+	</select>
+	
+	<select id="getActiveOrder" parameterClass="com.ve.tradecenter.core.domain.OrderDO" resultMap="BaseResultMap">
+		select
+		<include refid="user_order.Base_Column_List" />
+		from user_order
+		where user_id = #userId# and id = #id# and is_delete = 0 and is_active = 1;
+	</select>
+
+	<insert id="addOrder" parameterClass="com.ve.tradecenter.core.domain.OrderDO">
+		insert into user_order
+		<dynamic prepend="(">
+			<isNotNull prepend="," property="id">
+				id
+			</isNotNull>
+			<isNotNull prepend="," property="orderSn">
+				order_sn
+			</isNotNull>
+			<isNotNull prepend="," property="type">
+				type
+			</isNotNull>
+			<isNotNull prepend="," property="userId">
+				user_id
+			</isNotNull>
+			<isNotNull prepend="," property="supplierId">
+				supplier_id
+			</isNotNull>
+			<isNotNull prepend="," property="payStatus">
+				pay_status
+			</isNotNull>
+			<isNotNull prepend="," property="totalToPay">
+				total_to_pay
+			</isNotNull>
+			<isNotNull prepend="," property="paidAmount">
+				paid_amount
+			</isNotNull>
+			<isNotNull prepend="," property="deliveryStatus">
+				delivery_status
+			</isNotNull>
+			<isNotNull prepend="," property="orderStatus">
+				order_status
+			</isNotNull>
+			<isNotNull prepend="," property="refundAmount">
+				refund_amount
+			</isNotNull>
+			<isNotNull prepend="," property="address">
+				address
+			</isNotNull>
+			<isNotNull prepend="," property="addressId">
+				address_id
+			</isNotNull>
+			<isNotNull prepend="," property="tel">
+				tel
+			</isNotNull>
+			<isNotNull prepend="," property="mobile">
+				mobile
+			</isNotNull>
+			<isNotNull prepend="," property="consignee">
+				consignee
+			</isNotNull>
+			<isNotNull prepend="," property="itemTotalPrice">
+				item_total_price
+			</isNotNull>
+			<isNotNull prepend="," property="discountPrice">
+				discount_price
+			</isNotNull>
+			<isNotNull prepend="," property="deliveryFee">
+				delivery_fee
+			</isNotNull>
+			<isNotNull prepend="," property="deliveryId">
+				delivery_id
+			</isNotNull>
+			<isNotNull prepend="," property="paymentId">
+				payment_id
+			</isNotNull>
+			<isNotNull prepend="," property="paymentFee">
+				payment_fee
+			</isNotNull>
+			<isNotNull prepend="," property="returnTotalMoney">
+				return_total_money
+			</isNotNull>
+			<isNotNull prepend="," property="afterSale">
+				after_sale
+			</isNotNull>
+			<isNotNull prepend="," property="refundMoney">
+				refund_money
+			</isNotNull>
+			<isNotNull prepend="," property="bankCode">
+				bank_code
+			</isNotNull>
+			<isNotNull prepend="," property="userName">
+				user_name
+			</isNotNull>
+			<isNotNull prepend="," property="refundStatus">
+				refund_status
+			</isNotNull>
+			<isNotNull prepend="," property="retakeStatus">
+				retake_status
+			</isNotNull>
+			<isNotNull prepend="," property="couponMobile">
+				coupon_mobile
+			</isNotNull>
+			<isNotNull prepend="," property="isCod">
+				is_cod
+			</isNotNull>
+			<isNotNull prepend="," property="invoiceStatus">
+				invoice_status
+			</isNotNull>
+			<isNotNull prepend="," property="invoiceClass">
+				invoice_class
+			</isNotNull>
+			<isNotNull prepend="," property="invoiceType">
+				invoice_type
+			</isNotNull>
+			<isNotNull prepend="," property="invoiceTitle">
+				invoice_title
+			</isNotNull>
+			<isNotNull prepend="," property="couponDiscount">
+				coupon_discount
+			</isNotNull>
+			<isNotNull prepend="," property="promotionDiscount">
+				promotion_discount
+			</isNotNull>
+			<isNotNull prepend="," property="gmtCreated">
+				gmt_created
+			</isNotNull>
+			<isNotNull prepend="," property="gmtModified">
+				gmt_modified
+			</isNotNull>
+			<isNotNull prepend="," property="isActive">
+				is_active
+			</isNotNull>
+			<isNotNull prepend="," property="isDelete">
+				is_delete
+			</isNotNull>
+			<isNotNull prepend="," property="userMemo">
+				userMemo
+			</isNotNull>
+			<isNotNull prepend="," property="sellerMemo">
+				seller_memo
+			</isNotNull>
+			<isNotNull prepend="," property="adminMemo">
+				admin_memo
+			</isNotNull>
+			<isNotNull prepend="," property="extraStatus">
+				extra_status
+			</isNotNull>
+			<isNotNull prepend="," property="port">
+				port
+			</isNotNull>
+			)
+		</dynamic>
+		values
+		<dynamic prepend="(">
+			<isNotNull prepend="," property="id">
+				#id:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="orderSn">
+				#orderSn:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="," property="type">
+				#type:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="userId">
+				#userId:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="supplierId">
+				#supplierId:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="payStatus">
+				#payStatus:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="totalToPay">
+				#totalToPay:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="paidAmount">
+				#paidAmount:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="deliveryStatus">
+				#deliveryStatus:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="orderStatus">
+				#orderStatus:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="refundAmount">
+				#refundAmount:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="address">
+				#address:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="," property="addressId">
+				#addressId:Long#
+			</isNotNull>
+			<isNotNull prepend="," property="tel">
+				#tel:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="," property="mobile">
+				#mobile:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="," property="consignee">
+				#consignee:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="," property="itemTotalPrice">
+				#itemTotalPrice:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="discountPrice">
+				#discountPrice:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="deliveryFee">
+				#deliveryFee:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="deliveryId">
+				#deliveryId:INTEGER#
+			</isNotNull>
+			<isNotNull prepend="," property="paymentId">
+				#paymentId:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="paymentFee">
+				#paymentFee:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="returnTotalMoney">
+				#returnTotalMoney:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="afterSale">
+				#afterSale:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="refundMoney">
+				#refundMoney:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="bankCode">
+				#bankCode:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="," property="userName">
+				#userName:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="," property="refundStatus">
+				#refundStatus:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="retakeStatus">
+				#retakeStatus:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="couponMobile">
+				#couponMobile:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="," property="isCod">
+				#isCod:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="invoiceStatus">
+				#invoiceStatus:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="invoiceClass">
+				#invoiceClass:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="invoiceType">
+				#invoiceType:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="invoiceTitle">
+				#invoiceTitle:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="," property="couponDiscount">
+				#couponDiscount:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="promotionDiscount">
+				#promotionDiscount:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="gmtCreated">
+				#gmtCreated:DATE#
+			</isNotNull>
+			<isNotNull prepend="," property="gmtModified">
+				#gmtModified:DATE#
+			</isNotNull>
+			<isNotNull prepend="," property="isActive">
+				#isActive:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="isDelete">
+				#isDelete:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="userMemo">
+				#userMemo:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="," property="sellerMemo">
+				#sellerMemo:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="," property="adminMemo">
+				#adminMemo:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="," property="extraStatus">
+				#extraStatus:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="port">
+				#port:TINYINT#
+			</isNotNull>
+			)
+		</dynamic>
+		<selectKey resultClass="long" keyProperty="id">
+			select
+			LAST_INSERT_ID() as value
+		</selectKey>
+	</insert>
+
+	<update id="cancelOrder" parameterClass="com.ve.tradecenter.core.domain.OrderDO">
+		update user_order set
+			is_active = 0 where user_id = #userId:BIGINT# and id= #id:BIGINT#
+	</update>
+
+	<update id="deleteOrder" parameterClass="com.ve.tradecenter.core.domain.OrderDO">
+		update user_order set is_delete = 1 
+			where user_id = #userId:BIGINT# and id= #id:BIGINT# and is_active = 0;
+	</update>
+
+	<update id="updateConsigneeInfo" parameterClass="com.ve.tradecenter.core.domain.OrderDO">
+		update user_order
+		<dynamic prepend="set">
+			<isNotNull prepend="," property="consignee">
+				consignee =
+				#consignee:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="," property="mobile">
+				mobile = #mobile:VARCHAR#"
+			</isNotNull>
+			<isNotNull prepend="," property="address">
+				address =
+				#address:VARCHAR#"
+			</isNotNull>
+		</dynamic>
+		where user_id = #userId:BIGINT# and id= #id:BIGINT#
+	</update>
+
+	<update id="updateOrderMemo">
+		update user_order
+		<dynamic prepend="set">
+			<isNotNull prepend="," property="memo">
+				memo = #memo:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="sellerMemo">
+				selle_memo =
+				#sellerMemo:VARCHAR#"
+			</isNotNull>
+			<isNotNull prepend="," property="adminMemo">
+				admin_memo =
+				#adminMemo:VARCHAR#"
+			</isNotNull>
+		</dynamic>
+		where user_id = #userId:BIGINT# and id= #id:BIGINT#
+	</update>
+	
+	<update id="confirmArrival" parameterClass="com.ve.tradecenter.core.domain.OrderDO">
+		update user_order
+		<dynamic prepend="set">
+			<isNotNull prepend="," property="deliveryStatus">
+				delivery_status = #deliveryStatus:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="gmtModified">
+				gmt_modified = #gmtModified:BIGINT#
+			</isNotNull>
+		</dynamic>
+		where user_id = #userId:BIGINT# and id= #id:BIGINT# and is_active = 1 and is_delete = 0
+	</update>
+	
+	<update id="deliveryOrder" parameterClass="com.ve.tradecenter.core.domain.OrderDO">
+		update user_order
+		<dynamic prepend="set">
+			<isNotNull prepend="," property="deliveryStatus">
+				delivery_status = #deliveryStatus:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="gmtModified">
+				gmt_modified = #gmtModified:DATETIME#
+			</isNotNull>
+		</dynamic>
+		where user_id = #userId:BIGINT# and id= #id:BIGINT#  and is_active = 1 and is_delete = 0 
+	</update>
+	
+
+</sqlMap>

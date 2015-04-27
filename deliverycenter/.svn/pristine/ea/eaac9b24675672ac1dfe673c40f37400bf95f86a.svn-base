@@ -1,0 +1,23 @@
+package com.ve.deliverycenter.core.manager.express.intef;
+
+import java.util.List;
+
+import com.ve.deliverycenter.common.dto.express.ExpressDTO;
+import com.ve.deliverycenter.common.qto.express.ExpressQTO;
+import com.ve.deliverycenter.core.domain.express.Express;
+import com.ve.deliverycenter.core.exception.DeliveryException;
+
+public interface ExpressManager {
+
+	public ExpressDTO addExpress(ExpressDTO expressDTO);
+
+	public int updateExpress(ExpressDTO expressDTO);
+
+	public int deleteExpress(int id);
+
+	public List<ExpressDTO> queryExpress(ExpressQTO expressQTO)
+			throws DeliveryException;
+
+	public Express getExpress(int id);
+
+}

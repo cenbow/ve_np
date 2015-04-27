@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="user_cart">
+	<resultMap id="BaseResultMap" class="com.ve.tradecenter.core.domain.CartItemDO">
+		<result column="id" property="id" jdbcType="BIGINT" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="item_sku_id" property="itemSkuId" jdbcType="BIGINT" />
+		<result column="supplier_id" property="supplierId" jdbcType="BIGINT" />
+		<result column="user_id" property="userId" jdbcType="BIGINT" />
+		<result column="item_id" property="itemId" jdbcType="BIGINT" />
+		<result column="sub_name" property="subName" jdbcType="VARCHAR" />
+		<result column="session_id" property="sessionId" jdbcType="VARCHAR" />
+		<result column="origin_price" property="originPrice" jdbcType="BIGINT" />
+		<result column="unit_price" property="unitPrice" jdbcType="BIGINT" />
+		<result column="number" property="number" jdbcType="INTEGER" />
+		<result column="total_price" property="totalPrice" jdbcType="BIGINT" />
+		<result column="save_price" property="savePrice" jdbcType="BIGINT" />
+		<result column="total_save" property="totalSave" jdbcType="BIGINT" />
+		<result column="return_money" property="returnMoney" jdbcType="BIGINT" />
+		<result column="return_total_money" property="returnTotalMoney"
+			jdbcType="BIGINT" />
+		<result column="return_score" property="returnScore" jdbcType="INTEGER" />
+		<result column="return_total_score" property="returnTotalScore"
+			jdbcType="INTEGER" />
+		<result column="return_point" property="returnPoint" jdbcType="INTEGER" />
+		<result column="return_total_point" property="returnTotalPoint"
+			jdbcType="INTEGER" />
+		<result column="is_gift" property="isGift" jdbcType="TINYINT" />
+		<result column="source" property="source" jdbcType="TINYINT" />
+		<result column="gmt_created" property="gmtCreated" jdbcType="DATE" />
+		<result column="gmt_modified" property="gmtModified" jdbcType="DATE" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, name, item_sku_id, supplier_id, user_id, item_id,
+		sub_name,
+		session_id, origin_price,
+		unit_price, number, total_price,
+		save_price, total_save, return_money,
+		return_total_money,
+		return_score,
+		return_total_score, return_point, return_total_point, is_gift, source,
+		gmt_created, gmt_modified
+	</sql>
+
+	<!-- <insert id="insert" parameterClass="com.ve.model.UserCartItem" > insert 
+		into user_cart (id, name, item_sku_id, supplier_id, user_id, item_id, sub_name, 
+		session_id, origin_price, unit_price, number, total_price, save_price, total_save, 
+		return_money, return_total_money, return_score, return_total_score, return_point, 
+		return_total_point, is_gift, source, gmt_created, gmt_modified) values (#id:BIGINT#, 
+		#name:VARCHAR#, #itemSkuId:BIGINT#, #supplierId:BIGINT#, #userId:BIGINT#, 
+		#itemId:BIGINT#, #subName:VARCHAR#, #sessionId:VARCHAR#, #originPrice:BIGINT#, 
+		#unitPrice:BIGINT#, #number:INTEGER#, #totalPrice:BIGINT#, #savePrice:BIGINT#, 
+		#totalSave:BIGINT#, #returnMoney:BIGINT#, #returnTotalMoney:BIGINT#, #returnScore:INTEGER#, 
+		#returnTotalScore:INTEGER#, #returnPoint:INTEGER#, #returnTotalPoint:INTEGER#, 
+		#isGift:TINYINT#, #source:TINYINT#, #gmtCreated:DATE#, #gmtModified:DATE#) 
+		</insert> -->
+
+	<insert id="addUserCartItem" parameterClass="com.ve.tradecenter.core.domain.CartItemDO">
+		insert into user_cart
+		<dynamic prepend="(">
+			<isNotNull prepend="," property="id">
+				id
+			</isNotNull>
+			<isNotNull prepend="," property="name">
+				name
+			</isNotNull>
+			<isNotNull prepend="," property="itemSkuId">
+				item_sku_id
+			</isNotNull>
+			<isNotNull prepend="," property="supplierId">
+				supplier_id
+			</isNotNull>
+			<isNotNull prepend="," property="userId">
+				user_id
+			</isNotNull>
+			<isNotNull prepend="," property="itemId">
+				item_id
+			</isNotNull>
+			<isNotNull prepend="," property="subName">
+				sub_name
+			</isNotNull>
+			<isNotNull prepend="," property="sessionId">
+				session_id
+			</isNotNull>
+			<isNotNull prepend="," property="originPrice">
+				origin_price
+			</isNotNull>
+			<isNotNull prepend="," property="unitPrice">
+				unit_price
+			</isNotNull>
+			<isNotNull prepend="," property="number">
+				number
+			</isNotNull>
+			<isNotNull prepend="," property="totalPrice">
+				total_price
+			</isNotNull>
+			<isNotNull prepend="," property="savePrice">
+				save_price
+			</isNotNull>
+			<isNotNull prepend="," property="totalSave">
+				total_save
+			</isNotNull>
+			<isNotNull prepend="," property="returnMoney">
+				return_money
+			</isNotNull>
+			<isNotNull prepend="," property="returnTotalMoney">
+				return_total_money
+			</isNotNull>
+			<isNotNull prepend="," property="returnScore">
+				return_score
+			</isNotNull>
+			<isNotNull prepend="," property="returnTotalScore">
+				return_total_score
+			</isNotNull>
+			<isNotNull prepend="," property="returnPoint">
+				return_point
+			</isNotNull>
+			<isNotNull prepend="," property="returnTotalPoint">
+				return_total_point
+			</isNotNull>
+			<isNotNull prepend="," property="isGift">
+				is_gift
+			</isNotNull>
+			<isNotNull prepend="," property="source">
+				source
+			</isNotNull>
+			<isNotNull prepend="," property="gmtCreated">
+				gmt_created
+			</isNotNull>
+			<isNotNull prepend="," property="gmtModified">
+				gmt_modified
+			</isNotNull>
+			)
+		</dynamic>
+		values
+		<dynamic prepend="(">
+			<isNotNull prepend="," property="id">
+				#id:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="name">
+				#name:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="," property="itemSkuId">
+				#itemSkuId:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="supplierId">
+				#supplierId:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="userId">
+				#userId:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="itemId">
+				#itemId:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="subName">
+				#subName:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="," property="sessionId">
+				#sessionId:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="," property="originPrice">
+				#originPrice:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="unitPrice">
+				#unitPrice:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="number">
+				#number:INTEGER#
+			</isNotNull>
+			<isNotNull prepend="," property="totalPrice">
+				#totalPrice:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="savePrice">
+				#savePrice:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="totalSave">
+				#totalSave:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="returnMoney">
+				#returnMoney:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="returnTotalMoney">
+				#returnTotalMoney:BIGINT#
+			</isNotNull>
+			<isNotNull prepend="," property="returnScore">
+				#returnScore:INTEGER#
+			</isNotNull>
+			<isNotNull prepend="," property="returnTotalScore">
+				#returnTotalScore:INTEGER#
+			</isNotNull>
+			<isNotNull prepend="," property="returnPoint">
+				#returnPoint:INTEGER#
+			</isNotNull>
+			<isNotNull prepend="," property="returnTotalPoint">
+				#returnTotalPoint:INTEGER#
+			</isNotNull>
+			<isNotNull prepend="," property="isGift">
+				#isGift:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="source">
+				#source:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="gmtCreated">
+				#gmtCreated:DATE#
+			</isNotNull>
+			<isNotNull prepend="," property="gmtModified">
+				#gmtModified:DATE#
+			</isNotNull>
+			)
+		</dynamic>
+
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			SELECT LAST_INSERT_ID() AS value
+		</selectKey>
+	
+	</insert>
+
+	<delete id="deleteUserCartItem"  parameterClass="com.ve.tradecenter.core.domain.CartItemDO">
+		delete from user_cart
+		where id = #id# and 
+		user_id =#userId#
+	</delete>
+	
+	<delete id="cleanUserCart" parameterClass="long">
+		delete from user_cart
+		where user_id = #userId# 
+	</delete>
+	
+	 <update id="updateCartItem" parameterClass="com.ve.tradecenter.core.domain.CartItemDO">
+		update shopping_cart 
+			set number = #number:Integer#,
+				total_price = total_price * #number:Integer#,
+				total_save = save_price * #number:Integer#,
+				return_total_money = return_money * #number:Integer#,
+				return_total_score = return_score * #number:Integer#,
+				return_total_point = return_point * #number:Integer#,
+				gmt_modified = #gmtModified:DATE#
+				where id = #id:BIGINT#
+	</update>
+	
+	<select id="queryUserCartItems" parameterClass="Long" resultClass="com.ve.tradecenter.core.domain.CartItemDO">
+		select 		
+		<include refid="user_cart.Base_Column_List" />
+		from user_cart where user_id = #value# order by gmt_created desc ;
+	</select>
+	
+	<select id="queryUserCartItemId" resultClass="Long" parameterClass="Long">      
+    	 select distinct(item_sku_id) from user_cart where user_id = #value#
+	</select>
+	
+	<!-- 移除用户购物车中的赠品  -->
+  	<delete id="deleteGiftItems" parameterClass="Long">
+  		delete from user_cart
+		where user_id = #value# and is_gift = 1
+  	</delete>
+  	
+</sqlMap>

@@ -1,0 +1,30 @@
+package com.ve.usercenter.core.dao;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.core.domain.SupplierExtraInfoDO;
+
+@Service
+public interface SupplierExtraInfoDao {
+
+	Long addSupplierExtraInfo(SupplierExtraInfoDO supplierExtraDo);
+
+	SupplierExtraInfoDO getSupplierExtraInfoById(Long id);
+
+	SupplierExtraInfoDO getSupplierExtraInfoByUserId(Long userId);
+
+	int updateSupplierExtraInfo(SupplierExtraInfoDO supplierExtraDo);
+
+	// 供应商实名认证通过
+	int supplierIdentified(Long userId);
+
+	// 供应商实名认证不通过
+	int supplierFailIdentified(Long userId);
+
+	int ignoreSupplierIdentity(Long userId);
+
+	int delSupplierExtraInfoByUserId(Long userId);
+
+	int restoreSupplierExtraInfoByUserId(Long userId);
+
+}

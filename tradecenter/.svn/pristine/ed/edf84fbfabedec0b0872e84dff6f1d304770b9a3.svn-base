@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="payment_notice" >
+  <resultMap id="BaseResultMap" class="com.ve.tradecenter.core.domain.PaymentNoticeDO" >
+    <result column="id" property="id" jdbcType="BIGINT" />
+    <result column="trade_no" property="tradeNo" jdbcType="VARCHAR" />
+    <result column="time_pay" property="timePay" jdbcType="DATE" />
+    <result column="order_id" property="orderId" jdbcType="BIGINT" />
+    <result column="order_sn" property="orderSn" jdbcType="VARCHAR" />
+    <result column="is_paid" property="isPaid" jdbcType="TINYINT" />
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="payment_id" property="paymentId" jdbcType="TINYINT" />
+    <result column="bank_code" property="bankCode" jdbcType="VARCHAR" />
+    <result column="money" property="money" jdbcType="BIGINT" />
+    <result column="out_trade_no" property="outTradeNo" jdbcType="VARCHAR" />
+    <result column="gmt_created" property="gmtCreated" jdbcType="DATE" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="DATE" />
+    <result column="is_delete" property="isDelete" jdbcType="TINYINT" />
+    <result column="supplier_id" property="supplierId" jdbcType="BIGINT" />
+  </resultMap>
+  
+  
+  <sql id="Base_Column_List" >
+    id, trade_no, time_pay, order_id, order_sn, is_paid, user_id, user_name, payment_id, 
+    bank_code, money, out_trade_no, gmt_created, gmt_modified,is_delete,supplier_id
+  </sql>
+  
+  <insert id="addPaymentNotice" parameterClass="com.ve.tradecenter.core.domain.PaymentNoticeDO" >
+    insert into payment_notice
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        id
+      </isNotNull>
+      <isNotNull prepend="," property="tradeNo" >
+        trade_no
+      </isNotNull>
+      <isNotNull prepend="," property="timePay" >
+        time_pay
+      </isNotNull>
+      <isNotNull prepend="," property="orderId" >
+        order_id
+      </isNotNull>
+      <isNotNull prepend="," property="orderSn" >
+        order_sn
+      </isNotNull>
+      <isNotNull prepend="," property="isPaid" >
+        is_paid
+      </isNotNull>
+      <isNotNull prepend="," property="userId" >
+        user_id
+      </isNotNull>
+      <isNotNull prepend="," property="userName" >
+        user_name
+      </isNotNull>
+      <isNotNull prepend="," property="paymentId" >
+        payment_id
+      </isNotNull>
+      <isNotNull prepend="," property="bankCode" >
+        bank_code
+      </isNotNull>
+      <isNotNull prepend="," property="money" >
+        money
+      </isNotNull>
+      <isNotNull prepend="," property="outTradeNo" >
+        out_trade_no
+      </isNotNull>
+      <isNotNull prepend="," property="gmtCreated" >
+        gmt_created
+      </isNotNull>
+      <isNotNull prepend="," property="gmtModified" >
+        gmt_modified
+      </isNotNull>
+      <isNotNull prepend="," property="isDelete" >
+      	is_delete
+      </isNotNull>
+      )
+    </dynamic>
+    values
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        #id:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="tradeNo" >
+        #tradeNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="timePay" >
+        #timePay:DATE#
+      </isNotNull>
+      <isNotNull prepend="," property="orderId" >
+        #orderId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="orderSn" >
+        #orderSn:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="isPaid" >
+        #isPaid:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="userId" >
+        #userId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="userName" >
+        #userName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="paymentId" >
+        #paymentId:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="bankCode" >
+        #bankCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="money" >
+        #money:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="outTradeNo" >
+        #outTradeNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="gmtCreated" >
+        #gmtCreated:DATE#
+      </isNotNull>
+      <isNotNull prepend="," property="gmtModified" >
+        #gmtModified:DATE#
+      </isNotNull>
+      <isNotNull prepend="," property="isDelete" >
+        #isDelete:TINYINT#
+      </isNotNull>
+      )
+    </dynamic>
+  </insert>
+  
+  <!-- <update id="updatePaymentNotice" parameterClass="com.ve.tradecenter.core.domain.PaymentNoticeDO" >
+    update payment_notice
+    <dynamic prepend="set" >
+      <isNotNull prepend="," property="tradeNo" >
+        trade_no = #tradeNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="timePay" >
+        time_pay = #timePay:DATE#
+      </isNotNull>
+      <isNotNull prepend="," property="orderId" >
+        order_id = #orderId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="orderSn" >
+        order_sn = #orderSn:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="isPaid" >
+        is_paid = #isPaid:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="userId" >
+        user_id = #userId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="userName" >
+        user_name = #userName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="paymentId" >
+        payment_id = #paymentId:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="bankCode" >
+        bank_code = #bankCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="money" >
+        money = #money:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="outTradeNo" >
+        out_trade_no = #outTradeNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="gmtCreated" >
+        gmt_created = #gmtCreated:DATE#
+      </isNotNull>
+      <isNotNull prepend="," property="gmtModified" >
+        gmt_modified = #gmtModified:DATE#
+      </isNotNull>
+    </dynamic>
+    where id = #id:BIGINT#
+  </update> -->
+  
+  <!-- <update id="updateByPrimaryKey" parameterClass="com.ve.tradecenter.core.domain.PaymentNoticeDO" >
+    update payment_notice
+    set trade_no = #tradeNo:VARCHAR#,
+      time_pay = #timePay:DATE#,
+      order_id = #orderId:BIGINT#,
+      order_sn = #orderSn:VARCHAR#,
+      is_paid = #isPaid:TINYINT#,
+      user_id = #userId:BIGINT#,
+      user_name = #userName:VARCHAR#,
+      payment_id = #paymentId:TINYINT#,
+      bank_code = #bankCode:VARCHAR#,
+      money = #money:BIGINT#,
+      out_trade_no = #outTradeNo:VARCHAR#,
+      gmt_created = #gmtCreated:DATE#,
+      gmt_modified = #gmtModified:DATE#
+    where id = #id:BIGINT#
+  </update> -->
+  
+  <select id="getPaymentNoticeByTradeNo" parameterClass="com.ve.tradecenter.core.domain.PaymentNoticeDO" resultMap="BaseResultMap">
+  	 select 
+	    <include refid="payment_notice.Base_Column_List" />
+		from payment_notice where supplier_id = #supplierId# and trade_no = #tradeNo# and is_delete = 0
+  </select>
+  
+  <update id="paySuccess">
+  	update payment_notice
+  	<dynamic prepend="set" >
+  		 <isNotNull prepend="," property="timePay" >
+        	time_pay = #timePay:DATE#
+      	</isNotNull>
+      	<isNotNull prepend="," property="outTradeNo" >
+        	out_trade_no = #outTradeNo:VARCHAR#
+      	</isNotNull>
+  		<isNotNull prepend="," property="gmtModified" >
+        	gmt_modified = #gmtModified:DATE#
+      	</isNotNull>
+  	</dynamic>
+  	from delivery_notice where trade_no = #tradeNo# and is_delete = 0
+
+  </update>
+  
+</sqlMap>

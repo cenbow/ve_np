@@ -1,0 +1,44 @@
+package com.ve.itemcenter.core.dao.impl;
+
+import java.util.List;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.domain.ItemCategoryQTO;
+import com.ve.itemcenter.core.dao.ItemCategoryDAO;
+import com.ve.itemcenter.core.domain.ItemCategoryDO;
+
+@Service
+public class ItemCategoryDAOImpl extends SqlMapClientDaoSupport implements ItemCategoryDAO {
+
+	public ItemCategoryDAOImpl() {
+		super();
+	}
+
+	public Integer addItemCategory(ItemCategoryDO itemCategoryDO) {
+		itemCategoryDO.setIsDeleted(DBConst.UN_DELETED.getCode());
+		Integer newInsertedId = (Integer) getSqlMapClientTemplate()
+				.insert("ItemCategoryDAO.addItemCategory", itemCategoryDO);
+		return newInsertedId;
+	}
+
+	public ItemCategoryDO getItemCategory(Integer id) {
+		ItemCategoryDO record = (ItemCategoryDO) getSqlMapClientTemplate()
+				.queryForObject("ItemCategoryDAO.getItemCategory", id);
+		return record;
+	}
+
+	public int updateItemCategory(ItemCategoryDO itemCategoryDO) {
+		int rows = getSqlMapClientTemplate().update("ItemCategoryDAO.updateItemCategory", itemCategoryDO);
+		return rows;
+	}
+
+	public List<ItemCategoryDO> queryItemCategory(ItemCategoryQTO ItemCategoryQTO) {
+		List<ItemCategoryDO> list = getSqlMapClientTemplate()
+				.queryForList("ItemCategoryDAO.queryItemCategory", ItemCategoryQTO);
+		return list;
+	}
+
+}

@@ -1,0 +1,96 @@
+package com.ve.itemcenter.core.manager.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.constant.ResCodeNum;
+import com.ve.itemcenter.common.domain.ItemPropertyDTO;
+import com.ve.itemcenter.common.domain.ItemPropertyQTO;
+import com.ve.itemcenter.core.dao.ItemPropertyDAO;
+import com.ve.itemcenter.core.domain.ItemPropertyDO;
+import com.ve.itemcenter.core.exception.ItemException;
+import com.ve.itemcenter.core.manager.ItemPropertyManager;
+import com.ve.itemcenter.core.util.ExceptionUtil;
+import com.ve.itemcenter.core.util.ItemUtil;
+
+@Service
+public class ItemPropertyManagerImpl implements ItemPropertyManager {
+	@Resource
+	private ItemPropertyDAO itemPropertyDAO;
+
+	@Override
+	public ItemPropertyDTO addItemProperty(ItemPropertyDTO itemPropertyDTO) throws ItemException {
+		try {
+			// 验证itemPropertyDTO内的属性
+			if (!verifyItemPropertyDTOProperty(itemPropertyDTO)) {
+				throw ExceptionUtil.getException(ResCodeNum.PARAM_E_INVALID, "itemPropertyDTO property incorrect");
+			}
+			ItemPropertyDO itemPropertyDO = new ItemPropertyDO();
+			ItemUtil.copyProperties(itemPropertyDTO, itemPropertyDO);// DTO转DO
+			long newInsertedId = itemPropertyDAO.addItemProperty(itemPropertyDO);// 新增的记录返回的ID
+			itemPropertyDTO = getItemProperty(newInsertedId);// 新增加的记录对应的itemPropertyDO
+			return itemPropertyDTO;
+		} catch (Exception e) {
+			throw new ItemException(ResCodeNum.SYS_E_DEFAULT_ERROR, e);
+		}
+	}
+
+	@Override
+	public boolean updateItemProperty(ItemPropertyDTO itemPropertyDTO) throws ItemException {
+		// 验证参数
+		if (itemPropertyDTO.getId() == null) {
+			throw ExceptionUtil.getException(ResCodeNum.PARAM_E_MISSING, "itemPropertyDTO is null");
+		}
+		if (!verifyItemPropertyDTOProperty(itemPropertyDTO)) {
+			throw ExceptionUtil.getException(ResCodeNum.PARAM_E_INVALID, "itemPropertyDTO property incorrect");
+		}
+		ItemPropertyDO itemPropertyDO = new ItemPropertyDO();
+		ItemUtil.copyProperties(itemPropertyDTO, itemPropertyDO);
+		int num = itemPropertyDAO.updateItemProperty(itemPropertyDO);
+		return num > 0 ? true : false;
+	}
+
+	@Override
+	public ItemPropertyDTO getItemProperty(long id) throws ItemException {
+		ItemPropertyDO itemPropertyDO = itemPropertyDAO.getItemProperty(id);
+		if (itemPropertyDO == null) {
+			throw ExceptionUtil.getException(ResCodeNum.BASE_PARAM_E_RECORD_NOT_EXIST, "Cannot find requested record");
+		}
+		ItemPropertyDTO itemPropertyDTO = new ItemPropertyDTO();
+		ItemUtil.copyProperties(itemPropertyDO, itemPropertyDTO);
+		return itemPropertyDTO;
+	}
+
+	@Override
+	public boolean deleteItemProperty(long id) throws ItemException {
+		// TODO 验证id
+
+		ItemPropertyDO itemPropertyDO = new ItemPropertyDO();
+		itemPropertyDO.setId(id);
+		itemPropertyDO.setIsDeleted(DBConst.DELETED.getCode());
+		int num = itemPropertyDAO.updateItemProperty(itemPropertyDO);
+		return num > 0 ? true : false;
+	}
+
+	@Override
+	public boolean verifyItemPropertyDTOProperty(ItemPropertyDTO itemPropertyDTO) throws ItemException {
+		// TODO 验证ItemPropertyDTO字段属性
+		return true;
+	}
+
+	public List<ItemPropertyDTO> queryItemProperty(ItemPropertyQTO itemPropertyQTO) throws ItemException {
+		List<ItemPropertyDO> list = itemPropertyDAO.queryItemProperty(itemPropertyQTO);
+		List<ItemPropertyDTO> itemPropertyDTOList = new ArrayList<ItemPropertyDTO>();// 需要返回的DTO列表
+		for (ItemPropertyDO itemPropertyDO : list) {
+			ItemPropertyDTO dto = new ItemPropertyDTO();
+			ItemUtil.copyProperties(itemPropertyDO, dto);
+			itemPropertyDTOList.add(dto);
+		}
+		return itemPropertyDTOList;
+	}
+}

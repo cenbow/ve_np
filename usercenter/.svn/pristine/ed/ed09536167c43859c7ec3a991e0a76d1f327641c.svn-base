@@ -1,0 +1,42 @@
+package com.ve.usercenter.core.service.action.userauth;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.action.ActionEnum;
+import com.ve.usercenter.common.api.UserResponse;
+import com.ve.usercenter.common.dto.UserAuthInfoDTO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserAuthInfoManager;
+import com.ve.usercenter.core.service.RequestContext;
+import com.ve.usercenter.core.service.UserRequest;
+import com.ve.usercenter.core.service.action.Action;
+
+/**
+ * 原先的添加用户认证信息和修改用户认证信息改为同一个接口
+ * */
+@Service
+public class SaveUserAuthInfoAction implements Action {
+
+	@Resource
+	private UserAuthInfoManager userAuthInfoManager;
+
+	@Override
+	public UserResponse execute(RequestContext context) throws UserException {
+
+		UserAuthInfoDTO authInfoDto = null;
+
+		UserRequest userRequest = context.getRequest();
+		authInfoDto = (UserAuthInfoDTO) userRequest.getParam("userAuthDTO");// 用户实名认证的真实消息
+		authInfoDto = userAuthInfoManager.saveUserAuthInfo(authInfoDto);
+		return new UserResponse(authInfoDto);
+	}
+
+	@Override
+	public String getName() {
+
+		return ActionEnum.SAVE_USER_AUTH_INFO.getActionName();
+	}
+
+}

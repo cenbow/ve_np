@@ -1,0 +1,100 @@
+package com.ve.itemcenter.core.manager.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.constant.ResCodeNum;
+import com.ve.itemcenter.common.domain.GlobalPropertyValueDTO;
+import com.ve.itemcenter.common.domain.GlobalPropertyValueQTO;
+import com.ve.itemcenter.core.dao.GlobalPropertyValueDAO;
+import com.ve.itemcenter.core.domain.GlobalPropertyValueDO;
+import com.ve.itemcenter.core.exception.ItemException;
+import com.ve.itemcenter.core.manager.GlobalPropertyValueManager;
+import com.ve.itemcenter.core.util.ExceptionUtil;
+import com.ve.itemcenter.core.util.ItemUtil;
+
+@Service
+public class GlobalPropertyValueManagerImpl implements GlobalPropertyValueManager {
+	@Resource
+	private GlobalPropertyValueDAO globalPropertyValueDAO;
+
+	@Override
+	public GlobalPropertyValueDTO addGlobalPropertyValue(GlobalPropertyValueDTO globalPropertyValueDTO)
+			throws ItemException {
+		try {
+			// 验证globalPropertyValueDTO内的属性
+			if (!verifyGlobalPropertyValueDTOProperty(globalPropertyValueDTO)) {
+				throw ExceptionUtil
+						.getException(ResCodeNum.PARAM_E_INVALID, "globalPropertyValueDTO property incorrect");
+			}
+			GlobalPropertyValueDO globalPropertyValueDO = new GlobalPropertyValueDO();
+			ItemUtil.copyProperties(globalPropertyValueDTO, globalPropertyValueDO);// DTO转DO
+			long newInsertedId = globalPropertyValueDAO.addGlobalPropertyValue(globalPropertyValueDO);// 新增的记录返回的ID
+			globalPropertyValueDTO = getGlobalPropertyValue(newInsertedId);// 新增加的记录对应的globalPropertyValueDO
+			return globalPropertyValueDTO;
+		} catch (Exception e) {
+			throw new ItemException(ResCodeNum.SYS_E_DEFAULT_ERROR, e);
+		}
+	}
+
+	@Override
+	public boolean updateGlobalPropertyValue(GlobalPropertyValueDTO globalPropertyValueDTO) throws ItemException {
+		// 验证参数
+		if (globalPropertyValueDTO.getId() == null) {
+			throw ExceptionUtil.getException(ResCodeNum.PARAM_E_MISSING, "globalPropertyValueDTO is null");
+		}
+		if (!verifyGlobalPropertyValueDTOProperty(globalPropertyValueDTO)) {
+			throw ExceptionUtil.getException(ResCodeNum.PARAM_E_INVALID, "globalPropertyValueDTO property incorrect");
+		}
+		GlobalPropertyValueDO globalPropertyValueDO = new GlobalPropertyValueDO();
+		ItemUtil.copyProperties(globalPropertyValueDTO, globalPropertyValueDO);
+		int num = globalPropertyValueDAO.updateGlobalPropertyValue(globalPropertyValueDO);
+		return num > 0 ? true : false;
+	}
+
+	@Override
+	public GlobalPropertyValueDTO getGlobalPropertyValue(long id) throws ItemException {
+		GlobalPropertyValueDO globalPropertyValueDO = globalPropertyValueDAO.getGlobalPropertyValue(id);
+		if (globalPropertyValueDO == null) {
+			throw ExceptionUtil.getException(ResCodeNum.BASE_PARAM_E_RECORD_NOT_EXIST, "Cannot find requested record");
+		}
+		GlobalPropertyValueDTO globalPropertyValueDTO = new GlobalPropertyValueDTO();
+		ItemUtil.copyProperties(globalPropertyValueDO, globalPropertyValueDTO);
+		return globalPropertyValueDTO;
+	}
+
+	@Override
+	public boolean deleteGlobalPropertyValue(long id) throws ItemException {
+		// TODO 验证id
+
+		GlobalPropertyValueDO globalPropertyValueDO = new GlobalPropertyValueDO();
+		globalPropertyValueDO.setId(id);
+		globalPropertyValueDO.setIsDeleted(DBConst.DELETED.getCode());
+		int num = globalPropertyValueDAO.updateGlobalPropertyValue(globalPropertyValueDO);
+		return num > 0 ? true : false;
+	}
+
+	@Override
+	public boolean verifyGlobalPropertyValueDTOProperty(GlobalPropertyValueDTO globalPropertyValueDTO)
+			throws ItemException {
+		// TODO 验证GlobalPropertyValueDTO字段属性
+		return true;
+	}
+
+	public List<GlobalPropertyValueDTO> queryGlobalPropertyValue(GlobalPropertyValueQTO globalPropertyValueQTO)
+			throws ItemException {
+		List<GlobalPropertyValueDO> list = globalPropertyValueDAO.queryGlobalPropertyValue(globalPropertyValueQTO);
+		List<GlobalPropertyValueDTO> globalPropertyValueDTOList = new ArrayList<GlobalPropertyValueDTO>();// 需要返回的DTO列表
+		for (GlobalPropertyValueDO globalPropertyValueDO : list) {
+			GlobalPropertyValueDTO dto = new GlobalPropertyValueDTO();
+			ItemUtil.copyProperties(globalPropertyValueDO, dto);
+			globalPropertyValueDTOList.add(dto);
+		}
+		return globalPropertyValueDTOList;
+	}
+}

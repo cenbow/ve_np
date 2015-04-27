@@ -1,0 +1,67 @@
+package com.ve.itemcenter.core.manager.impl;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import com.ve.itemcenter.common.constant.ErrorCode;
+import com.ve.itemcenter.common.constant.ResCodeNum;
+import com.ve.itemcenter.common.domain.ItemBrandDTO;
+import com.ve.itemcenter.common.domain.ItemBrandQTO;
+import com.ve.itemcenter.core.dao.ItemBrandDAO;
+import com.ve.itemcenter.core.domain.ItemBrandDO;
+import com.ve.itemcenter.core.exception.ItemException;
+import com.ve.itemcenter.core.manager.ItemBrandManager;
+
+public class ItemBrandManagerImpl implements ItemBrandManager {
+	@Resource
+	private ItemBrandDAO itemBrandDAO;
+
+	@Override
+	public ItemBrandDO addItemBrand(ItemBrandDO itemBrandDO)
+			throws ItemException {
+		try {
+
+			long newInsertedId = itemBrandDAO.addItemBrand(itemBrandDO);// 新增的记录返回的ID
+			ItemBrandDO newItemBrandDO = getItemBrand(newInsertedId);// 新增加的记录对应的itemBrandDO
+			return newItemBrandDO;
+		} catch (Exception e) {
+			throw new ItemException(ResCodeNum.SYS_E_DEFAULT_ERROR, e);
+		}
+	}
+
+	@Override
+	public boolean updateItemBrand(ItemBrandDO itemBrandDO)
+			throws ItemException {
+		int num = itemBrandDAO.updateItemBrand(itemBrandDO);
+		return num > 0 ? true : false;
+	}
+
+	@Override
+	public ItemBrandDO getItemBrand(long id) throws ItemException {
+		ItemBrandDO itemDO = itemBrandDAO.getItemBrand(id);
+		return itemDO;
+	}
+
+	@Override
+	public boolean deleteItemBrand(long id) throws ItemException {
+		ItemBrandDO itemBrandDO = new ItemBrandDO();
+		itemBrandDO.setId(id);
+		itemBrandDO.setIsDeleted(1);
+		int num = itemBrandDAO.updateItemBrand(itemBrandDO);
+		return num > 0 ? true : false;
+	}
+
+	@Override
+	public boolean verifyItemBrandDTOProperty(ItemBrandDTO itemBrandDTO)
+			throws ItemException {
+		// TODO 验证ItemBrandDTO字段属性
+		return true;
+	}
+
+	public List<ItemBrandDO> queryItemBrandList(ItemBrandQTO itemBrandQTO)
+			throws ItemException {
+		List<ItemBrandDO> list = itemBrandDAO.queryItemBrandList(itemBrandQTO);
+		return list;
+	}
+}

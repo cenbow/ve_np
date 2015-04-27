@@ -1,0 +1,97 @@
+package com.ve.itemcenter.core.manager.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.constant.ResCodeNum;
+import com.ve.itemcenter.common.domain.dto.ItemCommentDTO;
+import com.ve.itemcenter.common.domain.qto.ItemCommentQTO;
+import com.ve.itemcenter.core.dao.ItemCommentDAO;
+import com.ve.itemcenter.core.domain.ItemCommentDO;
+import com.ve.itemcenter.core.exception.ItemException;
+import com.ve.itemcenter.core.manager.ItemCommentManager;
+import com.ve.itemcenter.core.util.ExceptionUtil;
+import com.ve.itemcenter.core.util.ItemUtil;
+
+@Service
+public class ItemCommentManagerImpl implements ItemCommentManager {
+	@Resource
+	private ItemCommentDAO itemCommentDAO;
+
+	@Override
+	public ItemCommentDTO addItemComment(ItemCommentDTO itemCommentDTO) throws ItemException {
+		try {
+			if (itemCommentDTO == null) {
+				throw ExceptionUtil.getException(ResCodeNum.PARAM_E_MISSING, "itemCommentDTO property incorrect");
+			}
+			verifyItemCommentDTOProperty(itemCommentDTO);// 验证参数
+			ItemCommentDO itemCommentDO = new ItemCommentDO();
+			ItemUtil.copyProperties(itemCommentDTO, itemCommentDO);// DTO转DO
+			long newInsertedId = itemCommentDAO.addItemComment(itemCommentDO);// 新增的记录返回的ID
+			long sellerId = itemCommentDTO.getSellerId();// 供应商ID
+			return getItemComment(newInsertedId, sellerId);// 新增加的记录对应的itemCommentDTO
+		} catch (Exception e) {
+			throw new ItemException(ResCodeNum.SYS_E_DEFAULT_ERROR, e);
+		}
+	}
+
+	public ItemCommentDTO getItemComment(Long id, Long sellerId) throws ItemException {
+		ItemCommentDO itemCommentDO = itemCommentDAO.getItemComment(id, sellerId);
+		if (itemCommentDO == null) {
+			throw ExceptionUtil
+					.getException(ResCodeNum.BASE_PARAM_E_RECORD_NOT_EXIST, "requested record doesn't exist from table item_comment-->id:"
+							+ id);
+		}
+		ItemCommentDTO itemCommentDTO = new ItemCommentDTO();
+		ItemUtil.copyProperties(itemCommentDO, itemCommentDTO);// DO转DTO
+		return itemCommentDTO;
+	}
+
+	@Override
+	public boolean deleteItemComment(Long id, Long sellerId) throws ItemException {
+		// TODO 校验sellerId ,id
+		ItemCommentDO itemCommentDO = new ItemCommentDO();
+		itemCommentDO.setId(id);
+		itemCommentDO.setSellerId(sellerId);
+		itemCommentDO.setIsDeleted(DBConst.DELETED.getCode());
+		int num = itemCommentDAO.deleteItemComment(id, sellerId);
+		if (num > 0) {
+			return true;
+		} else {
+			throw ExceptionUtil
+					.getException(ResCodeNum.SYS_E_DB_DELETE, "requested record doesn't exist from table item_comment-->id:->id:"
+							+ id + " sellerId:" + sellerId);
+		}
+	}
+
+	/**
+	 * 验证itemCommentDTO
+	 */
+	private void verifyItemCommentDTOProperty(ItemCommentDTO itemCommentDTO) throws ItemException {
+		// TODO 验证ItemCommentDTO字段属性
+		// 1.验证订单状状态调用交易接口
+		// 2.验证供应商ID sellerId
+		// 3.验证用户ID是否合法
+		if (StringUtils.isBlank(itemCommentDTO.getContent())) {
+			throw ExceptionUtil.getException(ResCodeNum.PARAM_E_MISSING, "itemComment content is null");
+		}
+	}
+
+	public List<ItemCommentDTO> queryItemComment(ItemCommentQTO itemCommentQTO) throws ItemException {
+		List<ItemCommentDO> list = itemCommentDAO.queryItemCommentByItemId(itemCommentQTO);
+		List<ItemCommentDTO> DTOList = new ArrayList<ItemCommentDTO>();
+		for (ItemCommentDO itemCommentDO : list) {
+			ItemCommentDTO itemCommentDTO = new ItemCommentDTO();
+			ItemUtil.copyProperties(itemCommentDO, itemCommentDTO);
+			DTOList.add(itemCommentDTO);
+		}
+		return DTOList;
+	}
+
+}

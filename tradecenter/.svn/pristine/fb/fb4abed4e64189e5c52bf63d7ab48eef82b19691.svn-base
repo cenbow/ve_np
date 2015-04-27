@@ -1,0 +1,12 @@
+package com.ve.tradecenter.core.dao;
+
+import com.ve.tradecenter.core.domain.PaymentTypeDO;
+
+public interface PaymentTypeDao {
+	/**
+	 * 根据ID获取支付方式
+	 * @return
+	 */
+	public PaymentTypeDO getPaymentTypeById(Integer paymentId);
+	
+}

@@ -1,0 +1,279 @@
+package com.ve.usercenter.core.manager.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.constant.ResponseCode;
+import com.ve.usercenter.common.dto.UserBabyInfoDTO;
+import com.ve.usercenter.common.dto.UserDTO;
+import com.ve.usercenter.core.dao.UserBabyInfoDao;
+import com.ve.usercenter.core.domain.UserBabyInfoDO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserBabyInfoManager;
+import com.ve.usercenter.core.manager.UserManager;
+
+@Service
+public class UserBabyInfoManagerImpl implements UserBabyInfoManager {
+
+	@Resource
+	private UserBabyInfoDao userBabyInfoDao;
+
+	@Resource
+	private UserManager userManager;
+
+	@Override
+	public UserBabyInfoDTO addBabyInfo(UserBabyInfoDTO babyInfoDto)
+			throws UserException {
+		// TODO Auto-generated method stub
+
+		UserBabyInfoDTO userBabyInfoDto = null;
+		UserBabyInfoDO userBabyInfoDo = null;
+
+		Date date = new Date();
+		babyInfoDto.setGmtCreated(date);
+		babyInfoDto.setGmtModified(date);
+
+		if (null == babyInfoDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"babyInfoDto is null");
+		}
+
+		// 查询指定的用户是否存在
+		UserDTO userDto = userManager.getUserById(babyInfoDto.getUserId());
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user is not exist");
+		}
+
+		// 每个用户能添加的宝贝数最多为10个
+
+		int count = getBabyCountByUserId(babyInfoDto.getUserId());
+		if (count > 9) {
+			throw new UserException(ResponseCode.B_ADD_ERROR,
+					"baby count greater than 20");
+		}
+
+		userBabyInfoDo = new UserBabyInfoDO();
+		BeanUtils.copyProperties(babyInfoDto, userBabyInfoDo);
+
+		Long id = null;
+		if (babyInfoDto.getIsDefault() == 1) {
+
+			// 获取指定用户的默认baby，如果不存在默认的baby，则直接插入，如果存在默认的baby，则先将改baby的状态改为非默认
+			UserBabyInfoDTO babyDto = getDefBabyInfo(babyInfoDto.getUserId());
+			if (babyDto == null) {
+				id = userBabyInfoDao.addBabyInfo(userBabyInfoDo);
+			} else {
+				setNotDef(babyDto.getId());
+				id = userBabyInfoDao.addBabyInfo(userBabyInfoDo);
+			}
+
+		} else if (babyInfoDto.getIsDefault() == 0) {
+			id = userBabyInfoDao.addBabyInfo(userBabyInfoDo);
+		} else {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"isDefault is error");
+		}
+
+		userBabyInfoDto = getBabyInfoById(id);
+
+		return userBabyInfoDto;
+	}
+
+	@Override
+	public UserBabyInfoDTO getBabyInfoById(Long id) throws UserException {
+		// TODO Auto-generated method stub
+
+		UserBabyInfoDO userBabyInfoDo = null;
+		UserBabyInfoDTO userBabyInfoDto = null;
+
+		if (null == id) {
+			throw new UserException(ResponseCode.P_PARAM_NULL, "id is null");
+		}
+
+		if (id < 0) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"id must greater than zero");
+		}
+
+		userBabyInfoDo = userBabyInfoDao.getBabyInfoById(id);
+		if (userBabyInfoDo != null) {
+			userBabyInfoDto = new UserBabyInfoDTO();
+			BeanUtils.copyProperties(userBabyInfoDo, userBabyInfoDto);
+		}
+
+		return userBabyInfoDto;
+	}
+
+	@Override
+	public int getBabyCountByUserId(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+		if (null == userId) {
+			throw new UserException(ResponseCode.P_PARAM_NULL, "id is null");
+		}
+
+		if (userId < 0) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"id must greater than zero");
+		}
+
+		int result = userBabyInfoDao.getBabyCountByUserId(userId);
+
+		return result;
+	}
+
+	@Override
+	public int deleteBabyInfo(Long userId, Long babyId) throws UserException {
+		// TODO Auto-generated method stub
+		if (null == babyId) {
+			throw new UserException(ResponseCode.P_PARAM_NULL, "babyId is null");
+		}
+
+		if (babyId < 0) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"id must greater than zero");
+		}
+
+		// 查询指定的用户是否存在
+		UserDTO userDto = userManager.getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user is not exist");
+		}
+
+		int result = userBabyInfoDao.deleteBabyInfo(userId, babyId);
+
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "delete error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public int updateBabyInfo(UserBabyInfoDTO babyInfoDto) throws UserException {
+		// TODO Auto-generated method stub
+
+		UserBabyInfoDTO userBabyInfoDto = null;
+		UserBabyInfoDO userBabyInfoDo = null;
+
+		Date date = new Date();
+		babyInfoDto.setGmtModified(date);
+
+		if (null == babyInfoDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"babyInfoDto is null");
+		}
+
+		// 查询指定的用户是否存在
+		UserDTO userDto = userManager.getUserById(babyInfoDto.getUserId());
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user is not exist");
+		}
+
+		// 查看指定的baby是否存在
+		userBabyInfoDto = getBabyInfoById(babyInfoDto.getId());
+		if (null == userBabyInfoDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"baby is not exist");
+		}
+
+		if (babyInfoDto.getIsDefault() == 0) {
+
+		} else if (babyInfoDto.getIsDefault() == 1) {
+			// 获取指定用户的默认baby，如果不存在默认的baby，则直接修改，如果存在默认的baby，则先将改baby的状态改为非默认
+			UserBabyInfoDTO babyDto = getDefBabyInfo(babyInfoDto.getUserId());
+			if (babyDto == null) {
+
+			} else {
+				setNotDef(babyDto.getId());
+
+			}
+		} else {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"isDefault is error");
+		}
+
+		userBabyInfoDo = new UserBabyInfoDO();
+		BeanUtils.copyProperties(babyInfoDto, userBabyInfoDo);
+
+		int result = userBabyInfoDao.updateBabyInfo(userBabyInfoDo);
+
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public List<UserBabyInfoDTO> getBabyInfo(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+		UserBabyInfoDTO userBabyInfoDto = null;
+		List<UserBabyInfoDTO> babysDto = new ArrayList<UserBabyInfoDTO>();
+
+		// 查询指定的用户是否存在
+		UserDTO userDto = userManager.getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user is not exist");
+		}
+
+		List<UserBabyInfoDO> babysDo = userBabyInfoDao.getBabyInfo(userId);
+
+		if (null == babysDo) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR, "user no baby");
+		}
+
+		for (UserBabyInfoDO userBabyInfoDo : babysDo) {
+			userBabyInfoDto = new UserBabyInfoDTO();
+			BeanUtils.copyProperties(userBabyInfoDo, userBabyInfoDto);
+			babysDto.add(userBabyInfoDto);
+		}
+
+		return babysDto;
+	}
+
+	@Override
+	public UserBabyInfoDTO getDefBabyInfo(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+
+		UserDTO usreDto = userManager.getUserById(userId);
+		UserBabyInfoDTO babyDto = null;
+		if (null == usreDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user no exist");
+		}
+
+		UserBabyInfoDO babyDo = userBabyInfoDao.getDefBabyInfo(userId);
+		if (babyDo != null) {
+			babyDto = new UserBabyInfoDTO();
+			BeanUtils.copyProperties(babyDo, babyDto);
+		}
+
+		return babyDto;
+	}
+
+	@Override
+	public int setNotDef(Long babyId) throws UserException {
+		// TODO Auto-generated method stub
+		if (null == babyId) {
+			throw new UserException(ResponseCode.P_PARAM_NULL, "babyId is null");
+		}
+		int result = userBabyInfoDao.setNotDef(babyId);
+
+		if (result <= 0) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+
+		}
+
+		return result;
+	}
+}

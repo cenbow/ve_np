@@ -1,0 +1,41 @@
+package com.ve.itemcenter.core.dao.impl;
+
+import java.util.List;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.domain.ItemBrandQTO;
+import com.ve.itemcenter.core.dao.ItemBrandDAO;
+import com.ve.itemcenter.core.domain.ItemBrandDO;
+@Service
+public class ItemBrandDAOImpl extends SqlMapClientDaoSupport implements ItemBrandDAO {
+
+	public ItemBrandDAOImpl() {
+		super();
+	}
+
+	public Long addItemBrand(ItemBrandDO itemBrandDO) {
+		itemBrandDO.setIsDeleted(DBConst.UN_DELETED.getCode());
+		Long newInsertedId = (Long) getSqlMapClientTemplate().insert("ItemBrandDAO.addItemBrand", itemBrandDO);
+		return newInsertedId;
+	}
+
+	public ItemBrandDO getItemBrand(Long id) {
+		ItemBrandDO record = (ItemBrandDO) getSqlMapClientTemplate().queryForObject("ItemBrandDAO.getItemBrand", id);
+		return record;
+	}
+
+	public int updateItemBrand(ItemBrandDO itemBrandDO) {
+		int rows = getSqlMapClientTemplate().update("ItemBrandDAO.updateItemBrand", itemBrandDO);
+		return rows;
+	}
+
+	public List<ItemBrandDO> queryItemBrand(ItemBrandQTO itemBrandQTO) {
+		List<ItemBrandDO> list = getSqlMapClientTemplate()
+				.queryForList("ItemBrandDAO.queryItemBrandList", itemBrandQTO);
+		return list;
+	}
+
+}

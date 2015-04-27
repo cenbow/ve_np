@@ -1,0 +1,112 @@
+package com.ve.usercenter.core.service.action.user;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.ve.usercenter.common.action.ActionEnum;
+import com.ve.usercenter.common.constant.ResponseCode;
+import com.ve.usercenter.common.dto.UserDTO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.ConsigneeManager;
+import com.ve.usercenter.core.manager.SupplierExtraInfoManager;
+import com.ve.usercenter.core.manager.UserAuthInfoManager;
+import com.ve.usercenter.core.manager.UserBabyInfoManager;
+import com.ve.usercenter.core.manager.UserExtraInfoManage;
+import com.ve.usercenter.core.manager.UserManager;
+import com.ve.usercenter.core.service.RequestContext;
+import com.ve.usercenter.core.service.UserRequest;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.service.action.Action;
+
+@Service
+public class RestoreUserAction implements Action {
+
+	@Resource
+	private UserManager userManager;
+
+	@Resource
+	TransactionTemplate transactionTemplate;
+
+	@Resource
+	private UserExtraInfoManage userExtraInfoManage;
+
+	@Resource
+	private SupplierExtraInfoManager supplierExtraManager;
+
+	@Resource
+	private UserBabyInfoManager userBabyInfoManager;
+
+	@Resource
+	private ConsigneeManager consigneeManager;
+
+	@Resource
+	private UserAuthInfoManager userAuthInfoManager;
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public UserResponse execute(final RequestContext context)
+			throws UserException {
+
+		@SuppressWarnings("unchecked")
+		UserResponse response = transactionTemplate
+				.execute(new TransactionCallback(
+
+				) {
+
+					@Override
+					public Object doInTransaction(TransactionStatus status) {
+						// TODO Auto-generated method stub
+
+						UserRequest request = context.getRequest();
+						Long userId = (Long) request.getParam("userId");
+
+						try {
+							UserDTO userDto = userManager
+									.getRecycleUser(userId);
+							if (null == userDto) {
+								throw new UserException(
+										ResponseCode.B_SELECT_ERROR,
+										"user not in recycle");
+							}
+
+							/*
+							 * // 还原指定卖家账号的扩展信息 supplierExtraManager
+							 * .restoreSupplierExtraInfoByUserId(userId); //
+							 * 还原指定用户买家账号的扩展信息 userExtraInfoManage
+							 * .restoreUserExtraInfoByUserId(userId);
+							 * 
+							 * // 还原指定用户的baby的信息
+							 * userBabyInfoManager.restoreUserAllBaby(userId);
+							 * 
+							 * // 还原指定用户的收货地址信息
+							 * consigneeManager.restoreUserConsignee(userId);
+							 * 
+							 * // 还原用户的实名认证消息
+							 * userAuthInfoManager.restoreUserAuth(userId);
+							 */
+							userManager.restoreUser(userId);
+						} catch (UserException e) {
+							status.setRollbackOnly();
+							log.error(e.getMessage(), e);
+							return new UserResponse(e.getResponseCode()
+									.getCode(), e.getMessage());
+						}
+
+						return new UserResponse(true);
+					}
+				});
+
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return ActionEnum.RESTORE_USER.getActionName();
+	}
+
+}

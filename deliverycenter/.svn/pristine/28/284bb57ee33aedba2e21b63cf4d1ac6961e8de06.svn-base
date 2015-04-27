@@ -1,0 +1,88 @@
+package com.ve.deliverycenter.core.service.action.express;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.ve.deliverycenter.common.constant.ActionEnum;
+import com.ve.deliverycenter.common.constant.RetCodeEnum;
+import com.ve.deliverycenter.common.dto.express.ExpressPropertyDTO;
+import com.ve.deliverycenter.core.exception.DeliveryException;
+import com.ve.deliverycenter.core.manager.express.ExpressManager;
+import com.ve.deliverycenter.core.manager.express.ExpressPropertyManager;
+import com.ve.deliverycenter.core.service.DeliveryResponse;
+import com.ve.deliverycenter.core.service.RequestContext;
+import com.ve.deliverycenter.core.service.action.Action;
+import com.ve.deliverycenter.core.util.ResponseUtil;
+
+@Service
+public class DeleteExpress implements Action {
+	@Resource
+	ExpressManager expressManager;
+	@Resource
+	ExpressPropertyManager expressPropertyManager;
+	@Resource
+	TransactionTemplate transactionTemplate;
+
+	/**
+	 * 删除快递接口
+	 */
+	@Override
+	public DeliveryResponse execute(final RequestContext context)
+			throws DeliveryException {
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		DeliveryResponse response = transactionTemplate
+				.execute(new TransactionCallback() {
+					@Override
+					public Object doInTransaction(TransactionStatus status) {
+						try {
+							// 获取参数
+							Integer id = (Integer) context.getRequest()
+									.getParam("id");
+							// 根据ID查询快递属性
+							List<ExpressPropertyDTO> expressPropertyDTOList = expressPropertyManager
+									.queryByExpressId(id);
+							List<Integer> proeprtyIdList = new ArrayList();
+							for (ExpressPropertyDTO expressPropertyDTO : expressPropertyDTOList) {
+								proeprtyIdList.add(expressPropertyDTO.getId());
+							}
+							// 批量删除快递属性
+							int propertyRow = expressPropertyManager
+									.deleteExpressProperty(proeprtyIdList);
+							// 删除快递
+							int expressRow = expressManager.deleteExpress(id);
+							// 返回response对象,如果行数为1返回true,不为1返回false
+							if (expressRow == 1
+									&& propertyRow == expressPropertyDTOList
+											.size()) {
+								return ResponseUtil.getResponse(true);
+							} else {
+								throw new DeliveryException(
+										RetCodeEnum.DELETE_ERROR.getCode(),
+										RetCodeEnum.DELETE_ERROR.getMessage());
+
+							}
+						} catch (DeliveryException e) {
+							status.setRollbackOnly();
+							return ResponseUtil.getResponse(e.getCode(),
+									e.getMessage());
+						}
+
+					}
+				});
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return ActionEnum.DELETE_EXPRESS.getActionName();
+	}
+}

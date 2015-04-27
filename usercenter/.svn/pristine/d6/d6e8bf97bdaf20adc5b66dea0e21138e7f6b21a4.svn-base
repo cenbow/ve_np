@@ -1,0 +1,86 @@
+package com.ve.usercenter.core.manager;
+
+
+import com.ve.usercenter.common.dto.UserDTO;
+import com.ve.usercenter.common.qto.UserQTO;
+import com.ve.usercenter.core.domain.UserDO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.service.UserResponse;
+
+public interface UserManager {
+	/**
+	 * 添加用户
+	 * */
+	UserDO addUser(UserDTO userDto) throws UserException;
+	
+	/**
+	 * 根据用户名查找用户
+	 * */
+	UserDO getUserByName(String name) throws UserException;
+	
+	/**
+	 * 根据用户email查找用户
+	 * */
+	UserDO getUserByEmail(String email) throws UserException;
+	
+	/**
+	 * 根据用户手机查找用户
+	 * */
+	UserDO getUserByMobile(String mobile) throws UserException;
+	
+	/**
+	 * 根据用于id查找用户
+	 * */
+	UserDO getUserById(Long userId) throws UserException;
+	
+	/**
+	 * 更新用户密码
+	 * */
+	int updatePwd(Long userId,String oldPwd,String newPwd) throws UserException;
+	
+	/**
+	 * 更新用户email
+	 * */
+	int updateEmail(Long userId,String email) throws UserException;
+	
+	/**
+	 * 更新用户手机
+	 * */
+	int updateMobile(Long userId,String mobile) throws UserException;
+
+	/**
+	 * 激活用户
+	 * */
+	int activeUser(Long userId) throws UserException;
+	
+	/**
+	 * 冻结用户
+	 * */
+	int freezeUser(Long userId) throws UserException;
+
+	/**
+	 * 将用户移入回收站
+	 * */
+	int moveUser(Long userId) throws UserException;
+
+	/**
+	 * 逻辑删除用户
+	 * */
+	int deleteUser(Long userId) throws UserException;
+
+	/**
+	 * 符合查询用户
+	 * */
+	void queryUser(UserQTO userQto);
+}
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,74 @@
+package com.ve.tradecenter.core.service;
+
+import java.util.Collection;
+
+import com.ve.tradecenter.common.api.Response;
+import com.ve.tradecenter.common.constant.ErrorCode;
+
+
+public class TradeResponse<T> implements Response<T>{
+	private static final long serialVersionUID = 8295766534182699773L;
+	
+	private T module;
+    private boolean success = false;
+    private ErrorCode errorCode;
+    private String message;
+    private Exception exception;
+    private long totalCount = 0;
+    
+    public TradeResponse(boolean success){
+    	this.success = success;
+    }
+    
+    public TradeResponse(ErrorCode errorCode){
+    	this.errorCode = errorCode;
+    	this.success = false;
+    }
+    
+    public TradeResponse(ErrorCode errorCode, String message){
+    	this.errorCode = errorCode;
+    	this.message = message;
+    	this.success = false;
+    }
+    
+    public TradeResponse(T module){
+    	this.module = module;
+    	if(module != null){
+    		if(module instanceof Collection){
+    			totalCount = ((Collection)module).size();
+    		}else{
+    			totalCount = 1;
+    		}
+    		
+    		this.success = true;
+    	}
+    }
+    
+	public T getModule() {
+		return module;
+	}
+	public boolean isSuccess() {
+		return success;
+	}
+	public ErrorCode getErrorCode() {
+		return errorCode;
+	}
+	public String getMessage() {
+		return message;
+	}
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	public Exception getException() {
+		return exception;
+	}
+	public void setException(Exception exception) {
+		this.exception = exception;
+	}
+	public long getTotalCount() {
+		return totalCount;
+	}
+	public void setTotalCount(long totalCount) {
+		this.totalCount = totalCount;
+	}
+}

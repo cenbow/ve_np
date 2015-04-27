@@ -1,0 +1,38 @@
+package com.ve.itemcenter.core.service.action;
+
+public enum ActionEnum {
+
+	// 增加商品品牌
+	ADD_ITEMBRAND("addItemBrandAction"),
+
+	// 更新商品品牌
+	UPDATE_ITEMBRAND("updateItemBrandAction"),
+
+	// 查看商品品牌u
+	GET_ITEMBRAND("getItemBrandAction"),
+
+	// 删除商品品牌
+	DELETE_ITEMBRAND("deleteItemBrandAction"),
+
+	// 商品品牌列表查询
+	LIST_ITEMBRAND("listItemBrandAction");
+
+	private String actionName;
+
+	private ActionEnum(String actionName) {
+		this.actionName = actionName;
+	}
+
+	public static ActionEnum getActionEnum(String actionName) {
+		for (ActionEnum ae : ActionEnum.values()) {
+			if (ae.actionName.equals(actionName)) {
+				return ae;
+			}
+		}
+		return null;
+	}
+
+	public String getActionName() {
+		return actionName;
+	}
+}

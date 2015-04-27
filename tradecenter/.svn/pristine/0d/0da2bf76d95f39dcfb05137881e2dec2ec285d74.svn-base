@@ -1,0 +1,248 @@
+package com.ve.tradecenter.core.service.action.cart;
+
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.ve.itemcenter.common.domain.ItemSkuDTO;
+import com.ve.tradecenter.common.constant.ResponseCode;
+import com.ve.tradecenter.common.domain.CartItemDTO;
+import com.ve.tradecenter.core.constants.TradeConstants;
+import com.ve.tradecenter.core.domain.CartItemDO;
+import com.ve.tradecenter.core.exception.TradeException;
+import com.ve.tradecenter.core.manager.CartItemManager;
+import com.ve.tradecenter.core.service.RequestContext;
+import com.ve.tradecenter.core.service.ResponseUtils;
+import com.ve.tradecenter.core.service.TradeRequest;
+import com.ve.tradecenter.core.service.TradeResponse;
+import com.ve.tradecenter.core.service.action.Action;
+import com.ve.tradecenter.core.service.action.ActionEnum;
+/**
+ * 未登入用户添加购物车 
+ * @author cwr
+ */
+public class AddCartItem implements Action {
+	private static final Logger log = LoggerFactory.getLogger(AddCartItem.class);
+	
+	/*
+	 * 未登入用户购物车最大数目限制
+	 */
+	private static final int CART_MAX_NUMER = 20;
+
+	@Resource
+	private CartItemManager cartItemManager;
+	
+	@Override
+	public TradeResponse<Boolean> execute(RequestContext context){
+		TradeRequest request = context.getRequest();
+		TradeResponse<Boolean> response;
+		if(request.getParam("cartItemDTO") == null){
+			log.error("cartItemDTO is null");
+			return ResponseUtils.getFailResponse(ResponseCode.PARAM_E_PARAM_MISSING,"cartItemDTO is null");
+		}
+		CartItemDTO cartItemDTO = (CartItemDTO)request.getParam("cartItemDTO");
+		
+		// 字段验证
+		String errorMsg = this.cartItemManager.validateCartItemFields(cartItemDTO);
+		if(!StringUtils.isEmpty(errorMsg)){
+			log.error(errorMsg);
+			return ResponseUtils.getFailResponse(ResponseCode.PARAM_E_PARAM_MISSING,errorMsg);
+		}
+		
+		// 必要的字段
+		Long itemSkuId = cartItemDTO.getItemSkuId();
+		Long supplierId = cartItemDTO.getSupplierId();
+		Integer number  = cartItemDTO.getNumber();
+		String sessionId = cartItemDTO.getSessionId();
+		Integer source = cartItemDTO.getSource()==null? TradeConstants.OrderSource.PC : cartItemDTO.getSource(); // 默认来自于pc端 	
+		
+		// 商品平台查询商品详细信息
+		ItemSkuDTO itemSku = null;
+		try{
+			itemSku = getItemSku(itemSkuId, supplierId);
+		}catch(TradeException e){
+			log.error("getItemSku error",e);
+			return ResponseUtils.getFailResponse(ResponseCode.SYS_E_REMOVE_CALL_ERROR);
+		}
+		if(itemSku == null){
+			log.error("itemSku doesn't exist : itemSkuId:  "+ itemSkuId + ", supplierId: " + supplierId);
+			return ResponseUtils.getFailResponse(ResponseCode.BIZ_E_RECORD_NOT_EXIST,"itemSku doesn't exist ");
+		}
+		
+		Date now = new Date();
+		CartItemDO cartItem = new CartItemDO();
+		
+		cartItem.setName(itemSku.getName()); // 商品名称
+		cartItem.setItemSkuId(itemSkuId); // 
+		cartItem.setSupplierId(supplierId);  
+		cartItem.setUserId(null); // 未登入时候无用户id
+		cartItem.setItemId(itemSku.getItemId());
+		cartItem.setSubName(itemSku.getSubName()); // ？
+		cartItem.setSessionId(sessionId);
+		cartItem.setOriginPrice(itemSku.getMarketPrice()); // 市场价
+		cartItem.setUnitPrice(itemSku.getPrice());
+		cartItem.setNumber(number);
+		cartItem.setTotalPrice(itemSku.getPrice() * number);
+		
+		Long savePrice = (itemSku.getPrice()==null || itemSku.getMarketPrice()==null)? null: itemSku.getMarketPrice() - itemSku.getPrice();// 节省金额
+		if(savePrice != null){
+			savePrice = savePrice < 0 ? 0 : savePrice; // 防止小于 0
+		}
+		cartItem.setSavePrice(savePrice);
+		cartItem.setTotalSave(savePrice == null ? null:savePrice * number);
+		cartItem.setReturnMoney((itemSku.getReturnMoney()==null ? null : itemSku.getReturnMoney()));
+		cartItem.setReturnTotalMoney(itemSku.getReturnMoney()==null ? null : itemSku.getReturnMoney()*number);
+		cartItem.setIsGift(itemSku.getIsGift()); // 是否是礼品
+		cartItem.setSource(source);
+		
+		// TODO 积分完善 
+		
+		cartItem.setGmtModified(now);
+		cartItem.setGmtCreated(now);
+		
+		long result = 0;
+		List<CartItemDO> cartItems = null;
+		List<ItemSkuDTO> promotionItems= null; // 促销商品列表
+		try{
+			// 获取已有的购物车列表
+			cartItems = this.cartItemManager.queryCartItems(sessionId);
+			// 如果是购物车已经有该商品
+			boolean isExist = false;
+			CartItemDO existingCartItem = null ;
+			for(CartItemDO item : cartItems){
+				if(!item.getIsGift() && item.getItemSkuId().equals(itemSkuId)  && item.getSupplierId().equals(supplierId) ){
+					isExist = true;
+					cartItem.setId(item.getId());
+					existingCartItem = item;
+				}
+			}
+			System.out.println("is true : " + true);
+			// 如果是已经存在则更新购物车商品数量
+			if(isExist){
+				int totalNumber = existingCartItem.getNumber() + number;
+				existingCartItem.setUnitPrice(itemSku.getPrice());
+				existingCartItem.setNumber(totalNumber);
+				existingCartItem.setTotalPrice(totalNumber * itemSku.getPrice());
+				existingCartItem.setSavePrice(savePrice);
+				existingCartItem.setTotalSave(savePrice ==null ? null:savePrice * totalNumber);
+				result = this.cartItemManager.updateCartItem(existingCartItem);
+			}else{
+				result = cartItemManager.addCartItem(cartItem);
+			}
+			
+			// 根据整个购物车的商品 用于促销平台查询优惠商品
+			cartItems = this.cartItemManager.queryCartItems(sessionId);
+			List<CartItemDTO> promotionQueryList = new ArrayList<CartItemDTO>();
+			for(CartItemDO item : cartItems){
+				if(item.getIsGift()){
+					CartItemDTO itemDTO  = new CartItemDTO();
+					itemDTO.setNumber(item.getNumber());
+					itemDTO.setSupplierId(item.getSupplierId());
+					itemDTO.setItemSkuId(item.getItemSkuId());
+					promotionQueryList.add(itemDTO);
+				}
+			}
+			// 查询促销平台获取优惠促销信息-- 是否有赠品
+			promotionItems = getPromotionItems(promotionQueryList);
+			// TODO 
+			// 返回的购物车商品是否需要去商品平台查询
+			
+			if(promotionItems != null && promotionItems.size() > 0){
+				this.cartItemManager.deleteGiftItems(sessionId);
+				for(ItemSkuDTO promotionItem : promotionItems){
+					// 购物车添加赠品
+					CartItemDO giftItem = new CartItemDO();
+					
+					giftItem.setIsGift(true); // 赠品
+					giftItem.setName(promotionItem.getName()); // 商品名称
+					giftItem.setItemSkuId(promotionItem.getItemId()); // 
+					giftItem.setSupplierId(promotionItem.getSupplierId());  
+					giftItem.setUserId(null); // 未登入时候无用户id
+					giftItem.setItemId(promotionItem.getItemId());
+					giftItem.setSubName(promotionItem.getSubName()); // 
+					giftItem.setSessionId(sessionId);
+					giftItem.setOriginPrice(promotionItem.getMarketPrice()); // 市场价
+					giftItem.setUnitPrice(promotionItem.getPrice());
+					giftItem.setNumber(promotionItem.getNumber());
+					
+					giftItem.setSavePrice(savePrice);
+					giftItem.setSource(source);
+					
+					// TODO 积分部分 
+					
+					giftItem.setGmtModified(now);
+					giftItem.setGmtCreated(now);
+					
+					cartItemManager.addCartItem(giftItem); // 添加商品
+				}
+			}
+		}catch(TradeException e){
+			log.error("db error: ",e);
+			return ResponseUtils.getFailResponse(ResponseCode.SYS_E_DATABASE_ERROR);
+		}
+		
+		boolean module = result > 0 ? true : false;
+		return ResponseUtils.getSuccessResponse(module);
+	}
+
+	@Override
+	public String getName() {
+		return ActionEnum.ADD_CART_ITEM.getActionName();
+	}
+
+	/**
+	 * 查询商品平台获取商品的价格等信息
+	 * @param itemSkuId
+	 * @param supplierID
+	 * @return
+	 */
+	private ItemSkuDTO getItemSku(Long itemSkuId,Long supplierID)throws TradeException{
+		// TODO
+		// 从商品平台查询商品信息
+		
+		/*
+		 * 测试数据
+		 */
+		ItemSkuDTO item = new ItemSkuDTO();
+		item.setId(1212121L);
+		item.setPrice(20L);
+		item.setMinBuyAmount(11);
+		item.setPromotionPrice(1221);
+		item.setSupplierId(12121L);
+		item.setIsGift(false);	
+		item.setSupplierId(11L);
+		
+		return item;
+	}
+	
+	/**
+	 * 查询促销平台获取促销商品 (赠送商品)
+	 * @param itemSkuId
+	 * @param supplierId
+	 * @return
+	 */
+	private List<ItemSkuDTO> getPromotionItems(List<CartItemDTO> cartItems){
+		List<ItemSkuDTO> promotionLIst = null; 
+		// TODO
+		// 查询促销平台
+		
+		/*
+		 * 测试数据
+		 */
+		List<ItemSkuDTO> items =new ArrayList<ItemSkuDTO>();
+		ItemSkuDTO item = new ItemSkuDTO();
+		item.setIsGift(true);
+		item.setPrice(0L);
+		item.setName("[赠品]");
+		
+		items.add(item);
+		return items;
+	}
+}	

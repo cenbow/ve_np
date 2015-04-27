@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="sku_property_tmpl">
+	<typeAlias alias="SkuPropertyTmplDO" type="com.ve.itemcenter.core.domain.SkuPropertyTmplDO" />
+	<typeAlias alias="SkuPropertyTmplQTO"	type="com.ve.itemcenter.common.domain.qto.SkuPropertyTmplQTO" />
+
+	<resultMap class="SkuPropertyTmplDO" id="SkuPropertyTmplDOResult">
+		<result property="id" column="id" />
+		<result property="ownerType" column="owner_type" />
+		<result property="ownerId" column="owner_id" />
+		<result property="keyName" column="key_name" />
+		<result property="val" column="val" />
+		<result property="valType" column="val_type" />
+		<result property="sort" column="sort" />
+		<result property="inheritType" column="inherit_type" />
+		<result property="bizMark" column="biz_mark" />
+		<result property="imgUrl" column="img_url" />
+		<result property="categoryId" column="category_id" />
+		<result property="isDeleted" column="is_deleted" />
+		<result property="gmtCreated" column="gmt_created" />
+		<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+
+	<insert id="SkuPropertyTmplDAO.addSkuPropertyTmpl" parameterClass="SkuPropertyTmplDO">
+		insert into sku_property_tmpl
+		 <dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        id
+      </isNotNull>
+      <isNotNull prepend="," property="ownerType" >
+        owner_type
+      </isNotNull>
+      <isNotNull prepend="," property="ownerId" >
+        owner_id
+      </isNotNull>
+      <isNotNull prepend="," property="keyName" >
+        key_name
+      </isNotNull>
+      <isNotNull prepend="," property="val" >
+        val
+      </isNotNull>
+      <isNotNull prepend="," property="valType" >
+        val_type
+      </isNotNull>
+      <isNotNull prepend="," property="sort" >
+        sort
+      </isNotNull>
+      <isNotNull prepend="," property="inheritType" >
+        inherit_type
+      </isNotNull>
+      <isNotNull prepend="," property="bizMark" >
+        biz_mark
+      </isNotNull>
+      <isNotNull prepend="," property="imgUrl" >
+        img_url
+      </isNotNull>
+      <isNotNull prepend="," property="categoryId" >
+        category_id
+      </isNotNull>
+      <isNotNull prepend="," property="isDeleted" >
+        is_deleted
+      </isNotNull>
+      )
+    </dynamic>
+    values
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        #id:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="ownerType" >
+        #ownerType:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="ownerId" >
+        #ownerId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="keyName" >
+        #keyName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="val" >
+        #val:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="valType" >
+        #valType:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="sort" >
+        #sort:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="inheritType" >
+        #inheritType:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="bizMark" >
+        #bizMark:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="imgUrl" >
+        #imgUrl:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="categoryId" >
+        #categoryId:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="isDeleted" >
+        #isDeleted:INTEGER#
+      </isNotNull>
+      )
+    </dynamic>
+		<selectKey keyProperty="id" resultClass="Long">
+			SELECT
+			LAST_INSERT_ID();
+		</selectKey>
+	</insert>
+
+	<sql id="sku_property_tmpl_base_column_list">
+		id,
+		owner_type,
+		owner_id,
+		key_name,
+		val,
+		val_type,
+		sort,
+		inherit_type,
+		biz_mark,
+		img_url,
+		category_id,
+		is_deleted,
+		gmt_created,
+		gmt_modified
+	</sql>
+	
+	<sql id="SkuPropertyTmplDAO.queryWhere">
+		<dynamic prepend="where">
+			<isNotNull prepend="AND" property="id"> 
+				id = #id#
+			</isNotNull>
+			<isNotNull prepend="AND" property="isDeleted"> 
+				is_deleted = #isDeleted#
+			</isNotNull>
+			<isNotNull prepend="AND" property="categoryId"> 
+			category_id = #categoryId#
+			</isNotNull>
+		</dynamic>
+	</sql>
+	
+	<update id="SkuPropertyTmplDAO.updateSkuPropertyTmpl" >
+		update sku_property_tmpl
+		set gmt_modified=now()
+		<dynamic prepend="">
+			<isNotNull prepend="," property="record.keyName">
+				key_name = #record.keyName#
+			</isNotNull>
+			<isNotNull prepend="," property="record.val">
+				val = #record.val#
+			</isNotNull>
+			<isNotNull prepend="," property="record.valType">
+				val_type = #record.valType#
+			</isNotNull>
+			<isNotNull prepend="," property="record.sort">
+				sort = #record.sort#
+			</isNotNull>
+			<isNotNull prepend="," property="record.inheritType">
+				inherit_type = #record.inheritType#
+			</isNotNull>
+			<isNotNull prepend="," property="record.bizMark">
+				biz_mark =#record.bizMark#
+			</isNotNull>
+			<isNotNull prepend="," property="record.imgUrl">
+				img_url = #record.imgUrl#
+			</isNotNull>
+		</dynamic>
+		<include refid="SkuPropertyTmplDAO.queryWhere" />
+	</update>
+	
+	<update id="SkuPropertyTmplDAO.deleteSkuPropertyTmpl" >
+		update sku_property_tmpl
+		set gmt_modified=now()
+		<dynamic prepend="">
+			<isNotNull prepend="," property="record.isDeleted">
+				is_deleted = #record.isDeleted#
+			</isNotNull>
+		</dynamic>
+		<include refid="SkuPropertyTmplDAO.queryWhere" />
+	</update>
+	
+	<select id="SkuPropertyTmplDAO.countSkuPropertyTmpl" resultClass="Integer" parameterClass="SkuPropertyTmplQTO">
+		select count(1) from sku_property_tmpl
+		<include refid="SkuPropertyTmplDAO.queryWhere" />
+	</select>
+	
+	<select id="SkuPropertyTmplDAO.getSkuPropertyTmpl" resultMap="SkuPropertyTmplDOResult"	parameterClass="SkuPropertyTmplQTO">
+		select 	<include refid="sku_property_tmpl_base_column_list" />	from sku_property_tmpl
+				<include refid="SkuPropertyTmplDAO.queryWhere" />
+	</select>
+	
+	<select id="SkuPropertyTmplDAO.querySkuPropertyTmpl" resultMap="SkuPropertyTmplDOResult"
+		parameterClass="SkuPropertyTmplQTO">
+		select	<include refid="sku_property_tmpl_base_column_list" />	from sku_property_tmpl
+				<include refid="SkuPropertyTmplDAO.queryWhere" />
+			<isNotNull property="needPaging">
+				limit #offset#,#pageSize#
+			</isNotNull>
+ 	</select>
+</sqlMap>

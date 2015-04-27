@@ -1,0 +1,157 @@
+package com.ve.deliverycenter.core.crud.action;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.ve.deliverycenter.core.crud.inf.Crud;
+import com.ve.deliverycenter.core.crud.pojo.BaseObject;
+import com.ve.deliverycenter.core.crud.query.Page;
+import com.ve.deliverycenter.core.util.lang.StringUtil;
+import com.ve.deliverycenter.core.web.action.handler.BaseAction;
+
+/**
+ * 增删改查
+ * 
+ * @author dong.dong
+ * 
+ */
+public abstract class CrudAction extends BaseAction {
+
+	private static final long serialVersionUID = -3444884121970213819L;
+	private static final Log log = LogFactory.getLog(CrudAction.class);
+	private Crud crudService;
+
+	public void setCrudService(Crud crudService) {
+		this.crudService = crudService;
+	}
+
+	public Crud getCrudService() {
+		return crudService;
+	}
+
+	protected String msg = "";
+
+	public String getMsg() {
+		return msg;
+	}
+
+	public void setMsg(String msg) {
+		this.msg = msg;
+	}
+
+	private List<BaseObject> list;
+
+	protected BaseObject getEntity() {
+		BaseObject bean = null;
+		try {
+			bean = (BaseObject) Class.forName(
+					getClass().getName().replace("web.action", "entity")
+							.replace("Action", "")).newInstance();
+
+			BeanUtils.populate(bean, getRequest().getParameterMap());
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
+		return bean;
+	}
+
+	private Page page = new Page();
+
+	public List<BaseObject> getList() {
+		return list;
+	}
+
+	public void setList(List<BaseObject> list) {
+		this.list = list;
+	}
+
+	public String insert() {
+		getCrudService().insert(getEntity());
+		return SUCCESS;
+	}
+
+	public String update() {
+		getCrudService().update(getEntity());
+		return SUCCESS;
+	}
+
+	public String delete() {
+		getCrudService().delete(getEntity());
+		return SUCCESS;
+	}
+
+	public void jsonInsert() {
+		getCrudService().insert(getEntity());
+		super.ajaxOutPrint(0, "ok");
+	}
+
+	public void jsonUpdate() {
+		getCrudService().update(getEntity());
+		super.ajaxOutPrint(0, "ok");
+	}
+
+	public void jsonDelete() {
+		getCrudService().delete(getEntity());
+		super.ajaxOutPrint(0, "ok");
+	}
+
+	protected String getQueryStatement() {
+		String actionClassName = getClass().getName();
+		return actionClassName.substring(actionClassName.lastIndexOf(".") + 1)
+				.replace("Action", "").toUpperCase();
+	}
+
+	protected Map getQueryMap() {
+		Map queryMap = new HashMap();
+		Map<String, String[]> parameterMap = getRequest().getParameterMap();
+		for (Object key : parameterMap.keySet()) {
+			if (key.toString().startsWith("query.")
+					&& StringUtil.isNotEmpty(parameterMap.get(key)[0])) {
+				queryMap.put(key.toString().replace("query.", ""),
+						parameterMap.get(key)[0]);
+				getRequest().setAttribute(key.toString().replace(".", "_"),
+						parameterMap.get(key)[0].toString());
+			}
+		}
+		return queryMap;
+	}
+
+	public String query() {
+		queryList(getQueryStatement() + ".selectList", getQueryStatement()
+				+ ".selectCount");
+		return SUCCESS;
+	}
+
+	protected void queryList(String listStatementName, String countStatementName) {
+		Map queryMap = getQueryMap();
+		Long count = (Long) getCrudService().queryForObject(countStatementName,
+				queryMap);
+		page.initPageParameter(count, getRequest().getParameter("pageNo"),
+				getPageSize());
+		queryMap.put("startRow", page.getStartRow());
+		queryMap.put("offset", getPageSize());
+		setList(getCrudService().queryForList(listStatementName, queryMap));
+		getRequest().setAttribute("page", page);
+	}
+
+	public String queryNoPage() {
+		setList(getCrudService().queryForList(
+				getQueryStatement() + ".selectList", getQueryMap()));
+		return SUCCESS;
+	}
+
+	public void jsonQuery() {
+		query();
+		super.ajaxOutPrint(list.toString());
+	}
+
+	protected int getPageSize() {
+		return page.getPageSize();
+	}
+
+}

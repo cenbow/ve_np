@@ -1,0 +1,174 @@
+package com.ve.tradecenter.core.service.action.cart;
+
+
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.ve.itemcenter.common.domain.ItemSkuDTO;
+import com.ve.tradecenter.common.constant.ResponseCode;
+import com.ve.tradecenter.common.domain.CartDTO;
+import com.ve.tradecenter.common.domain.CartItemDTO;
+import com.ve.tradecenter.core.constants.TradeConstants;
+import com.ve.tradecenter.core.domain.CartItemDO;
+import com.ve.tradecenter.core.exception.TradeException;
+import com.ve.tradecenter.core.manager.UserCartItemManager;
+import com.ve.tradecenter.core.service.RequestContext;
+import com.ve.tradecenter.core.service.ResponseUtils;
+import com.ve.tradecenter.core.service.TradeRequest;
+import com.ve.tradecenter.core.service.TradeResponse;
+import com.ve.tradecenter.core.service.action.Action;
+import com.ve.tradecenter.core.service.action.ActionEnum;
+/**
+ * 
+ * @author cwr
+ */
+public class AddUserCartItem implements Action {
+	private static final Logger log = LoggerFactory.getLogger(AddUserCartItem.class);
+	
+	@Resource
+	private TransactionTemplate transactionTemplate;
+
+	@Resource
+	private UserCartItemManager userCartItemManager;
+
+	@Override
+	public TradeResponse<Boolean> execute(RequestContext context){
+		TradeRequest request = context.getRequest();
+		
+		if(request.getParam("cartItemDTO") == null){
+			log.error("cartItemDTO is null");
+			return ResponseUtils.getFailResponse(ResponseCode.PARAM_E_PARAM_MISSING,"cartItemDTO is null");
+		}
+		CartItemDTO cartItemDTO = (CartItemDTO)request.getParam("cartItemDTO");
+		
+		// 字段验证
+		String errorMsg = this.userCartItemManager.validateCartItemFields(cartItemDTO);
+		if(!StringUtils.isEmpty(errorMsg)){
+			log.error(errorMsg);
+			return ResponseUtils.getFailResponse(ResponseCode.PARAM_E_PARAM_MISSING,errorMsg);
+		}
+		
+		Long userId = cartItemDTO.getUserId();
+		Long itemSkuId = cartItemDTO.getItemSkuId();
+		Long supplierId = cartItemDTO.getSupplierId();
+		Integer number  = cartItemDTO.getNumber();
+		String sessionId = cartItemDTO.getSessionId();
+		Integer port = cartItemDTO.getPort()==null? TradeConstants.OrderSource.PC : cartItemDTO.getPort(); // 默认来自于pc端 	
+		
+		// 商品平台查询商品详细信息
+		ItemSkuDTO itemSku = null;
+		try{
+			itemSku = getItemSku(itemSkuId, supplierId);
+		}catch(TradeException e){
+			log.error("getItemSku error",e);
+			return ResponseUtils.getFailResponse(ResponseCode.SYS_E_REMOVE_CALL_ERROR);
+		}
+		if(itemSku == null){
+			log.error("itemSku doesn't exist : "+ itemSkuId + ","+supplierId);
+			return ResponseUtils.getFailResponse(ResponseCode.BIZ_E_RECORD_NOT_EXIST,"itemSku doesn't exist ");
+		}
+		
+		Date now = new Date();
+		CartItemDO cartItem = new CartItemDO();
+		
+		cartItem.setIsGift(itemSku.getIsGift());
+		cartItem.setUserId(userId);
+		cartItem.setItemSkuId(itemSkuId);
+		cartItem.setNumber(number);
+		cartItem.setPort(port);  // 渠道来源 
+		cartItem.setSupplierId(supplierId); 
+		cartItem.setSessionId(sessionId);
+		cartItem.setGmtModified(now);
+		cartItem.setGmtCreated(now);
+		cartItem.setUnitPrice(itemSku.getPrice());
+		
+		long result = 0,promotionResult=0;
+		List<CartItemDTO> promotionItems =null;
+		CartDTO promotionCart = null;
+		List<CartItemDO> cartItems = null;
+		try{
+			result = userCartItemManager.addUserCartItem(cartItem); // 添加商品
+			// 获取用户的购物车列表
+			 cartItems = this.userCartItemManager.queryUserCartItems(userId);
+		}catch(TradeException e){
+			log.error("db error: ",e);
+			return ResponseUtils.getFailResponse(ResponseCode.SYS_E_DATABASE_ERROR);
+		}
+		
+		promotionCart = getPromotionItems(cartItems);
+		
+		// 获取赠品的信息
+		promotionItems = promotionCart.getCartItems();
+		// 如果是返回有赠品的信息非空 需要先清除旧的赠品的信息再写入
+		if(promotionItems != null || promotionItems.size()>0){
+			try {
+				this.userCartItemManager.deleteGiftItems(userId);
+			} catch (TradeException e) {
+				log.error("db error: ",e);
+				return ResponseUtils.getFailResponse(ResponseCode.SYS_E_DATABASE_ERROR);
+			}
+			for(CartItemDTO item : promotionItems){
+				CartItemDO giftItem = new CartItemDO();
+				giftItem.setIsGift(true); // 赠品
+				giftItem.setItemSkuId(giftItem.getItemSkuId());
+				giftItem.setUserId(userId);
+				giftItem.setSessionId(sessionId);
+				giftItem.setItemSkuId(itemSkuId);
+				giftItem.setNumber(number);
+				giftItem.setPort(port);  // 渠道来源 
+				giftItem.setSupplierId(supplierId); 
+				giftItem.setSessionId(sessionId);
+				giftItem.setGmtModified(now);
+				giftItem.setGmtCreated(now);
+				// TODO 
+				// 其他字段完善
+				
+				try{
+					userCartItemManager.addUserCartItem(giftItem); // 添加商品
+				}catch(TradeException e){
+					log.error("db error: ",e);
+					return ResponseUtils.getFailResponse(ResponseCode.SYS_E_DATABASE_ERROR);
+				}
+			}
+		}
+		
+		boolean module = result > 0 ? true : false;
+		return ResponseUtils.getSuccessResponse(module);
+	}
+
+	@Override
+	public String getName() {
+		return ActionEnum.ADD_USER_CART_ITEM.getActionName();
+	}
+	
+	/**
+	 * 查询商品平台获取商品的价格等信息
+	 * @param itemSkuId
+	 * @param supplierID
+	 * @return
+	 */
+	private ItemSkuDTO getItemSku(Long itemSkuId,Long supplierID)throws TradeException{
+		ItemSkuDTO item  = null;
+		// TODO
+		// 从商品平台查询商品信息
+		return item;
+	}
+	
+	/**
+	 * 根据商品的列表查询购物车的优惠信息
+	 * @param cartItems
+	 */
+	private CartDTO getPromotionItems(List<CartItemDO> cartItems){
+		CartDTO  cart  = null;
+		// TODO 
+		// 调用购物车的模块获取商品的优惠信息
+		return cart;
+	}
+}	

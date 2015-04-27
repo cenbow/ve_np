@@ -1,0 +1,10 @@
+package com.ve.marketingcenter.common.domain.dto;
+
+import java.io.Serializable;
+
+public class CouponDTO implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1262110968907941494L;}

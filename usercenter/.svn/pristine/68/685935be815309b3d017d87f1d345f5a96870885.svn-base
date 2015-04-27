@@ -1,0 +1,53 @@
+package com.ve.usercenter.core.service.action.userextra;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.dto.UserExtraInfoDTO;
+import com.ve.usercenter.core.domain.UserExtraInfoDO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserExtraInfoManage;
+import com.ve.usercenter.core.service.RequestContext;
+import com.ve.usercenter.core.service.UserRequest;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.service.action.Action;
+import com.ve.usercenter.core.service.action.ActionEnum;
+
+@Service
+public class AddUserExtraInfoAction implements Action {
+
+	@Resource
+	private UserExtraInfoManage userExtraInfoManage;
+
+	@Override
+	public UserResponse execute(RequestContext context) throws UserException {
+
+		UserExtraInfoDO userExtraDo = null;
+		UserResponse response = null;
+
+		UserRequest userRequest = context.getRequest();
+
+		UserExtraInfoDTO userExtraDto = (UserExtraInfoDTO) userRequest
+				.getParam("userExtraDTO");
+
+		log.info("userExtraDto:", userExtraDto);
+
+		try {
+			userExtraDto = userExtraInfoManage.addUserExtraInfo(userExtraDto);
+		} catch (UserException e) {
+			return new UserResponse(e.getResponseCode().getCode(),
+					e.getMessage());
+		}
+
+		response = new UserResponse(userExtraDto);
+
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		return ActionEnum.ADD_USER_EXTRA_INFO.getActionName();
+	}
+
+}

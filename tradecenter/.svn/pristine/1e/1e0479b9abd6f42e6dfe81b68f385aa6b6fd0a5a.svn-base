@@ -1,0 +1,160 @@
+package com.ve.tradecenter.core.service.action.order;
+
+import java.util.Date;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.ve.tradecenter.common.api.Request;
+import com.ve.tradecenter.common.constant.ResponseCode;
+import com.ve.tradecenter.common.domain.AlipaymentDTO;
+import com.ve.tradecenter.core.constants.TradeConstants;
+import com.ve.tradecenter.core.domain.PaymentDO;
+import com.ve.tradecenter.core.domain.PaymentNoticeDO;
+import com.ve.tradecenter.core.exception.TradeException;
+import com.ve.tradecenter.core.manager.OrderLogManager;
+import com.ve.tradecenter.core.manager.OrderManager;
+import com.ve.tradecenter.core.manager.PaymentManager;
+import com.ve.tradecenter.core.manager.PaymentNoticeManager;
+import com.ve.tradecenter.core.service.RequestContext;
+import com.ve.tradecenter.core.service.ResponseUtils;
+import com.ve.tradecenter.core.service.TradeResponse;
+import com.ve.tradecenter.core.service.action.Action;
+import com.ve.tradecenter.core.service.action.ActionEnum;
+import com.ve.tradecenter.core.service.action.cart.AddCartItem;
+import com.ve.tradecenter.core.util.TradeUtils;
+
+/**
+ * 支付宝回调处理类
+ * @author cwr
+ */
+public class AlipayCallback implements Action {
+	private static final Logger log = LoggerFactory.getLogger(AddCartItem.class);
+	@Resource
+
+	private PaymentNoticeManager paymentNoticeManager;
+	@Resource
+	
+	private PaymentManager paymentManager;
+	@Resource 
+	
+	private OrderManager orderManager;
+	@Resource 
+	private OrderLogManager orderLogManager;
+	
+	public TradeResponse<Boolean> execute(RequestContext context)
+			throws TradeException {
+		Request request = context.getRequest();
+		TradeResponse<Boolean> response = null;
+		if(request.getParam("alipaymentDTO") == null){
+			log.error("alipaymentDTO is null");
+			return ResponseUtils.getFailResponse(ResponseCode.PARAM_E_PARAM_MISSING,"alipaymenetDTO is null");
+		}
+		
+		// 字段验证
+		AlipaymentDTO alipaymentDTO = (AlipaymentDTO)request.getParam("alipaymentDTO");
+		String errorMsg = validateAlipaymentFields(alipaymentDTO);
+		if(StringUtils.isEmpty(errorMsg)){
+			log.error(errorMsg);
+			return ResponseUtils.getFailResponse(ResponseCode.PARAM_E_PARAM_MISSING,errorMsg); 
+		}
+		
+		String toSign = alipaymentDTO.getToSign(); // 待签名字符串
+		String sign = alipaymentDTO.getSign(); // 签名字符串
+		
+		Long userId = alipaymentDTO.getUserId(); // 用户id
+		String outerTradeNo = alipaymentDTO.getTradeNo(); // 支付宝交易号
+		String tradeNo = alipaymentDTO.getOutTradeNo(); // ve交易号 
+		String tradeStatus = alipaymentDTO.getTradeStatus(); // 支付宝交易状态
+		
+		// 获取支付宝支付方式
+		PaymentDO payment = this.paymentManager.getPaymentByClass(TradeConstants.PaymentType.ALI_PAY);
+		if(payment == null){
+			log.error("alipay doesn't exist : " + TradeConstants.PaymentType.ALI_PAY);
+			return ResponseUtils.getFailResponse(ResponseCode.BIZ_E_PAYMENT_TYPE_ERROR,"alipay doesn't exist");
+		}
+		
+		//签名验证
+		String key = this.paymentManager.getPaymentSignKey(payment);
+		if(key == null){
+			log.error("alipay sign config error");
+			return ResponseUtils.getFailResponse(ResponseCode.BIZ_E_PAYMENT_SIGN_ERROR,"alipay sign config error");
+		}
+		toSign = toSign + key;
+		String signed = TradeUtils.md5(toSign);
+		if(signed != null && signed.equals(sign)){
+			throw new TradeException(ResponseCode.BIZ_E_PAYMENT_SIGN_ERROR,"sign is invalid");
+		}
+		
+		// 根据交易号判断是否存在该支付单
+		PaymentNoticeDO paymentNotice = this.paymentNoticeManager.getPaymentNoticeByTradeNo(tradeNo,userId);
+		// 如果是支付单不存在
+		if(paymentNotice == null){
+			log.error("paymentNotice is null : " + tradeNo);
+			return ResponseUtils.getFailResponse(ResponseCode.BIZ_E_RECORD_NOT_EXIST,"paymentNotice doesn't exist");
+		}
+		
+		// 如果支付宝支付成功  -- 整单支付成功
+		//TODO  支付成功后再来拆单 
+		int paymentNoticeResult=0,orderResult = 0;
+		if(tradeStatus.equals(TradeConstants.AlipayStatus.TRADE_FINISHED) || tradeStatus.equals(TradeConstants.AlipayStatus.TRADE_SUCCESS)
+				|| tradeStatus.equals(TradeConstants.AlipayStatus.WAIT_BUYER_CONFIRM_GOODS) || tradeStatus.equals(TradeConstants.AlipayStatus.WAIT_SELLER_SEND_GOODS)){
+			boolean payStatus = true; // 支付成功
+			Date now = new Date(); 
+			Long id = paymentNotice.getId();
+			Long orderId = paymentNotice.getOrderId();
+			
+			// 更新支付单状态为已支付  -- 总单
+			paymentNoticeResult = this.paymentNoticeManager.paySuccess(id,payStatus, outerTradeNo,now);
+			
+			// 更新订单表的支付状态为已支付
+			orderResult = this.orderManager.orderPaySuccess(orderId, userId);
+			this.orderLogManager.addOrderLog(TradeConstants.OrderLog.ALL_PAID, now, orderId, userId, (userId+""));
+			
+			//TODO 
+			// 更新子单的支付状态
+			
+		}
+		
+		boolean module = (orderResult > 0 ? true : false) && (paymentNoticeResult>0 ?true: false);
+		if(!module){
+			response = ResponseUtils.getSuccessResponse(module);
+		}else{
+			log.error("updated failed");
+			response = ResponseUtils.getFailResponse(ResponseCode.BIZ_E_RECORD_NOT_EXIST);
+		}
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		return ActionEnum.ALIPAY_CALLBACK.getActionName();
+	}
+	
+	/**
+	 * 验证支付宝回调的参数
+	 * @return
+	 */
+	public String validateAlipaymentFields(AlipaymentDTO alipaymentDTO)throws TradeException{
+		if(alipaymentDTO.getUserId() == null){
+			return "userId is null";
+		}else if(alipaymentDTO.getTradeNo() == null){
+			return "tradeNo is null";
+		}else if(alipaymentDTO.getTotalFee() == null){
+			return ("outTradeNo is null");
+		}else if(alipaymentDTO.getSign() == null){
+			return ("sign is null");
+		}else if(alipaymentDTO.getToSign() == null){
+			return ("toSign is null");
+		}else if(alipaymentDTO.getTotalFee() == null){
+			return ("totalFee is null");	
+		}else if(alipaymentDTO.getTradeStatus() == null){
+			return ("tradeStatus is null");
+		}
+		return null;
+	}
+	
+}

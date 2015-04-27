@@ -1,0 +1,17 @@
+package com.ve.deliverycenter.core.manager.express.intef;
+
+import java.util.List;
+
+import com.ve.deliverycenter.common.dto.express.ExpressPropertyDTO;
+
+public interface ExpressPropertyManager {
+	public List<ExpressPropertyDTO> addExpressProperty(
+			List<ExpressPropertyDTO> expressPropertyDTOList);
+
+	public int deleteExpressProperty(List<Integer> expressPropertyIdList);
+
+	public List<ExpressPropertyDTO> queryByExpressCode(String expressCode);
+
+	public int batchDeleteExpressProperty(String expressCode);
+
+}

@@ -1,0 +1,68 @@
+package com.ve.itemcenter.core.manager;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.domain.SkuPropertyDTO;
+import com.ve.itemcenter.common.domain.SkuPropertyQTO;
+import com.ve.itemcenter.core.exception.ItemException;
+
+@Service
+public interface SkuPropertyManager {
+
+	/**
+	 * 添加SKU属性
+	 * 
+	 * @param skuPropertyDO
+	 * @return
+	 * @throws ItemException
+	 */
+	public SkuPropertyDTO addSkuProperty(SkuPropertyDTO skuPropertyDTO) throws ItemException;
+
+	/**
+	 * 添加SKU属性
+	 * 
+	 * @param skuPropertyDTO
+	 * @return
+	 * @throws ItemException
+	 */
+	public boolean updateSkuProperty(SkuPropertyDTO skuPropertyDTO) throws ItemException;
+
+	/**
+	 * 查看SKU属性
+	 * 
+	 * @param id
+	 * @return
+	 * @throws ItemException
+	 */
+	public SkuPropertyDTO getSkuProperty(long id) throws ItemException;
+
+	/**
+	 * 删除SKU属性
+	 * 
+	 * @param id
+	 * @return
+	 * @throws ItemException
+	 */
+	public boolean deleteSkuProperty(long id) throws ItemException;
+
+	/**
+	 * 验证SkuPropertyDTO
+	 * 
+	 * @param skuPropertyDTO
+	 * @return
+	 * @throws ItemException
+	 */
+	public boolean verifySkuPropertyDTOProperty(SkuPropertyDTO skuPropertyDTO) throws ItemException;
+
+	/**
+	 * 查询SKU属性列表
+	 * 
+	 * @param skuPropertyQTO
+	 * @return
+	 * @throws ItemException
+	 */
+	public List<SkuPropertyDTO> querySkuProperty(SkuPropertyQTO skuPropertyQTO) throws ItemException;
+
+}

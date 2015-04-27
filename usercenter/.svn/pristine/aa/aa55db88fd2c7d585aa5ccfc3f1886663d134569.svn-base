@@ -1,0 +1,51 @@
+package com.ve.usercenter.core.service.action.userbaby;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.dto.UserBabyInfoDTO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserBabyInfoManager;
+import com.ve.usercenter.core.service.RequestContext;
+import com.ve.usercenter.core.service.UserRequest;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.service.action.Action;
+import com.ve.usercenter.core.service.action.ActionEnum;
+
+@Service
+public class DeleteBabyInfoAction implements Action {
+
+	@Resource
+	private UserBabyInfoManager userBabyInfoManager;
+
+	@Override
+	public UserResponse execute(RequestContext context) throws UserException {
+		// TODO Auto-generated method stub
+		UserResponse response = null;
+		UserBabyInfoDTO babyInfoDto = null;
+
+		UserRequest userRequest = context.getRequest();
+		Long userId = (Long) userRequest.getParam("userId");
+		Long babyId = (Long) userRequest.getParam("babyId");
+
+		log.info("userId:", userId);
+		log.info("babyId:", babyId);
+
+		try {
+			userBabyInfoManager.deleteBabyInfo(userId, babyId);
+		} catch (UserException e) {
+			return new UserResponse(e.getResponseCode().getCode(),
+					e.getMessage());
+		}
+		response = new UserResponse(true);
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return ActionEnum.DELETE_USER_BABY_INFO.getActionName();
+	}
+
+}

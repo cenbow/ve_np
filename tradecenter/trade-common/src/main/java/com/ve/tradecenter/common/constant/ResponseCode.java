@@ -1,0 +1,76 @@
+package com.ve.tradecenter.common.constant;
+
+public enum ResponseCode {
+	/*
+	 * 处理成功
+	 */
+	RESPONSE_SUCCESS("200","success！"),
+	/*
+	 * 系统级别错误
+	 */
+    SYS_E_DEFAULT_ERROR("S1009","%s 系统开小差中，请稍后再试"),
+    SYS_E_SERVICE_EXCEPTION("S1001","服务端异常"),
+    SYS_E_DATABASE_ERROR("S1002","数据库操作异常"),
+    SYS_E_REMOTE_CALL_ERROR("S1009","remote call error"),
+    /*
+     * 业务级别错误
+     */
+    PARAM_E_PARAM_INVALID("P2001","param is invalid"),
+    PARAM_E_PARAM_MISSING("P3001","param is null"),
+	/*
+	 * 参数错误
+	 */
+	BIZ_E_RECORD_NOT_EXIST("B3001","请求的记录不存在"),
+	BIZ_E_CART_EMPTY("B3002","购物车为空"),
+	BIZ_E_PAYMENT_TYPE_ERROR("B3101","支付方式错误"),
+	BIZ_E_COUPON_CONDITION_ERROR("B3301","未达到优惠券的使用条件"),
+//	BIZ_E_ADDRESSS_COD_NOT_SUPPORT("B3102","地区不支持货到付款")
+	BIZ_E_COD_NOT_SUPPORTED("B3201","不支持货到付款"),
+	BIZ_E_COD_MAX_LIMITATION("B3202","cod max limitation"),
+	BIZ_E_COD_MIN_LIMITATION("B3203","cod min limitation"),
+	
+	
+	BIZ_E_ITEM_NOT_EXIST("B3401","商品不存在"),
+	BIZ_E_ITEM_SALE_NOT_START("B3402","the item not begin yet"),//商品还未开售 商品销售已经结束 
+	BIZ_E_ITEM_SALE_END("B3403","the item is over"),
+	BIZ_E_ITEM_OUT_OF_STOCK("B3404","the item is out of stock"), // 库存不足
+	
+	BIZ_E_ITEM_BUY_MAX_AMOUNT("B3404","exceed the max limitaion"),
+	BIZ_E_ITEM_BUY_MIN_AMOUNT("B3404","less than the min limitaion"),
+
+	
+	
+	BIZ_E_PAYMENT_NOTICE_NOT_EXIST("B4102","支付单不存在"),
+	BIZ_E_PAYMENT_SIGN_ERROR("B4101","数字签名错误"),
+	
+	BIZ_E_PAYMENT_COD_NOT_SUPPORTED("B4103","cod not supported"),
+	
+	BIZ_E_ORDER_STATUS_ERROR("B3501","order status error"),
+	BIZ_E_ORDER_CLOSED("B5103","order already closed "),
+	BIZ_E_ORDER_TIMEOUT("B5104","order timeout"),
+	BIZ_E_ORDER_AFTERSALE("B5105","aftersale already in process");
+	
+	
+	
+	
+	/*private class ErrorMessage{
+		public final static String PAYMNET_TYPE_NOT_SUPPORT = "支付方式错误！"; 
+	}*/
+    
+    private String code;
+    private String comment;
+
+    private ResponseCode(String code, String comment){
+        this.code = code;
+        this.comment = comment;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+}

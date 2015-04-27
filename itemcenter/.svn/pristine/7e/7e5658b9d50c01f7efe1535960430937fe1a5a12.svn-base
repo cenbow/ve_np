@@ -1,0 +1,99 @@
+package com.ve.itemcenter.core.manager.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.constant.ResCodeNum;
+import com.ve.itemcenter.common.domain.ItemBrandDTO;
+import com.ve.itemcenter.common.domain.ItemBrandQTO;
+import com.ve.itemcenter.core.dao.ItemBrandDAO;
+import com.ve.itemcenter.core.domain.ItemBrandDO;
+import com.ve.itemcenter.core.exception.ItemException;
+import com.ve.itemcenter.core.manager.ItemBrandManager;
+import com.ve.itemcenter.core.util.ExceptionUtil;
+import com.ve.itemcenter.core.util.ItemUtil;
+
+@Service
+public class ItemBrandManagerImpl implements ItemBrandManager {
+	@Resource
+	private ItemBrandDAO itemBrandDAO;
+
+	@Override
+	public ItemBrandDTO addItemBrand(ItemBrandDTO itemBrandDTO) throws ItemException {
+		try {
+			// 验证itemBrandDTO内的属性
+			if (!verifyItemBrandDTOProperty(itemBrandDTO)) {
+				throw ExceptionUtil.getException(ResCodeNum.PARAM_E_INVALID, "itemBrandDTO property incorrect");
+			}
+			ItemBrandDO itemBrandDO = new ItemBrandDO();
+			// 设置商品品牌的状态
+			itemBrandDTO.setBrandStatus(DBConst.BRAND_NORMAL.getCode());//
+			ItemUtil.copyProperties(itemBrandDTO, itemBrandDO);// DTO转DO
+			long newInsertedId = itemBrandDAO.addItemBrand(itemBrandDO);// 新增的记录返回的ID
+			itemBrandDTO = getItemBrand(newInsertedId);// 新增加的记录对应的itemBrandDO
+			return itemBrandDTO;
+		} catch (Exception e) {
+			throw ExceptionUtil.getException(ResCodeNum.SYS_E_DEFAULT_ERROR, e.getMessage());
+		}
+	}
+
+	@Override
+	public boolean updateItemBrand(ItemBrandDTO itemBrandDTO) throws ItemException {
+		// 验证参数
+		if (itemBrandDTO.getId() == null) {
+			throw ExceptionUtil.getException(ResCodeNum.PARAM_E_MISSING, "itemBrandDTO is null");
+		}
+		ItemBrandDO itemBrandDO = new ItemBrandDO();
+		ItemUtil.copyProperties(itemBrandDTO, itemBrandDO);
+		int num = itemBrandDAO.updateItemBrand(itemBrandDO);
+		return num > 0 ? true : false;
+	}
+
+	@Override
+	public ItemBrandDTO getItemBrand(long id) throws ItemException {
+		ItemBrandDO itemDO = itemBrandDAO.getItemBrand(id);
+		if (itemDO == null) {
+			throw ExceptionUtil
+					.getException(ResCodeNum.BASE_PARAM_E_RECORD_NOT_EXIST, "requested record doesn't exist");
+		}
+		ItemBrandDTO itemBrandDTO = new ItemBrandDTO();
+		ItemUtil.copyProperties(itemDO, itemBrandDTO);
+		return itemBrandDTO;
+	}
+
+	@Override
+	public boolean deleteItemBrand(long id) throws ItemException {
+		ItemBrandDO itemDO = itemBrandDAO.getItemBrand(id);
+		if (itemDO == null) {
+			throw ExceptionUtil
+					.getException(ResCodeNum.BASE_PARAM_E_RECORD_NOT_EXIST, "requested record doesn't exist");
+		}
+		ItemBrandDO itemBrandDO = new ItemBrandDO();
+		itemBrandDO.setId(id);
+		itemBrandDO.setIsDeleted(DBConst.DELETED.getCode());
+		int num = itemBrandDAO.updateItemBrand(itemBrandDO);
+		return num > 0 ? true : false;
+	}
+
+	@Override
+	public boolean verifyItemBrandDTOProperty(ItemBrandDTO itemBrandDTO) throws ItemException {
+		// TODO 验证ItemBrandDTO字段属性
+		return true;
+	}
+
+	public List<ItemBrandDTO> queryItemBrand(ItemBrandQTO itemBrandQTO) throws ItemException {
+		List<ItemBrandDO> list = itemBrandDAO.queryItemBrand(itemBrandQTO);
+		List<ItemBrandDTO> itemBrandDTOList = new ArrayList<ItemBrandDTO>();// 需要返回的DTO列表
+		for (ItemBrandDO itemBrandDO : list) {
+			ItemBrandDTO dto = new ItemBrandDTO();
+			ItemUtil.copyProperties(itemBrandDO, dto);
+			itemBrandDTOList.add(dto);
+		}
+		return itemBrandDTOList;
+	}
+}

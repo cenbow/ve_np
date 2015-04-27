@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="user_consignee_info" >
+  <resultMap id="BaseResultMap" class="com.ve.usercenter.core.domain.ConsigneeDO" >
+    <result column="id" property="id" jdbcType="BIGINT" />
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="country" property="country" jdbcType="INTEGER" />
+    <result column="province" property="province" jdbcType="INTEGER" />
+    <result column="city" property="city" jdbcType="INTEGER" />
+    <result column="area" property="area" jdbcType="INTEGER" />
+    <result column="town" property="town" jdbcType="INTEGER" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="phone_no" property="phoneNo" jdbcType="VARCHAR" />
+    <result column="mobile_no" property="mobileNo" jdbcType="VARCHAR" />
+    <result column="zip" property="zip" jdbcType="VARCHAR" />
+    <result column="consignee" property="consignee" jdbcType="VARCHAR" />
+    <result column="is_default" property="isDefault" jdbcType="TINYINT" />
+    <result column="deleted" property="deleted" jdbcType="TINYINT"/>
+    <result column="gmt_created" property="gmtCreated" jdbcType="TIMESTAMP" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+    <result column="remark" property="remark" jdbcType="VARCHAR"/>
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <iterate property="oredCriteria" conjunction="or" prepend="where" removeFirstPrepend="iterate" >
+      <isEqual property="oredCriteria[].valid" compareValue="true" >
+        (
+        <iterate prepend="and" property="oredCriteria[].criteriaWithoutValue" conjunction="and" >
+          $oredCriteria[].criteriaWithoutValue[]$
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithSingleValue" conjunction="and" >
+          $oredCriteria[].criteriaWithSingleValue[].condition$ #oredCriteria[].criteriaWithSingleValue[].value#
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithListValue" conjunction="and" >
+          $oredCriteria[].criteriaWithListValue[].condition$
+          <iterate property="oredCriteria[].criteriaWithListValue[].values" open="(" close=")" conjunction="," >
+            #oredCriteria[].criteriaWithListValue[].values[]#
+          </iterate>
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithBetweenValue" conjunction="and" >
+          $oredCriteria[].criteriaWithBetweenValue[].condition$
+          #oredCriteria[].criteriaWithBetweenValue[].values[0]# and
+          #oredCriteria[].criteriaWithBetweenValue[].values[1]#
+        </iterate>
+        )
+      </isEqual>
+    </iterate>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, user_id, country, province, city, area, town, address, phone_no, mobile_no, zip, 
+    consignee, is_default,deleted, gmt_created, gmt_modified,remark
+  </sql>
+ 
+  <select id="selectById" resultMap="BaseResultMap" parameterClass="java.lang.Long" >
+    select 
+    <include refid="user_consignee_info.Base_Column_List" />
+    from user_consignee_info
+    where id = #id:BIGINT# and deleted= 0
+  </select>
+  
+  <select id="selectCount" resultClass="java.lang.Integer" parameterClass="java.lang.Long">
+  	select count(*) from user_consignee_info where user_id = #userId:BIGINT# and deleted= 0
+  </select>
+  
+  <select id="queryConsignee" resultMap="BaseResultMap" parameterClass="java.lang.Long">
+  	select <include refid="user_consignee_info.Base_Column_List" /> from user_consignee_info where user_id = #userId:BIGINT# and deleted= 0
+  </select>
+  
+  <insert id="insert" parameterClass="com.ve.usercenter.core.domain.ConsigneeDO" >
+    insert into user_consignee_info
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="userId" >
+        user_id
+      </isNotNull>
+      <isNotNull prepend="," property="country" >
+        country
+      </isNotNull>
+      <isNotNull prepend="," property="province" >
+        province
+      </isNotNull>
+      <isNotNull prepend="," property="city" >
+        city
+      </isNotNull>
+      <isNotNull prepend="," property="area" >
+        area
+      </isNotNull>
+      <isNotNull prepend="," property="town" >
+        town
+      </isNotNull>
+      <isNotNull prepend="," property="address" >
+        address
+      </isNotNull>
+      <isNotNull prepend="," property="phoneNo" >
+        phone_no
+      </isNotNull>
+      <isNotNull prepend="," property="mobileNo" >
+        mobile_no
+      </isNotNull>
+      <isNotNull prepend="," property="zip" >
+        zip
+      </isNotNull>
+      <isNotNull prepend="," property="consignee" >
+        consignee
+      </isNotNull>
+      <isNotNull prepend="," property="remark" >
+        remark
+      </isNotNull>
+      <isNotNull prepend="," property="isDefault">
+      	is_default
+      </isNotNull>
+      ,deleted,gmt_created,gmt_modified
+      
+      )
+    </dynamic>
+    values
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="userId" >
+        #userId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="country" >
+        #country:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="province" >
+        #province:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="city" >
+        #city:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="area" >
+        #area:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="town" >
+        #town:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="address" >
+        #address:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="phoneNo" >
+        #phoneNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="mobileNo" >
+        #mobileNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="zip" >
+        #zip:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="consignee" >
+        #consignee:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="remark" >
+        #remark:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="isDefault" >
+        #isDefault:TINYINT#
+      </isNotNull>
+		,0,now(),now()
+      )
+    </dynamic>
+     <selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+	</selectKey>
+  </insert>
+  
+ 
+  <update id="updateById" parameterClass="com.ve.usercenter.core.domain.ConsigneeDO" >
+    update user_consignee_info set gmt_modified = now()
+    
+      <isNotNull prepend="," property="country" >
+        country = #country:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="province" >
+        province = #province:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="city" >
+        city = #city:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="area" >
+        area = #area:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="town" >
+        town = #town:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="address" >
+        address = #address:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="phoneNo" >
+        phone_no = #phoneNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="mobileNo" >
+        mobile_no = #mobileNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="zip" >
+        zip = #zip:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="consignee" >
+        consignee = #consignee:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="isDefault">
+      	is_default = #isDefault:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="remark" >
+        remark = #remark:VARCHAR#
+      </isNotNull>
+
+    where id = #id:BIGINT# and deleted= 0
+  </update>
+  
+  <update id="setDefConsignee" parameterClass="java.lang.Long">
+  	update user_consignee_info set is_default = 1,gmt_modified = now() where id = #id:BIGINT# and deleted= 0
+  </update>
+  <update id="updateDefaultConsignee" parameterClass="java.lang.Long">
+  	update user_consignee_info set is_default = 0,gmt_modified = now() where user_id = #userId:BIGINT# and deleted= 0
+  </update>
+  
+  <update id="deleteById" parameterClass="com.ve.usercenter.core.domain.ConsigneeDO">
+  	update user_consignee_info set deleted = 1,gmt_modified = now() where id = #id:BIGINT# and user_id = #userId:BIGINT#
+  </update>
+  
+  <update id="deleteByUserId" parameterClass="java.lang.Long">
+  	update user_consignee_info set deleted = 1,gmt_modified = now() where user_id = #userId:BIGINT# and deleted = 0
+  </update>
+  
+  <update id="restoreByUserId" parameterClass="java.lang.Long">
+  	update user_consignee_info set deleted = 0,gmt_modified = now() where user_id = #userId:BIGINT#
+  </update>
+  
+</sqlMap>

@@ -1,0 +1,15 @@
+package com.ve.itemcenter.common.api;
+
+import java.io.Serializable;
+
+import com.ve.itemcenter.common.constant.ErrorCode;
+
+public interface Response<T> extends Serializable {
+	public T getModule();
+
+	public String getErrorCode();
+
+	public String getMessage();
+
+	public long getTotalCount();
+}

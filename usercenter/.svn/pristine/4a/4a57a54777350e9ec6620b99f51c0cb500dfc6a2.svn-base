@@ -1,0 +1,673 @@
+package com.ve.usercenter.core.manager.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.constant.ResponseCode;
+import com.ve.usercenter.common.dto.UserDTO;
+import com.ve.usercenter.common.dto.UserExtraInfoDTO;
+import com.ve.usercenter.common.dto.UserInfoDTO;
+import com.ve.usercenter.common.qto.UserQTO;
+import com.ve.usercenter.core.dao.UserDao;
+import com.ve.usercenter.core.domain.UserDO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserExtraInfoManage;
+import com.ve.usercenter.core.manager.UserManager;
+import com.ve.usercenter.core.util.UserUtil;
+
+@Service
+public class UserManagerImpl implements UserManager {
+
+	@Resource
+	private UserDao userDao;
+
+	@Resource
+	private UserExtraInfoManage userExtraInfoManage;
+
+	@Override
+	public UserDTO addUser(UserDTO userDto) throws UserException {
+
+		if (null == userDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"userDTO is null");
+		}
+
+		// 判断用户的数据是否合法
+		UserUtil.userInfoIsLegal(userDto);
+
+		// 判断用户名是否被注册，不能出现相同的用户名
+		String name = userDto.getName();
+		if (null != getUserByName(name)) {
+			throw new UserException(ResponseCode.B_ADD_ERROR,
+					"username is already register");
+		}
+
+		// 判断邮箱是否被注册，一个邮箱只能被使用一次
+		String email = userDto.getEmail();
+		if (email != null) {
+			if (null != getUserByEmail(email)) {
+				throw new UserException(ResponseCode.B_ADD_ERROR,
+						"email is already register");
+			}
+		}
+
+		// 判断手机是否被注册，一个手机号只能被使用一次
+		String mobile = userDto.getmPhoneNo();
+
+		if (mobile != null) {
+			if (null != getUserByMobile(mobile)) {
+				throw new UserException(ResponseCode.B_ADD_ERROR,
+						"mobile is already register");
+			}
+		}
+
+		// 判断推荐人id是否为空，如果不为空，判断是否存在指定的用户
+		Long recommendId = userDto.getRecommenderId();
+		if (recommendId != null) {
+			if (getUserById(recommendId) == null) {
+				throw new UserException(ResponseCode.B_ADD_ERROR,
+						"user is not exist");
+			}
+		}
+
+		// 判断邀请人id是否为空，如果不为空，判断是否存在指定的用户
+		Long inviterId = userDto.getInviterId();
+		if (inviterId != null) {
+			if (getUserById(inviterId) == null) {
+				throw new UserException(ResponseCode.B_ADD_ERROR,
+						"user is not exist");
+			}
+		}
+
+		// 用户的角色类型
+		Byte role = userDto.getRole();
+		if (role != null) {
+			if (role != 0 && role != 1) {
+				throw new UserException(ResponseCode.P_PARAM_ERROR,
+						"user role is error");
+			}
+		}
+
+		// 验证座机号的格式
+		if (null != userDto.getPhoneNo()) {
+			UserUtil.checkPhoneNo(userDto.getPhoneNo());
+		}
+
+		// 将dto转换为do
+		UserDO userDo = new UserDO();
+		BeanUtils.copyProperties(userDto, userDo);
+		Long userId = userDao.addUser(userDo);
+
+		userDto = getUserById(userId);
+
+		return userDto;
+	}
+
+	@Override
+	public UserDTO getUserByName(String name) throws UserException {
+
+		if (null == name) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"username is null");
+		}
+		UserDO userDo = userDao.getUserByName(name);
+		UserDTO userDto = null;
+		if (null != userDo) {
+			userDto = new UserDTO();
+			BeanUtils.copyProperties(userDo, userDto);
+		}
+
+		return userDto;
+	}
+
+	@Override
+	public UserDTO getUserByEmail(String email) throws UserException {
+
+		UserUtil.checkEamil(email);
+
+		UserDO userDo = userDao.getUserByEmail(email);
+		UserDTO userDto = null;
+		// 将do转换为dto
+		if (null != userDo) {
+			userDto = new UserDTO();
+			BeanUtils.copyProperties(userDo, userDto);
+		}
+		return userDto;
+	}
+
+	@Override
+	public UserDTO getUserByMobile(String mobile) throws UserException {
+		UserUtil.checkMobile(mobile);
+		UserDO userDo = userDao.getUserByMobile(mobile);
+		UserDTO userDto = null;
+		if (null != userDo) {
+			userDto = new UserDTO();
+			BeanUtils.copyProperties(userDo, userDto);
+		}
+		return userDto;
+	}
+
+	@Override
+	public UserDTO getUserById(Long userId) throws UserException {
+
+		if (null == userId) {
+			throw new UserException(ResponseCode.P_PARAM_NULL, "userId is null");
+		}
+
+		if (userId <= 0) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"userId must greater than 0");
+		}
+
+		UserDO userDo = userDao.getUserById(userId);
+		UserDTO userDto = null;
+
+		if (null != userDo) {
+			userDto = new UserDTO();
+			BeanUtils.copyProperties(userDo, userDto);
+		}
+		return userDto;
+	}
+
+	@Override
+	public int updatePwd(Long userId, String oldPwd, String newPwd)
+			throws UserException {
+
+		if (null == newPwd) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"new password is null");
+		}
+
+		if (null == oldPwd) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"old password is null");
+		}
+
+		// 新旧密码不能相同
+		if (oldPwd.equals(newPwd)) {
+			throw new UserException(ResponseCode.B_UPDATE_ERROR,
+					"new password and old password is same");
+		}
+
+		// 检查新密码的合法性
+		UserUtil.checkPwd(newPwd);
+
+		UserDTO userDto = getUserById(userId);
+		if (userDto == null) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user is not exist");
+		}
+
+		// 输入的旧密码是否正确
+		if (!userDto.getPassword().equals(oldPwd)) {
+			throw new UserException(ResponseCode.B_UPDATE_ERROR,
+					"old password is error");
+		}
+
+		int result = userDao.updatePwd(userId, newPwd);
+
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public int updateEmail(Long userId, String email) throws UserException {
+
+		if (null == email) {
+			throw new UserException(ResponseCode.P_PARAM_NULL, "email is null");
+		}
+
+		UserUtil.checkEamil(email);
+
+		UserDTO userDto = getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"user is not exist");
+		}
+
+		// 如果修改的邮箱已存在，则添加错误
+		userDto = getUserByEmail(email);
+		if (userDto != null) {
+			throw new UserException(ResponseCode.B_EMAIL_IS_EXIST,
+					"email is exist");
+		}
+
+		int result = userDao.updateEmail(userId, email);
+
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_UPDATE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public int updateMobile(Long userId, String mobile) throws UserException {
+		// TODO Auto-generated method stub
+
+		if (null == mobile) {
+			throw new UserException(ResponseCode.P_PARAM_NULL, "mobile is null");
+		}
+
+		UserUtil.checkMobile(mobile);
+
+		UserDTO userDto = getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"user is not exist");
+		}
+
+		userDto = getUserByMobile(mobile);
+		if (userDto != null) {
+			throw new UserException(ResponseCode.B_MOBILE_IS_EXIST,
+					"mobile is exist");
+		}
+
+		int result = userDao.updateMobile(userId, mobile);
+
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_UPDATE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public int activeUser(Long userId) throws UserException {
+
+		UserDTO userDto = getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user not exist");
+		}
+
+		// 如果用户的状态为激活状态，则激活失败
+		if (userDto.getStatus() == 0) {
+			throw new UserException(ResponseCode.B_UPDATE_ERROR,
+					"user is activity");
+		}
+
+		int result = userDao.activeUser(userId);
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public int freezeUser(Long userId) throws UserException {
+
+		UserDTO userDto = getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user not exist");
+		}
+
+		if (userDto.getStatus() == 1) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user is freeze");
+		}
+
+		int result = userDao.freezeUser(userId);
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public int moveToRecycle(Long userId) throws UserException {
+
+		UserDTO userDto = getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user not exist");
+		}
+
+		if (userDto.getDeleted() == 2) {
+			throw new UserException(ResponseCode.B_UPDATE_ERROR,
+					"user in recycle");
+		}
+
+		int result = userDao.moveToRecycle(userId);
+
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+		return result;
+	}
+
+	@Override
+	public int deleteUser(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+
+		UserDTO userDto = getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user not exist");
+		}
+		// 如果用户的状态不为2，既用户不在回收站中，则不能删除
+		if (userDto.getDeleted() != 2) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user not in recycle");
+		}
+
+		int result = userDao.deleteUser(userId);
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "delete error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public List<UserDTO> queryUser(UserQTO userQto) throws UserException {
+
+		if (null == userQto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"userQto is null");
+		}
+
+		// 判断推荐人id是否为空，如果不为空，判断是否存在指定的用户
+		Long recommendId = userQto.getRecommenderId();
+		if (recommendId != null) {
+			if (getUserById(recommendId) == null) {
+				throw new UserException(ResponseCode.B_ADD_ERROR,
+						"recommend user is not exist");
+			}
+		}
+
+		// 判断邀请人id是否为空，如果不为空，判断是否存在指定的用户
+		Long inviterId = userQto.getInviterId();
+		if (inviterId != null) {
+			if (getUserById(inviterId) == null) {
+				throw new UserException(ResponseCode.B_ADD_ERROR,
+						"inviter user is not exist");
+			}
+		}
+
+		// 没传入页数或者传入的页数大余500，默认第0页
+		if (null == userQto.getPageNum() || userQto.getPageNum() > 500) {
+			userQto.setPageNum(0L);
+		}
+
+		// 没传入每页显示总数或者每页显示的数量大于500的话，默认每页显示20条
+		if (null == userQto.getPageSize() || userQto.getPageSize() > 500) {
+			userQto.setPageSize(20);
+		}
+
+		// 传入的页数如果大于最大页数，则跳入最后一页
+		Long totalCount = getTotalCount(userQto);
+
+		Long maxIndex = totalCount % userQto.getPageSize() == 0 ? totalCount
+				/ userQto.getPageSize() : totalCount / userQto.getPageSize()
+				+ 1;
+		if (userQto.getPageNum() > maxIndex) {
+			userQto.setPageNum(maxIndex - 1);
+		}
+
+		userQto.setPageNum((maxIndex - 1) * userQto.getPageSize());
+
+		List<UserDO> userDos = userDao.queryUser(userQto);
+		List<UserDTO> userDtos = new ArrayList<UserDTO>();
+
+		for (UserDO userDo1 : userDos) {
+			UserDTO userDto = new UserDTO();
+			BeanUtils.copyProperties(userDo1, userDto);
+			userDtos.add(userDto);
+		}
+
+		return userDtos;
+
+	}
+
+	@Override
+	public int setUserRole(Long userId, Byte role) throws UserException {
+
+		if (null == role) {
+			throw new UserException(ResponseCode.P_PARAM_NULL, "role is null");
+		}
+
+		UserDTO userDto = getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"user is not exist");
+		}
+
+		// 用户角色只能为0或1
+		if (role.byteValue() != 0 && role.byteValue() != 1) {
+			throw new UserException(ResponseCode.B_UPDATE_ERROR,
+					"role value is error");
+		}
+		int result = userDao.setUserRole(userId, role);
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+		return result;
+	}
+
+	@Override
+	public int restoreUser(Long userId) throws UserException {
+
+		int result = userDao.restoreUser(userId);
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public UserDTO getRecycleUser(Long userId) throws UserException {
+
+		if (null == userId) {
+			throw new UserException(ResponseCode.P_PARAM_NULL, "userId is null");
+		}
+
+		if (userId < 0) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"userId must greater than zero");
+		}
+
+		UserDO userDo = userDao.getRecycleUser(userId);
+		UserDTO userDto = null;
+
+		if (null != userDo) {
+			userDto = new UserDTO();
+			BeanUtils.copyProperties(userDo, userDto);
+		}
+		return userDto;
+	}
+
+	@Override
+	public UserDTO userLogin(String loginName, String loginPwd)
+			throws UserException {
+
+		if (null == loginPwd) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"loginPwd is null");
+		}
+
+		// 判断账号是否存在
+		getUserByLoginName(loginName);
+
+		UserDO userDo = userDao.userLogin(loginName, loginPwd);
+
+		if (null == userDo) {
+			throw new UserException(ResponseCode.B_PASSWORD_ERROR,
+					"password error");
+		}
+
+		UserDTO userDto = null;
+		if (userDo != null) {
+			userDto = new UserDTO();
+			BeanUtils.copyProperties(userDo, userDto);
+		}
+
+		return userDto;
+
+	}
+
+	@Override
+	public UserDTO apiUserLogin(UserInfoDTO userInfoDto) throws UserException {
+		// TODO Auto-generated method stub
+
+		if (null == userInfoDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"userInfoDto is null");
+		}
+		// 将用户所有信息的dto，转换为用户扩展信息的dto
+		UserExtraInfoDTO userExtraInfoDto = new UserExtraInfoDTO();
+		BeanUtils.copyProperties(userInfoDto, userExtraInfoDto);
+
+		// 根据openId和authType查询用户扩展表中是否已存在
+		UserExtraInfoDTO extraDto = userExtraInfoManage
+				.getInfoByOpenIdAndAuthType(userExtraInfoDto);
+
+		UserDTO userDto = new UserDTO();
+		BeanUtils.copyProperties(userInfoDto, userDto);
+
+		// 如果不存在指定的信息，则将用户信息和用户扩展信息添加进入
+		if (extraDto == null) {
+			userDto = addUser(userDto);
+			userInfoDto.setUserId(userDto.getId());
+			extraDto = new UserExtraInfoDTO();
+			BeanUtils.copyProperties(userInfoDto, extraDto);
+			userExtraInfoManage.addUserExtraInfo(extraDto);
+		} else {
+			// 如果用户的用户名已经修改，更新数据
+			userDto = getUserById(extraDto.getUserId());
+			if (userDto.getName() != userInfoDto.getName()) {
+				updateName(extraDto.getUserId(), userInfoDto.getName());
+			}
+		}
+
+		return userDto;
+	}
+
+	@Override
+	public int updateName(Long userId, String name) throws UserException {
+		// TODO Auto-generated method stub
+		if (null == userId) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"userInfoDto is null");
+		}
+		if (null == name) {
+			throw new UserException(ResponseCode.P_PARAM_NULL, "name is null");
+		}
+
+		UserDTO userDto = getUserById(userId);
+
+		int result = userDao.updateName(userId, name);
+
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public Integer updateUser(UserDTO userDto) throws UserException {
+		// TODO Auto-generated method stub
+		if (null == userDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"userDTO is null");
+		}
+
+		// 校验手机号码的正确性
+		UserUtil.checkMobile(userDto.getmPhoneNo());
+		// 校验密码的合法性
+		UserUtil.checkPwd(userDto.getPassword());
+
+		// 判断推荐人id是否为空，如果不为空，判断是否存在指定的用户
+		Long recommendId = userDto.getRecommenderId();
+		if (recommendId != null) {
+			if (getUserById(recommendId) == null) {
+				throw new UserException(ResponseCode.B_ADD_ERROR,
+						"recommendId is error");
+			}
+		}
+
+		// 判断邀请人id是否为空，如果不为空，判断是否存在指定的用户
+		Long inviterId = userDto.getInviterId();
+		if (inviterId != null) {
+			if (getUserById(inviterId) == null) {
+				throw new UserException(ResponseCode.B_ADD_ERROR,
+						"inviterId is error");
+			}
+		}
+
+		UserDO userDo = new UserDO();
+		BeanUtils.copyProperties(userDto, userDo);
+
+		int result = userDao.updateUser(userDo);
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_UPDATE_ERROR, "update error");
+		}
+		return result;
+	}
+
+	@Override
+	public Long getTotalCount(UserQTO userQto) throws UserException {
+		// TODO Auto-generated method stub
+		if (null == userQto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"userQto is null");
+		}
+		UserDO userDo = new UserDO();
+		BeanUtils.copyProperties(userQto, userDo);
+		Long totalCount = userDao.getTotalCount(userDo);
+
+		return totalCount;
+	}
+
+	@Override
+	public int updateHeadImg(Long userId, String headImg) throws UserException {
+
+		if (null == headImg) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"headImg is null");
+		}
+
+		UserDTO userDto = getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"user is not exist");
+		}
+
+		int result = userDao.updateHeadImg(userId, headImg);
+
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_UPDATE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public UserDTO getUserByLoginName(String loginName) throws UserException {
+		if (null == loginName) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"loginName is null");
+		}
+		UserDO userDo = userDao.getByLoginName(loginName);
+		if (null == userDo) {
+			throw new UserException(ResponseCode.B_ACCOUNT_NOT_EXIST,
+					"account not exist");
+		}
+		UserDTO userDto = new UserDTO();
+		BeanUtils.copyProperties(userDo, userDto);
+		return userDto;
+	}
+}

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="item_comment">
+	<typeAlias alias="itemCommentDO" type="com.ve.itemcenter.core.domain.ItemCommentDO" />
+	<typeAlias alias="itemCommentDTO"	type="com.ve.itemcenter.common.domain.ItemCommentDTO" />
+	<typeAlias alias="itemCommentQTO"	type="com.ve.itemcenter.common.domain.ItemCommentQTO" />
+
+	<resultMap class="itemCommentDO" id="itemCommentDOResult">
+		<result property="id" column="id" />
+		<result property="userId" column="user_id" />
+		<result property="userName" column="user_name" />
+		<result property="itemId" column="item_id" />
+		<result property="sellerId" column="seller_id" />
+		<result property="orderId" column="order_id" />
+		<result property="title" column="title" />
+		<result property="content" column="content" />
+		<result property="score" column="score" />
+		<result property="imgs" column="imgs" />
+		<result property="praiseNum" column="praise_num" />
+		<result property="replyTime" column="reply_time" />
+		<result property="replyUserId" column="reply_user_id" />
+		<result property="replyContent" column="reply_content" />
+		<result property="isDeleted" column="is_deleted" />
+		<result property="gmtCreated" column="gmt_created" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="auditStatus" column="audit_status"/>
+	</resultMap>
+
+	<sql id="itemCommentFields">
+		id,
+		user_id,
+		user_name,
+		item_id,
+		seller_id,
+		order_id,
+		title,
+		content,
+		score,
+		imgs,
+		praise_num,
+		reply_time,
+		reply_user_id,
+		reply_content,
+		is_deleted,
+		gmt_created,
+		gmt_modified,
+		audit_status
+	</sql>
+
+	<insert id="ItemCommentDAO.addItemComment" parameterClass="itemCommentDO">
+		insert into item_comment(
+		<include refid="itemCommentFields" />
+		)values(
+		#id#,
+		#userId#,
+		#userName#,
+		#itemId#,
+		#sellerId#,
+		#orderId#,
+		#title#,
+		#content#,
+		#score#,
+		#imgs#,
+		#praiseNum#,
+		#replyTime#,
+		#replyUserId#,
+		#replyContent#,
+		#isDeleted#,
+		now(),
+		now(),
+		#auditStatus#
+		)
+		<selectKey keyProperty="id" resultClass="Long">
+			SELECT
+			LAST_INSERT_ID();
+		</selectKey>
+	</insert>
+
+	<sql id="item_comment_Base_Column_List">
+		id,
+		user_id,
+		user_name,
+		item_id,
+		seller_id,
+		order_id,
+		title,
+		content,
+		score,
+		imgs,
+		praise_num,
+		reply_time,
+		reply_user_id,
+		reply_content,
+		is_deleted,
+		gmt_created,
+		gmt_modified,
+		audit_status
+	</sql>
+	
+	<update id="ItemCommentDAO.updateItemComment" parameterClass="itemCommentDO">
+		update item_comment
+		set gmt_modified=now(),is_deleted=1
+		where id = #id# and is_deleted=0
+	</update>
+	
+	<select id="ItemCommentDAO.getItemComment" resultMap="itemCommentDOResult"
+		parameterClass="Long">
+		select
+		<include refid="item_comment_Base_Column_List" />
+		from item_comment
+		where id = #id# and is_deleted=0
+	</select>
+	
+	<select id="ItemCommentDAO.queryItemCommentByItemId" resultMap="itemCommentDOResult"
+		parameterClass="itemCommentQTO">
+		select
+		<include refid="item_comment_Base_Column_List" />
+		from item_comment where is_deleted=0
+		 limit #currentPage#,#pageSize#
+	</select>
+</sqlMap>

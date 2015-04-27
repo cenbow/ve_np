@@ -1,0 +1,100 @@
+package com.ve.tradecenter.core.service.action.cart;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+
+import com.ve.tradecenter.common.constant.ResponseCode;
+import com.ve.tradecenter.core.domain.CartItemDO;
+import com.ve.tradecenter.core.exception.TradeException;
+import com.ve.tradecenter.core.manager.CartItemManager;
+import com.ve.tradecenter.core.manager.UserCartItemManager;
+import com.ve.tradecenter.core.service.RequestContext;
+import com.ve.tradecenter.core.service.ResponseUtils;
+import com.ve.tradecenter.core.service.TradeRequest;
+import com.ve.tradecenter.core.service.TradeResponse;
+import com.ve.tradecenter.core.service.action.Action;
+import com.ve.tradecenter.core.service.action.ActionEnum;
+
+
+/**
+ * 同步购物车
+ * @author cwr
+ */
+public class SyncUserCart implements Action{
+	private static final Logger log = LoggerFactory.getLogger(SyncUserCart.class);
+
+	/*
+	 * 未登入用户购物车处理类
+	 */
+	@Resource
+	private CartItemManager cartItemManager;
+	
+	/*
+	 * 已登入用户购物车处理类
+	 */
+	@Resource
+	private UserCartItemManager userCartItemManager;
+	
+	@Override
+	public TradeResponse<Boolean> execute(RequestContext context){
+		TradeRequest request = context.getRequest();
+		TradeResponse<Boolean> response = null;
+		if(request.getParam("userId")==null ){
+			log.error("userId is missing: " );
+			return ResponseUtils.getFailResponse(ResponseCode.PARAM_E_PARAM_MISSING,"userId is null");
+		}else if(request.getParam("sessionId") == null){
+			log.error("sessionId is null");
+			return ResponseUtils.getFailResponse(ResponseCode.PARAM_E_PARAM_MISSING,"sessionId is null");
+		}
+		
+		String sessionId = (String)request.getParam("sessionId");
+		Long userId = (Long)request.getParam("userId");
+		int result = 0;
+		List<CartItemDO> toSaveCartItem = new ArrayList<CartItemDO>(),queryResult =null;
+		try{
+			//根据sessionId查出未登入用户所有的购物车项
+			queryResult = this.cartItemManager.queryCartItems(sessionId);
+			
+			//根据userId查出用户购物车中的商品ID
+			List<Long> userCartSkuIds = this.userCartItemManager.queryUserCartItemId(userId);
+			
+			// 将商品同步到用户的购物车中
+			for(CartItemDO item : queryResult){	
+				// 如果用户的购物车已经有了该商品则不需要同步
+				if(!userCartSkuIds.contains(item.getItemSkuId())){
+					item.setId(null);  // 清空主键 由ibatis框架生成
+					item.setUserId(userId); 
+					toSaveCartItem.add(item); 
+				}
+			}
+			if(toSaveCartItem.size() > 0){
+				result = this.userCartItemManager.addBatchUserCartItem(toSaveCartItem);
+			}
+		}catch(TradeException e){
+			log.error("db error:" ,e);
+			return ResponseUtils.getFailResponse(ResponseCode.SYS_E_DATABASE_ERROR);
+		}
+		
+		// 如果是无需同步 则返回成功
+		if(queryResult == null || queryResult.size()==0){
+			return ResponseUtils.getSuccessResponse(true);
+		}
+		if(toSaveCartItem.size() == result){
+			return ResponseUtils.getSuccessResponse(true);
+		}else{
+			log.error("sync failed ");
+			return ResponseUtils.getFailResponse(ResponseCode.BIZ_E_RECORD_NOT_EXIST);
+		}
+	}
+
+	@Override
+	public String getName() {
+		return ActionEnum.SYNC_USER_CART.getActionName();
+	}
+}

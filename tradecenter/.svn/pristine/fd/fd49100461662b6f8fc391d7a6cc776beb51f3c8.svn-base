@@ -1,0 +1,252 @@
+package com.ve.itemcenter.common.domain;
+
+import java.util.Date;
+
+public class ItemSkuDTO {	
+	private Long id; // 必须
+
+	private String codeValue;// sku代号，例如：红色-42码，sku名称为多个不同维度的sku属性的key按一定顺序拼装而成
+
+	private Boolean isGift; // 必须
+	
+	private Boolean isActive;  // 必须
+	
+	private Long price;
+	
+	public Long getPrice() {
+		return price;
+	}
+
+	public void setPrice(Long price) {
+		this.price = price;
+	}
+
+
+	private String itemSkuName;
+	private Integer returnPoint;
+	public Integer getReturnPoint() {
+		return returnPoint;
+	}
+
+	public void setReturnPoint(Integer returnPoint) {
+		this.returnPoint = returnPoint;
+	}
+
+	public Integer getReturnScore() {
+		return returnScore;
+	}
+
+	public void setReturnScore(Integer returnScore) {
+		this.returnScore = returnScore;
+	}
+
+
+	private Integer returnScore; 
+	
+	private Long returnMoney;
+	public Long getReturnTotalMoney() {
+		return returnTotalMoney;
+	}
+
+	public void setReturnTotalMoney(Long returnTotalMoney) {
+		this.returnTotalMoney = returnTotalMoney;
+	}
+
+	private Long returnTotalMoney;
+	
+	public Long getReturnMoney() {
+		return returnMoney;
+	}
+
+	public void setReturnMoney(Long returnMoney) {
+		this.returnMoney = returnMoney;
+	}
+
+	public String getItemSkuName() {
+		return itemSkuName;
+	}
+
+	public void setItemSkuName(String itemSkuName) {
+		this.itemSkuName = itemSkuName;
+	}
+
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+
+	private Date startTime;
+	private Date endTime;
+	
+	public Boolean getIsDelete() {
+		return isDelete;
+	}
+
+	public void setIsDelete(Boolean isDelete) {
+		this.isDelete = isDelete;
+	}
+
+	private Boolean isDelete;
+	
+	public Boolean getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
+	}
+
+	private Long unitPrice; //单价
+	public Long getUnitPrice() {
+		return unitPrice;
+	}
+
+	public void setUnitPrice(Long unitPrice) {
+		this.unitPrice = unitPrice;
+	}
+
+	public Integer getMinBuyAmount() {
+		return minBuyAmount;
+	}
+
+	public void setMinBuyAmount(Integer minBuyAmount) {
+		this.minBuyAmount = minBuyAmount;
+	}
+
+	public Integer getMaxBuyAmount() {
+		return maxBuyAmount;
+	}
+
+	public void setMaxBuyAmount(Integer maxBuyAmount) {
+		this.maxBuyAmount = maxBuyAmount;
+	}
+
+	private Integer minBuyAmount; //最小购买量     必须
+	private Integer maxBuyAmount; // 最大购买量   必须
+	
+	private Long itemId; // 商品ID  
+
+	private String materialCode;// 物料码
+
+	private String barCode;// 条码
+
+	private Long supplierId; // 卖家ID 必须
+
+	private Integer marketPrice;// 市场价  必须
+
+	private Integer promotionPrice;// 促销价 
+
+	private Integer wirelessPrice;// 无线价
+
+	private Long stockNum;// 库存量
+
+	private Long soldNum;// 已售数量
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getCodeValue() {
+		return codeValue;
+	}
+
+	public void setCodeValue(String codeValue) {
+		this.codeValue = codeValue == null ? null : codeValue.trim();
+	}
+
+	public String getMaterialCode() {
+		return materialCode;
+	}
+
+	public void setMaterialCode(String materialCode) {
+		this.materialCode = materialCode == null ? null : materialCode.trim();
+	}
+
+	public String getBarCode() {
+		return barCode;
+	}
+
+	public void setBarCode(String barCode) {
+		this.barCode = barCode == null ? null : barCode.trim();
+	}
+
+	public Long getSupplierId() {
+		return supplierId;
+	}
+
+	public void setSupplierId(Long sellerId) {
+		this.supplierId = sellerId;
+	}
+
+	public Integer getMarketPrice() {
+		return marketPrice;
+	}
+
+	public void setMarketPrice(Integer marketPrice) {
+		this.marketPrice = marketPrice;
+	}
+
+	public Integer getPromotionPrice() {
+		return promotionPrice;
+	}
+
+	public void setPromotionPrice(Integer promotionPrice) {
+		this.promotionPrice = promotionPrice;
+	}
+
+	public Integer getWirelessPrice() {
+		return wirelessPrice;
+	}
+
+	public void setWirelessPrice(Integer wirelessPrice) {
+		this.wirelessPrice = wirelessPrice;
+	}
+
+	public Long getStockNum() {
+		return stockNum;
+	}
+
+	public void setStockNum(Long stockNum) {
+		this.stockNum = stockNum;
+	}
+
+	public Long getSoldNum() {
+		return soldNum;
+	}
+
+	public void setSoldNum(Long soldNum) {
+		this.soldNum = soldNum;
+	}
+
+	public Long getItemId() {
+		return itemId;
+	}
+
+	public void setItemId(Long itemId) {
+		this.itemId = itemId;
+	}
+	
+	public Boolean getIsGift() {
+		return isGift;
+	}
+
+	public void setIsGift(Boolean isGift) {
+		this.isGift = isGift;
+	}
+
+}

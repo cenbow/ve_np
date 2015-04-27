@@ -1,0 +1,307 @@
+package com.ve.usercenter.core.manager.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.constant.ResponseCode;
+import com.ve.usercenter.common.dto.ConsigneeDTO;
+import com.ve.usercenter.common.dto.UserDTO;
+import com.ve.usercenter.core.dao.ConsigneeDao;
+import com.ve.usercenter.core.domain.ConsigneeDO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.ConsigneeManager;
+import com.ve.usercenter.core.manager.UserManager;
+
+@Service
+public class ConsigneeManagerImpl implements ConsigneeManager {
+
+	@Resource
+	private UserManager userManager;
+
+	@Resource
+	private ConsigneeDao consigneeDao;
+
+	@Override
+	public ConsigneeDTO addConsignee(ConsigneeDTO consigneeDto)
+			throws UserException {
+		// TODO Auto-generated method stub
+
+		if (null == consigneeDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"consigneeDto is null");
+		}
+
+		// 地址的信息需要冬冬的接口验证
+
+		// 详细地址验证
+		if (null == consigneeDto.getAddress()) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"address is null");
+		}
+
+		// 收件人手机号码验证
+		if (null == consigneeDto.getMobileNo()) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"mobile no is null");
+		}
+
+		if (consigneeDto.getMobileNo().length() != 11) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"mobile no format is null");
+		}
+
+		// 验证收货人姓名
+		if (null == consigneeDto.getConsignee()) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"consignee no format is null");
+		}
+
+		// 查询指定的用户是否存在
+		UserDTO userDto = userManager.getUserById(consigneeDto.getUserId());
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user is not exist");
+		}
+
+		// 验证指定用户的收货地址是否超过10条
+		int count = getConsigneeCountByUserId(consigneeDto.getUserId());
+
+		if (count > 9) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user consignee have 20");
+		}
+
+		// 判断是否要设为默认收货地址
+		if (consigneeDto.getIsDefault() != 0
+				&& consigneeDto.getIsDefault() != 1) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"is_default must be 0 or 1");
+		}
+
+		if (consigneeDto.getIsDefault() == 1) {
+			// 将该用户的其他地址改为非默认地址
+			updateUserDefaultConsignee(consigneeDto.getUserId());
+		}
+
+		ConsigneeDO consigneeDo = new ConsigneeDO();
+		BeanUtils.copyProperties(consigneeDto, consigneeDo);
+
+		// 添加收货地址
+		Long id = consigneeDao.addConsigee(consigneeDo);
+
+		// 根据收货地址id，查询收货地址
+		consigneeDo = consigneeDao.getConsigneeById(id);
+
+		BeanUtils.copyProperties(consigneeDo, consigneeDto);
+
+		return consigneeDto;
+	}
+
+	@Override
+	public int deleteConsignee(Long userId, Long consigneeId)
+			throws UserException {
+		// TODO Auto-generated method stub
+
+		if (null == consigneeId) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"consigneeId is null");
+		}
+
+		if (null == userId) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"consigneeId is null");
+		}
+
+		int result = consigneeDao.deleteConsignee(consigneeId);
+
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "delete error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public int updateConsignee(ConsigneeDTO consigneeDto) throws UserException {
+		// TODO Auto-generated method stub
+
+		if (null == consigneeDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"consigneeDto is null");
+		}
+
+		// 地址的信息需要冬冬的接口验证
+
+		// id验证
+		if (null == consigneeDto.getId()) {
+			throw new UserException(ResponseCode.P_PARAM_NULL, "id is null");
+		}
+
+		// 详细地址验证
+		if (null == consigneeDto.getAddress()) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"address is null");
+		}
+
+		// 收件人手机号码验证
+		if (null == consigneeDto.getMobileNo()) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"mobile no is null");
+		}
+
+		if (consigneeDto.getMobileNo().length() != 11) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"mobile no format is null");
+		}
+
+		// 验证收货人姓名
+		if (null == consigneeDto.getConsignee()) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"consignee no format is null");
+		}
+
+		// 判断是否要设为默认收货地址
+		if (consigneeDto.getIsDefault() != 0
+				&& consigneeDto.getIsDefault() != 1) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"is_default must be 0 or 1");
+		}
+
+		ConsigneeDO consigneeDo = null;
+
+		// 根据id获取指定的收货地址
+		consigneeDo = consigneeDao.getConsigneeById(consigneeDto.getId());
+
+		// 如果指定的收货地址以为默认，则直接返回
+		if (consigneeDo.getIsDefault() == 1) {
+			return 1;
+		}
+
+		if (consigneeDto.getIsDefault() == 1) {
+			// 将该用户的其他地址改为非默认地址
+			updateUserDefaultConsignee(consigneeDo.getUserId());
+		}
+
+		consigneeDo = new ConsigneeDO();
+		BeanUtils.copyProperties(consigneeDto, consigneeDo);
+
+		int result = consigneeDao.updateConsigee(consigneeDo);
+
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public int setDefConsignee(Long userId, Long consigneeId)
+			throws UserException {
+		// TODO Auto-generated method stub
+
+		if (null == consigneeId) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"consigneeId is exist");
+		}
+
+		int count = getConsigneeCountByUserId(userId);
+		int updateCount = updateUserDefaultConsignee(userId);
+		// 判断用户收货地址总数和修改总数是否相同
+		if (count != updateCount) {
+			throw new UserException(ResponseCode.B_UPDATE_ERROR, "update error");
+		}
+
+		int result = consigneeDao.setDefConsignee(consigneeId);
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_UPDATE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public int updateUserDefaultConsignee(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+
+		UserDTO userDto = userManager.getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user is not exist");
+		}
+
+		int result = consigneeDao.updateUserDefaultConsignee(userId);
+
+		if (result <= 0) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public int getConsigneeCountByUserId(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+
+		UserDTO userDto = userManager.getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user is not exist");
+		}
+
+		int result = consigneeDao.getConsigneeCountByUserId(userId);
+
+		return result;
+	}
+
+	@Override
+	public List<ConsigneeDTO> queryConsignee(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+		UserDTO userDto = userManager.getUserById(userId);
+
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user is not exist");
+		}
+
+		List<ConsigneeDTO> consigneeDtos = new ArrayList<ConsigneeDTO>();
+		ConsigneeDTO consigneeDto = new ConsigneeDTO();
+
+		List<ConsigneeDO> consigneeDos = consigneeDao.queryConsignee(userId);
+		for (ConsigneeDO consignee : consigneeDos) {
+			BeanUtils.copyProperties(consignee, consigneeDto);
+			consigneeDtos.add(consigneeDto);
+		}
+
+		return consigneeDtos;
+	}
+
+	@Override
+	public int deleteUserConsignee(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+
+		UserDTO userDto = userManager.getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user is not exist");
+		}
+
+		int result = consigneeDao.deleteUserConsignee(userId);
+
+		return result;
+	}
+
+	@Override
+	public int restoreUserConsignee(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+
+		int result = consigneeDao.restoreUserConsignee(userId);
+
+		return result;
+	}
+
+}

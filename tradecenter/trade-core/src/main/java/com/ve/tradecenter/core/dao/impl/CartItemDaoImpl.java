@@ -1,0 +1,43 @@
+package com.ve.tradecenter.core.dao.impl;
+
+import java.util.List;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+
+import com.ve.tradecenter.core.dao.CartItemDao;
+import com.ve.tradecenter.core.domain.CartItemDO;
+
+
+public class CartItemDaoImpl extends SqlMapClientDaoSupport implements CartItemDao {
+
+	@Override
+    public Long addCartItem(CartItemDO cartItemDO){
+        return (Long)getSqlMapClientTemplate().insert("shopping_cart.addCartItem", cartItemDO);
+    }
+    
+    @Override
+    public int deleteCartItem(Long id){
+    	return this.getSqlMapClientTemplate().delete("shopping_cart.deleteCartItem",id);
+    }
+    
+    @Override
+	public int cleanCart(String sessionId){
+    	return this.getSqlMapClientTemplate().delete("shopping_cart.cleanCart",sessionId);
+	}
+	
+	@Override
+	public List<CartItemDO> querytCartItems(String sessionId) {
+		return this.getSqlMapClientTemplate().queryForList("shopping_cart.querytCartItems",sessionId);
+	}
+	
+	@Override
+	public int deleteGiftItems(String sessionId){
+		return this.getSqlMapClientTemplate().delete("shopping_cart.deleteGiftItems",sessionId);
+	}
+	
+	@Override
+	public int updateCartItemNumber(CartItemDO cartItemDO){
+		return this.getSqlMapClientTemplate().update("shopping_cart.updateCartItemNumber",cartItemDO);
+	}
+
+}

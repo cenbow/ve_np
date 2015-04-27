@@ -1,0 +1,42 @@
+package com.ve.deliverycenter.core.exception;
+
+import com.ve.deliverycenter.common.constant.ErrorCode;
+
+public class DeliveryException extends Exception {
+	private static final long serialVersionUID = 4065133016321980497L;
+	private ErrorCode errorCode;
+
+	public DeliveryException() {
+		super();
+		this.errorCode = ErrorCode.SYS_E_DEFAULT_ERROR;
+	}
+
+	public DeliveryException(String message) {
+		super(message);
+		this.errorCode = ErrorCode.SYS_E_DEFAULT_ERROR;
+	}
+
+	public DeliveryException(Throwable cause) {
+		super(cause);
+		this.errorCode = ErrorCode.SYS_E_DEFAULT_ERROR;
+	}
+
+	public DeliveryException(String message, Throwable cause) {
+		super(message, cause);
+		this.errorCode = ErrorCode.SYS_E_DEFAULT_ERROR;
+	}
+
+	public DeliveryException(ErrorCode errorCode) {
+		super();
+		this.errorCode = errorCode;
+	}
+
+	public DeliveryException(ErrorCode errorCode, String message) {
+		super(message);
+		this.errorCode = errorCode;
+	}
+
+	public ErrorCode getErrorCode() {
+		return errorCode;
+	}
+}

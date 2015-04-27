@@ -1,0 +1,74 @@
+package com.ve.deliverycenter.core.manager.fee.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.ve.deliverycenter.common.dto.fee.RegionFeeDTO;
+import com.ve.deliverycenter.core.domain.BaseDo;
+import com.ve.deliverycenter.core.domain.fee.RegionFee;
+import com.ve.deliverycenter.core.manager.BaseManager;
+import com.ve.deliverycenter.core.manager.fee.intef.RegionFeeManager;
+import com.ve.deliverycenter.core.util.TransUtil;
+
+public class RegionFeeManagerImpl extends BaseManager implements
+		RegionFeeManager {
+
+	@Override
+	public List<RegionFeeDTO> addRegionFee(List<RegionFeeDTO> regionFeeDTOList) {
+		List<RegionFeeDTO> resultList = new ArrayList();
+		for (RegionFeeDTO regionFeeDTO : regionFeeDTOList) {
+			// 创建一个DO
+			BaseDo regionFee = new RegionFee();
+			// DTO转换成DO
+			regionFee = TransUtil.trans2Do(regionFeeDTO, regionFee);
+			// 执行新增操作
+			regionFee = getBaseDao().insert(regionFee);
+			// DO转换成DTO
+			regionFeeDTO = (RegionFeeDTO) TransUtil.trans2Dto(regionFeeDTO,
+					regionFee);
+			resultList.add(regionFeeDTO);
+		}
+		return regionFeeDTOList;
+	}
+
+	@Override
+	public int deleteRegionFee(List<Integer> regionFeeIdList) {
+		int deleteCount = 0;
+		for (Integer propertyId : regionFeeIdList) {
+			// 创建一个DO
+			RegionFee regionFee = new RegionFee();
+			// DO赋值逻辑删除
+			regionFee.setId(propertyId);
+			regionFee.setDeleted(1);
+			// 执行更新操作
+			int row = getBaseDao().update(regionFee);
+			deleteCount += row;
+		}
+		return deleteCount;
+	}
+
+	@Override
+	public List<RegionFeeDTO> queryByFeeCode(String feeCode) {
+		List<RegionFee> regionFeeList = getBaseDao().queryForList(
+				"REGIONFEE.queryByFeeCode", feeCode);
+
+		List<RegionFeeDTO> regionFeeDTOList = new ArrayList<RegionFeeDTO>();
+		for (RegionFee regionFee : regionFeeList) {
+			// 创建一个DtO
+			RegionFeeDTO regionFeeDTO = new RegionFeeDTO();
+			// DO转换成DTO
+			regionFeeDTO = (RegionFeeDTO) TransUtil.trans2Dto(regionFeeDTO,
+					regionFee);
+			regionFeeDTOList.add(regionFeeDTO);
+		}
+		return regionFeeDTOList;
+	}
+
+	@Override
+	public int batchDeleteRegionFee(String feeCode) {
+		RegionFee regionFee = new RegionFee();
+		regionFee.setFeeCode(feeCode);
+		return getBaseDao().delete(regionFee);
+	}
+
+}

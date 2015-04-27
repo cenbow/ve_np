@@ -1,0 +1,51 @@
+package com.ve.usercenter.core.service.action.userAuth;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.dto.UserAuthInfoDTO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserAuthInfoManager;
+import com.ve.usercenter.core.service.RequestContext;
+import com.ve.usercenter.core.service.UserRequest;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.service.action.Action;
+import com.ve.usercenter.core.service.action.ActionEnum;
+
+@Service
+public class GetUserAuthInfoAction implements Action {
+
+	@Resource
+	private UserAuthInfoManager userAuthInfoManager;
+
+	@Override
+	public UserResponse execute(RequestContext context) throws UserException {
+		// TODO Auto-generated method stub
+		UserResponse response = null;
+		UserAuthInfoDTO authInfoDto = null;
+
+		UserRequest userRequest = context.getRequest();
+		Long userId = (Long) userRequest.getParam("userId");
+
+		log.info("userId:", userId);
+
+		try {
+			authInfoDto = userAuthInfoManager.getAuthInfoByUserId(userId);
+		} catch (UserException e) {
+			return new UserResponse(e.getResponseCode().getCode(),
+					e.getMessage());
+		}
+
+		response = new UserResponse(authInfoDto);
+
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return ActionEnum.GET_USER_AUTH_INFO.getActionName();
+	}
+
+}

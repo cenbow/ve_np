@@ -1,0 +1,30 @@
+package com.ve.tradecenter.core.service.action.order;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.tradecenter.core.exception.TradeException;
+import com.ve.tradecenter.core.manager.OrderManager;
+import com.ve.tradecenter.core.service.RequestContext;
+import com.ve.tradecenter.core.service.TradeResponse;
+import com.ve.tradecenter.core.service.action.Action;
+import com.ve.tradecenter.core.service.action.ActionEnum;
+
+@Service
+public class AddOrder implements Action{
+	@Resource
+	private OrderManager orderManager;
+
+	@Override
+	public TradeResponse execute(RequestContext context) throws TradeException {
+		// TODO biz code
+		orderManager.
+		return null;
+	}
+
+	@Override
+	public String getName() {
+		return ActionEnum.ADD_ORDER.getActionName();
+	}
+}

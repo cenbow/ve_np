@@ -1,0 +1,66 @@
+package com.ve.tradecenter.core.service.action.cart;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.ve.tradecenter.common.constant.ErrorCode;
+import com.ve.tradecenter.common.constant.ResponseCode;
+import com.ve.tradecenter.core.exception.TradeException;
+import com.ve.tradecenter.core.manager.CartItemManager;
+import com.ve.tradecenter.core.service.RequestContext;
+import com.ve.tradecenter.core.service.ResponseUtils;
+import com.ve.tradecenter.core.service.TradeRequest;
+import com.ve.tradecenter.core.service.TradeResponse;
+import com.ve.tradecenter.core.service.action.Action;
+import com.ve.tradecenter.core.service.action.ActionEnum;
+/**
+ * 移除购物车Action类
+ * @author Administrator
+ *
+ */
+public class DeleteCartItem implements Action{
+	private static final Logger log = LoggerFactory.getLogger(DeleteCartItem.class);
+
+	@Resource
+	private CartItemManager cartItemManager;
+
+	public CartItemManager getCartItemManager() {
+		return cartItemManager;
+	}
+
+	public void setCartItemManager(CartItemManager cartItemManager) {
+		this.cartItemManager = cartItemManager;
+	}
+
+	@Override
+	public TradeResponse<Boolean> execute(RequestContext context) throws TradeException {
+		TradeRequest request = context.getRequest();
+		Long id = (Long)request.getParam("cartItemId");
+		TradeResponse<Boolean> response;
+		if(request.getParam("cartItemId") == null){
+			log.error("cartItemId is null");
+			return ResponseUtils.getFailResponse(ResponseCode.PARAM_E_PARAM_MISSING,"cartItemId is null");
+		}
+		int result=0;
+		try{
+			result = cartItemManager.deleteCartItem(id);
+		}catch(TradeException e){
+			log.error("db error : ",e);
+			return ResponseUtils.getFailResponse(ResponseCode.SYS_E_DATABASE_ERROR);
+		}
+		if(result > 0){
+			return ResponseUtils.getSuccessResponse(true);
+		}else{
+			log.error("user cart is empty");
+			return ResponseUtils.getFailResponse(ResponseCode.BIZ_E_RECORD_NOT_EXIST,"user cart is empty");
+		}
+	}
+
+	@Override
+	public String getName() {
+		return ActionEnum.REMOVE_CART_ITEM.getActionName();
+	}
+	
+}

@@ -1,0 +1,83 @@
+package com.ve.usercenter.core.service.action;
+
+
+public enum ActionEnum {
+	/************************************用户操作接口********************************************/
+	/**
+	 *添加用户
+	 */
+	ADD_USER("addUser"),
+	
+	/**
+	 * 修改邮箱
+	 * */
+	UPDATE_EMAIL("updateEmail"),
+	
+	/**
+	 * 修改电话
+	 * */
+	UPDATE_MOBILE("updateMobile"),
+	
+	/**
+	 * 修改密码
+	 * */
+	UPDATE_PWD("updatePwd"),
+	
+	/**
+	 * 激活用户
+	 * */
+	ACTIVE_USER("activeUser"),
+	
+	/**
+	 * 冻结用户
+	 * */
+	FREEZE_USER("freezeUser"),
+	
+	/**
+	 * 将用户移入回收站
+	 * */
+	MOVE_USER("moveUser"),
+	
+	/**
+	 * 将用户删除
+	 * */
+	DELETE_USER("deleteUser"),
+	
+	/***
+	 * 根据用户id获取用户
+	 * */
+	GET_USER_BY_ID("getUserById"),
+	
+	/**
+	 *根据用户名获取用户 
+	 * */
+	GET_USER_BY_NAME("getUserByName"),
+	
+	/**
+	 * 根据手机号码获取用户
+	 * */
+	GET_USER_BY_MOBILE("getUserByMobile"),
+	
+	/**
+	 * 根据邮件获取用户
+	 * */
+	GET_USER_BY_EMAIL("getUserByEmail");
+	
+	private String actionName;
+	private ActionEnum(String actionName){
+		this.actionName = actionName;
+	}
+	public static ActionEnum getActionEnum(String actionName){
+		for(ActionEnum ae: ActionEnum.values()){
+			if(ae.actionName.equals(actionName)){
+				return ae;
+			}
+		}
+		return null;
+	}
+	
+	public String getActionName() {
+		return actionName;
+	}
+}
+

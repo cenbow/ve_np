@@ -1,0 +1,37 @@
+package itemextrainfo;
+
+import javax.annotation.Resource;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.ve.itemcenter.common.api.BaseRequest;
+import com.ve.itemcenter.common.api.ItemService;
+import com.ve.itemcenter.common.api.Request;
+import com.ve.itemcenter.common.api.Response;
+import com.ve.itemcenter.common.domain.ItemExtraInfoDTO;
+import com.ve.itemcenter.core.service.action.ActionEnum;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:applicationContext.xml" })
+public class AddItemExtraInfoTest {
+	@Resource
+	private ItemService itemService;
+
+	@Test
+	public void test() {
+		// System.out.println(1);
+		Request request = new BaseRequest();
+		ItemExtraInfoDTO itemExtraInfoDTO = new ItemExtraInfoDTO();
+		itemExtraInfoDTO.setItemId(1L);
+		itemExtraInfoDTO.setLevelLimit(1);
+		itemExtraInfoDTO.setSupplierId(1);
+		itemExtraInfoDTO.setCartType(1);
+		itemExtraInfoDTO.setCollectCount(700);
+		request.setParam("itemExtraInfoDTO", itemExtraInfoDTO);
+		request.setCommand(ActionEnum.ADD_ITEM_EXTRA_INFO.getActionName());
+		Response response = itemService.execute(request);
+	}
+}

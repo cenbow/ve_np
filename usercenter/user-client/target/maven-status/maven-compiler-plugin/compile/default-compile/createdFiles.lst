@@ -1,0 +1,12 @@
+com\ve\usercenter\client\UserAuthClient.class
+com\ve\usercenter\client\impl\UserExtraClientImpl.class
+com\ve\usercenter\client\BabyClient.class
+com\ve\usercenter\client\impl\UserGroupClientImpl.class
+com\ve\usercenter\client\impl\ConsigneeClientImpl.class
+com\ve\usercenter\client\impl\BabyClientImpl.class
+com\ve\usercenter\client\UserGroupClient.class
+com\ve\usercenter\client\UserExtraClient.class
+com\ve\usercenter\client\UserClient.class
+com\ve\usercenter\client\impl\UserClientImpl.class
+com\ve\usercenter\client\impl\UserAuthClientImpl.class
+com\ve\usercenter\client\ConsigneeClient.class

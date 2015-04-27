@@ -1,0 +1,121 @@
+package com.ve.itemcenter.core.manager.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.constant.ResCodeNum;
+import com.ve.itemcenter.common.domain.ItemSkuDTO;
+import com.ve.itemcenter.common.domain.ItemSkuQTO;
+import com.ve.itemcenter.core.dao.ItemSkuDAO;
+import com.ve.itemcenter.core.domain.ItemSkuDO;
+import com.ve.itemcenter.core.exception.ItemException;
+import com.ve.itemcenter.core.manager.ItemSkuManager;
+import com.ve.itemcenter.core.util.ExceptionUtil;
+import com.ve.itemcenter.core.util.ItemUtil;
+
+@Service
+public class ItemSkuManagerImpl implements ItemSkuManager {
+	@Resource
+	private ItemSkuDAO itemSkuDAO;
+
+	@Override
+	public ItemSkuDTO addItemSku(ItemSkuDTO itemSkuDTO) throws ItemException {
+		try {
+			// 验证itemSkuDTO内的属性
+			if (!verifyItemSkuDTOProperty(itemSkuDTO)) {
+				throw ExceptionUtil.getException(ResCodeNum.PARAM_E_INVALID, "itemSkuDTO property incorrect");
+			}
+			ItemSkuDO itemSkuDO = new ItemSkuDO();
+			ItemUtil.copyProperties(itemSkuDTO, itemSkuDO);// DTO转DO
+			long newInsertedId = itemSkuDAO.addItemSku(itemSkuDO);// 新增的记录返回的ID
+			itemSkuDTO = getItemSku(newInsertedId);// 新增加的记录对应的itemSkuDO
+			return itemSkuDTO;
+		} catch (Exception e) {
+			throw new ItemException(ResCodeNum.SYS_E_DEFAULT_ERROR, e);
+		}
+	}
+
+	@Override
+	public boolean updateItemSku(ItemSkuDTO itemSkuDTO) throws ItemException {
+		// 验证参数
+		if (itemSkuDTO.getId() == null) {
+			throw ExceptionUtil.getException(ResCodeNum.PARAM_E_MISSING, "itemSkuDTO is null");
+		}
+		if (!verifyItemSkuDTOProperty(itemSkuDTO)) {
+			throw ExceptionUtil.getException(ResCodeNum.PARAM_E_INVALID, "itemSkuDTO property incorrect");
+		}
+		ItemSkuDO itemSkuDO = new ItemSkuDO();
+		ItemUtil.copyProperties(itemSkuDTO, itemSkuDO);
+		int num = itemSkuDAO.updateItemSku(itemSkuDO);
+		return num > 0 ? true : false;
+	}
+
+	@Override
+	public ItemSkuDTO getItemSku(long id) throws ItemException {
+		ItemSkuDO itemSkuDO = itemSkuDAO.getItemSku(id);
+		if (itemSkuDO == null) {
+			throw ExceptionUtil.getException(ResCodeNum.BASE_PARAM_E_RECORD_NOT_EXIST, "Cannot find requested record");
+		}
+		ItemSkuDTO itemSkuDTO = new ItemSkuDTO();
+		ItemUtil.copyProperties(itemSkuDO, itemSkuDTO);
+		return itemSkuDTO;
+	}
+
+	@Override
+	public boolean deleteItemSku(long id) throws ItemException {
+		// TODO 验证id
+
+		ItemSkuDO itemSkuDO = new ItemSkuDO();
+		itemSkuDO.setId(id);
+		itemSkuDO.setIsDeleted(DBConst.DELETED.getCode());
+		int num = itemSkuDAO.updateItemSku(itemSkuDO);
+		return num > 0 ? true : false;
+	}
+
+	@Override
+	public boolean verifyItemSkuDTOProperty(ItemSkuDTO itemSkuDTO) throws ItemException {
+		// TODO 验证ItemSkuDTO字段属性
+		return true;
+	}
+
+	public List<ItemSkuDTO> queryItemSku(ItemSkuQTO itemSkuQTO) throws ItemException {
+		List<ItemSkuDO> list = itemSkuDAO.queryItemSku(itemSkuQTO);
+		List<ItemSkuDTO> itemSkuDTOList = new ArrayList<ItemSkuDTO>();// 需要返回的DTO列表
+		for (ItemSkuDO itemSkuDO : list) {
+			ItemSkuDTO dto = new ItemSkuDTO();
+			ItemUtil.copyProperties(itemSkuDO, dto);
+			itemSkuDTOList.add(dto);
+		}
+		return itemSkuDTOList;
+	}
+
+	public synchronized boolean decreaseItemSkuStock(long skuId, long sellerId, long number) throws ItemException {
+		// TODO 验证skuId , sellerId, number
+		ItemSkuDTO itemSkuDTO = getItemSku(skuId);
+		long currentStock = itemSkuDTO.getStockNum();
+		if (currentStock - number < 0)
+			throw ExceptionUtil.getException(ResCodeNum.BASE_STATE_E_STOCK_INSUFFICIENT, "stock insufficient");
+		itemSkuDTO.setId(skuId);
+		itemSkuDTO.setSellerId(sellerId);
+		itemSkuDTO.setSoldNum(currentStock - number);
+		boolean isDecrease = updateItemSku(itemSkuDTO);
+		return isDecrease;
+	}
+
+	public synchronized boolean increaseItemSkuStock(long skuId, long sellerId, long number) throws ItemException {
+		// TODO 验证skuId , sellerId, number
+		ItemSkuDTO itemSkuDTO = getItemSku(skuId);
+		long currentStock = itemSkuDTO.getStockNum();
+		itemSkuDTO.setId(skuId);
+		itemSkuDTO.setSellerId(sellerId);
+		itemSkuDTO.setStockNum(currentStock + number);
+		boolean isIncrease = updateItemSku(itemSkuDTO);
+		return isIncrease;
+	}
+
+}

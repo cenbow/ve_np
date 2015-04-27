@@ -1,0 +1,7 @@
+package com.ve.marketingcenter.common.domain.qto.coupon;
+
+import com.ve.marketingcenter.common.domain.qto.BaseQTO;
+
+public class GrantedCouponQTO extends BaseQTO {
+
+}

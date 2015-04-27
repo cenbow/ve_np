@@ -1,0 +1,202 @@
+package com.ve.marketingcenter.core.service;
+
+import java.util.concurrent.Callable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.ve.marketingcenter.common.api.MarketingResponse;
+import com.ve.marketingcenter.common.constant.ParamEnum;
+import com.ve.marketingcenter.common.constant.ReturnCodeEnum;
+import com.ve.marketingcenter.core.exception.MarketingException;
+import com.ve.marketingcenter.core.filter.FilterChain;
+import com.ve.marketingcenter.core.filter.FilterManager;
+import com.ve.marketingcenter.core.service.action.Action;
+import com.ve.marketingcenter.core.service.action.ActionHolder;
+
+/**
+ * 
+ * @author wujin.zzq
+ *
+ */
+@SuppressWarnings("rawtypes") 
+public class RequestDispatcher {
+	private static final Logger log = LoggerFactory
+			.getLogger(RequestDispatcher.class);
+	/**
+	 * 操作容器
+	 */
+	private ActionHolder actionHolder;
+
+	private AppContext appContext;
+
+//	private Random random = new Random();
+
+	// private LimitBarrier barrier = new LimitBarrier();
+
+	public AppContext getAppContext() {
+		return appContext;
+	}
+
+	public void setAppContext(AppContext appContext) {
+		this.appContext = appContext;
+	}
+
+	public ActionHolder getActionHolder() {
+		return actionHolder;
+	}
+
+	public void setActionHolder(ActionHolder actionHolder) {
+		this.actionHolder = actionHolder;
+	}
+
+	public <T> MarketingResponse<T> dispatch(MarketingRequest req) {
+		if (req == null) {
+			throw new IllegalArgumentException("request is null!");
+		}
+		// 单例类限流措施
+		ActionCall<T> task = new ActionCall<T>(req);
+		MarketingResponse<T> response = null;
+		try {
+			response = task.call();
+		} catch (Throwable e) {
+			log.error("call exception", e);
+		}
+		return response;
+	}
+
+	/**
+	 * 取得业务code,如果只传了业务ID，也转下code,同时放到attribute里
+	 * 
+	 * @param
+	 * @return
+	 */
+	private String getAppCode(RequestContext context, MarketingRequest req) {
+		String appCode = null;
+		if (null != req.getAttribute(ParamEnum.SYS_APP_CODE.getValue())) {
+			appCode = req.getAttribute(ParamEnum.SYS_APP_CODE.getValue())
+					.toString();
+		}
+		return appCode;
+	}
+
+	private boolean allowAccess(String bizCode, Action action) {
+		//TODO  to be done
+		return true;
+	}
+
+	class ActionCall<T> implements Callable<MarketingResponse<T>> {
+
+		private MarketingRequest req;
+
+		public ActionCall(MarketingRequest req) {
+			super();
+			this.req = req;
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public MarketingResponse<T> call() {
+			// 查找具体的请求操作类型
+			Action action = actionHolder.getAction(req.getCommand());
+			if (null != action) {
+				RequestContext context = new RequestContext(appContext, req);
+				// set request here
+				FilterManager filterManager = FilterManager.getInstance();
+				// 获取appCode
+				String appCode = getAppCode(context, req);
+				if (!allowAccess(appCode, action)) {
+					return new MarketingResponse<T>(ReturnCodeEnum.REQUEST_FORBBIDEN);
+				}
+
+				/**
+				 * 以下时间变量用来统计整个执行过程中的filter.before,action以及filter.after的耗时
+				 */
+				long startTime = System.currentTimeMillis();
+				long beforeFilterEndTime = 0L;
+				long actionEndTime = 0L;
+				long afterFilterEndTime = 0L;
+				MarketingResponse<T> res = null;
+				try {
+					FilterChain filterChain = filterManager.getFilterChain(
+							appCode, action.getName());
+
+					// 1. 执行filter.before流程
+					boolean beforeFilterResult = filterChain.before(context);
+					beforeFilterEndTime = System.currentTimeMillis();
+
+					// 2. 如果filter.before流程成功，则执行action，否则不执行
+					if (beforeFilterResult) {
+						// 执行操作
+						res = action.execute(context);
+						context.setResponse(res);
+					} else {
+						res = context.getResponse();
+					}
+					actionEndTime = System.currentTimeMillis();
+
+					// 3. 执行filter.after流程
+					boolean afterFilterResult = filterChain.after(context);
+					afterFilterEndTime = System.currentTimeMillis();
+					if (!afterFilterResult) {
+						res = context.getResponse();
+					}
+					return res;
+				} catch (MarketingException e) {
+					res = new MarketingResponse(e.getCode(), e.getMessage());
+					log.error("do action:" + req.getCommand()
+							+ " occur Exception:", e);
+					return res;
+				} catch (Exception e) {
+					res = new MarketingResponse(ReturnCodeEnum.SERVICE_EXCEPTION);
+					log.error("do action:" + req.getCommand()
+							+ " occur Exception:", e);
+					return res;
+				} finally {
+					if (System.currentTimeMillis() % 128 == 1) {
+						log.info("result:" + res.getResCode()
+								+ ",filterBeforeCost:"
+								+ (beforeFilterEndTime - startTime)
+								+ ",actionCost:"
+								+ (actionEndTime - beforeFilterEndTime)
+								+ ",filterAfterCost:"
+								+ (afterFilterEndTime - actionEndTime));
+					}
+				}
+			} else {
+				// 系统未建立相应的请求操作
+				log.error("no action mapping for:" + req.getCommand());
+				return new MarketingResponse<T>(ReturnCodeEnum.ACTION_NO_EXIST);
+			}
+		}
+	}
+
+//	private class DaemonThreadFactory implements ThreadFactory {
+//		final AtomicInteger poolNumber = new AtomicInteger(1);
+//		final ThreadGroup group;
+//		final AtomicInteger threadNumber = new AtomicInteger(1);
+//		final String namePrefix;
+//
+//		public DaemonThreadFactory() {
+//			super();
+//			SecurityManager s = System.getSecurityManager();
+//			group = (s != null) ? s.getThreadGroup() : Thread.currentThread()
+//					.getThreadGroup();
+//			namePrefix = "media-Dispatcher-pool" + poolNumber.getAndIncrement()
+//					+ "-thread-";
+//		}
+//
+//		@Override
+//		public Thread newThread(Runnable r) {
+//			Thread t = new Thread(group, r, namePrefix
+//					+ threadNumber.getAndIncrement(), 0);
+//			if (!t.isDaemon()) {
+//				t.setDaemon(true);
+//			}
+//			if (t.getPriority() != Thread.NORM_PRIORITY) {
+//				t.setPriority(Thread.NORM_PRIORITY);
+//			}
+//			return t;
+//		}
+//	}
+}

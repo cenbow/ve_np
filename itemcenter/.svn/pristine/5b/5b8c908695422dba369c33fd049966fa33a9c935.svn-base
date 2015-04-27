@@ -1,0 +1,43 @@
+package com.ve.itemcenter.common.domain;
+
+import com.ve.itemcenter.common.page.PageInfo;
+
+/**
+ * 商品评论QTO
+ * 
+ * @author chen.huang
+ * @date 2015年1月21日
+ */
+
+public class ItemCommentQTO extends PageInfo {
+	private Long itemId; // 商品ID
+
+	private Long sellerId;// 卖家ID
+
+	private Long orderId;// 订单ID
+
+	public Long getItemId() {
+		return itemId;
+	}
+
+	public void setItemId(Long itemId) {
+		this.itemId = itemId;
+	}
+
+	public Long getSellerId() {
+		return sellerId;
+	}
+
+	public void setSellerId(Long sellerId) {
+		this.sellerId = sellerId;
+	}
+
+	public Long getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(Long orderId) {
+		this.orderId = orderId;
+	}
+
+}

@@ -1,0 +1,6 @@
+com\ve\deliverycenter\client\impl\StorageClientImpl.class
+com\ve\deliverycenter\client\StorageClient.class
+com\ve\deliverycenter\client\impl\ExpressClientImpl.class
+com\ve\deliverycenter\client\impl\FeeClientImpl.class
+com\ve\deliverycenter\client\ExpressClient.class
+com\ve\deliverycenter\client\FeeClient.class

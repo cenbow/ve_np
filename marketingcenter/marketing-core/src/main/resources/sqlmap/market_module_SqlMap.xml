@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="market_module" >
+  <resultMap id="BaseResultMap" class="com.ve.itemcenter.core.domain.MarketingModuleDo" >
+    <result column="id" property="id" jdbcType="BIGINT" />
+    <result column="module_code" property="moduleCode" jdbcType="VARCHAR" />
+    <result column="module_type" property="moduleType" jdbcType="TINYINT" />
+    <result column="module_name" property="moduleName" jdbcType="VARCHAR" />
+    <result column="impl_type" property="implType" jdbcType="TINYINT" />
+    <result column="impl_content" property="implContent" jdbcType="VARCHAR" />
+    <result column="prov_type" property="provType" jdbcType="TINYINT" />
+    <result column="prov_appcode" property="provAppcode" jdbcType="VARCHAR" />
+    <result column="prov_user_id" property="provUserId" jdbcType="BIGINT" />
+    <result column="gmt_created" property="gmtCreated" jdbcType="TIMESTAMP" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <iterate property="oredCriteria" conjunction="or" prepend="where" removeFirstPrepend="iterate" >
+      <isEqual property="oredCriteria[].valid" compareValue="true" >
+        (
+        <iterate prepend="and" property="oredCriteria[].criteriaWithoutValue" conjunction="and" >
+          $oredCriteria[].criteriaWithoutValue[]$
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithSingleValue" conjunction="and" >
+          $oredCriteria[].criteriaWithSingleValue[].condition$ #oredCriteria[].criteriaWithSingleValue[].value#
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithListValue" conjunction="and" >
+          $oredCriteria[].criteriaWithListValue[].condition$
+          <iterate property="oredCriteria[].criteriaWithListValue[].values" open="(" close=")" conjunction="," >
+            #oredCriteria[].criteriaWithListValue[].values[]#
+          </iterate>
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithBetweenValue" conjunction="and" >
+          $oredCriteria[].criteriaWithBetweenValue[].condition$
+          #oredCriteria[].criteriaWithBetweenValue[].values[0]# and
+          #oredCriteria[].criteriaWithBetweenValue[].values[1]#
+        </iterate>
+        )
+      </isEqual>
+    </iterate>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, module_code, module_type, module_name, impl_type, impl_content, prov_type, prov_appcode, 
+    prov_user_id, gmt_created, gmt_modified
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterClass="com.ve.itemcenter.core.domain.MarketingModuleDoExample" >
+    select
+    <isParameterPresent >
+      <isEqual property="distinct" compareValue="true" >
+        distinct
+      </isEqual>
+    </isParameterPresent>
+    <include refid="market_module.Base_Column_List" />
+    from market_module
+    <isParameterPresent >
+      <include refid="market_module.Example_Where_Clause" />
+      <isNotNull property="orderByClause" >
+        order by $orderByClause$
+      </isNotNull>
+    </isParameterPresent>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterClass="com.ve.itemcenter.core.domain.MarketingModuleDo" >
+    select 
+    <include refid="market_module.Base_Column_List" />
+    from market_module
+    where id = #id:BIGINT#
+  </select>
+  <delete id="deleteByPrimaryKey" parameterClass="com.ve.itemcenter.core.domain.MarketingModuleDo" >
+    delete from market_module
+    where id = #id:BIGINT#
+  </delete>
+  <delete id="deleteByExample" parameterClass="com.ve.itemcenter.core.domain.MarketingModuleDoExample" >
+    delete from market_module
+    <include refid="market_module.Example_Where_Clause" />
+  </delete>
+  <insert id="insert" parameterClass="com.ve.itemcenter.core.domain.MarketingModuleDo" >
+    insert into market_module (id, module_code, module_type, module_name, 
+      impl_type, impl_content, prov_type, prov_appcode, 
+      prov_user_id, gmt_created, gmt_modified)
+    values (#id:BIGINT#, #moduleCode:VARCHAR#, #moduleType:TINYINT#, #moduleName:VARCHAR#, 
+      #implType:TINYINT#, #implContent:VARCHAR#, #provType:TINYINT#, #provAppcode:VARCHAR#, 
+      #provUserId:BIGINT#, #gmtCreated:TIMESTAMP#, #gmtModified:TIMESTAMP#)
+  </insert>
+  <insert id="insertSelective" parameterClass="com.ve.itemcenter.core.domain.MarketingModuleDo" >
+    insert into market_module
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        id
+      </isNotNull>
+      <isNotNull prepend="," property="moduleCode" >
+        module_code
+      </isNotNull>
+      <isNotNull prepend="," property="moduleType" >
+        module_type
+      </isNotNull>
+      <isNotNull prepend="," property="moduleName" >
+        module_name
+      </isNotNull>
+      <isNotNull prepend="," property="implType" >
+        impl_type
+      </isNotNull>
+      <isNotNull prepend="," property="implContent" >
+        impl_content
+      </isNotNull>
+      <isNotNull prepend="," property="provType" >
+        prov_type
+      </isNotNull>
+      <isNotNull prepend="," property="provAppcode" >
+        prov_appcode
+      </isNotNull>
+      <isNotNull prepend="," property="provUserId" >
+        prov_user_id
+      </isNotNull>
+      <isNotNull prepend="," property="gmtCreated" >
+        gmt_created
+      </isNotNull>
+      <isNotNull prepend="," property="gmtModified" >
+        gmt_modified
+      </isNotNull>
+      )
+    </dynamic>
+    values
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        #id:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="moduleCode" >
+        #moduleCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="moduleType" >
+        #moduleType:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="moduleName" >
+        #moduleName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="implType" >
+        #implType:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="implContent" >
+        #implContent:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="provType" >
+        #provType:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="provAppcode" >
+        #provAppcode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="provUserId" >
+        #provUserId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="gmtCreated" >
+        #gmtCreated:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="gmtModified" >
+        #gmtModified:TIMESTAMP#
+      </isNotNull>
+      )
+    </dynamic>
+  </insert>
+  <select id="countByExample" parameterClass="com.ve.itemcenter.core.domain.MarketingModuleDoExample" resultClass="java.lang.Integer" >
+    select count(*) from market_module
+    <include refid="market_module.Example_Where_Clause" />
+  </select>
+  <update id="updateByExampleSelective" >
+    update market_module
+    <dynamic prepend="set" >
+      <isNotNull prepend="," property="record.id" >
+        id = #record.id:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="record.moduleCode" >
+        module_code = #record.moduleCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.moduleType" >
+        module_type = #record.moduleType:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="record.moduleName" >
+        module_name = #record.moduleName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.implType" >
+        impl_type = #record.implType:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="record.implContent" >
+        impl_content = #record.implContent:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.provType" >
+        prov_type = #record.provType:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="record.provAppcode" >
+        prov_appcode = #record.provAppcode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.provUserId" >
+        prov_user_id = #record.provUserId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="record.gmtCreated" >
+        gmt_created = #record.gmtCreated:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="record.gmtModified" >
+        gmt_modified = #record.gmtModified:TIMESTAMP#
+      </isNotNull>
+    </dynamic>
+    <isParameterPresent >
+      <include refid="market_module.Example_Where_Clause" />
+    </isParameterPresent>
+  </update>
+  <update id="updateByExample" >
+    update market_module
+    set id = #record.id:BIGINT#,
+      module_code = #record.moduleCode:VARCHAR#,
+      module_type = #record.moduleType:TINYINT#,
+      module_name = #record.moduleName:VARCHAR#,
+      impl_type = #record.implType:TINYINT#,
+      impl_content = #record.implContent:VARCHAR#,
+      prov_type = #record.provType:TINYINT#,
+      prov_appcode = #record.provAppcode:VARCHAR#,
+      prov_user_id = #record.provUserId:BIGINT#,
+      gmt_created = #record.gmtCreated:TIMESTAMP#,
+      gmt_modified = #record.gmtModified:TIMESTAMP#
+    <isParameterPresent >
+      <include refid="market_module.Example_Where_Clause" />
+    </isParameterPresent>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterClass="com.ve.itemcenter.core.domain.MarketingModuleDo" >
+    update market_module
+    <dynamic prepend="set" >
+      <isNotNull prepend="," property="moduleCode" >
+        module_code = #moduleCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="moduleType" >
+        module_type = #moduleType:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="moduleName" >
+        module_name = #moduleName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="implType" >
+        impl_type = #implType:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="implContent" >
+        impl_content = #implContent:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="provType" >
+        prov_type = #provType:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="provAppcode" >
+        prov_appcode = #provAppcode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="provUserId" >
+        prov_user_id = #provUserId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="gmtCreated" >
+        gmt_created = #gmtCreated:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="gmtModified" >
+        gmt_modified = #gmtModified:TIMESTAMP#
+      </isNotNull>
+    </dynamic>
+    where id = #id:BIGINT#
+  </update>
+  <update id="updateByPrimaryKey" parameterClass="com.ve.itemcenter.core.domain.MarketingModuleDo" >
+    update market_module
+    set module_code = #moduleCode:VARCHAR#,
+      module_type = #moduleType:TINYINT#,
+      module_name = #moduleName:VARCHAR#,
+      impl_type = #implType:TINYINT#,
+      impl_content = #implContent:VARCHAR#,
+      prov_type = #provType:TINYINT#,
+      prov_appcode = #provAppcode:VARCHAR#,
+      prov_user_id = #provUserId:BIGINT#,
+      gmt_created = #gmtCreated:TIMESTAMP#,
+      gmt_modified = #gmtModified:TIMESTAMP#
+    where id = #id:BIGINT#
+  </update>
+</sqlMap>

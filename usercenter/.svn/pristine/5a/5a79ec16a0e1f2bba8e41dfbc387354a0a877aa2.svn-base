@@ -1,0 +1,48 @@
+package com.ve.usercenter.core.service.action.usergroup;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.dto.UserGroupDTO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserGroupManager;
+import com.ve.usercenter.core.service.RequestContext;
+import com.ve.usercenter.core.service.UserRequest;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.service.action.Action;
+import com.ve.usercenter.core.service.action.ActionEnum;
+
+@Service
+public class AddUserGroupAction implements Action {
+
+	@Resource
+	private UserGroupManager userGroupManager;
+
+	@Override
+	public UserResponse execute(RequestContext context) throws UserException {
+		UserResponse response = null;
+		UserGroupDTO userGroupDto = null;
+
+		UserRequest userRequest = context.getRequest();
+		userGroupDto = (UserGroupDTO) userRequest.getParam("userGroupDTO");
+
+		log.info("userGroupDto:", userGroupDto);
+
+		try {
+			userGroupDto = userGroupManager.addUserGroup(userGroupDto);
+		} catch (UserException e) {
+			return new UserResponse(e.getResponseCode().getCode(),
+					e.getMessage());
+		}
+		response = new UserResponse(userGroupDto);
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return ActionEnum.ADD_USER_GROUP.getActionName();
+	}
+
+}

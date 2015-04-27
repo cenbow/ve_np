@@ -1,0 +1,98 @@
+package com.ve.usercenter.common.qto;
+
+import java.io.Serializable;
+
+public class UserQTO implements Serializable{
+	
+	private String name;
+	private String email;
+	private String mobile;
+	private Long recommenderId;
+	private Long inviterId;
+	private Byte role;
+	private Integer index;
+	private Integer count;
+	
+	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public String getMobile() {
+		return mobile;
+	}
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+	public Long getRecommenderId() {
+		return recommenderId;
+	}
+	public void setRecommenderId(Long recommenderId) {
+		this.recommenderId = recommenderId;
+	}
+	public Long getInviterId() {
+		return inviterId;
+	}
+	public void setInviterId(Long inviterId) {
+		this.inviterId = inviterId;
+	}
+	public Byte getRole() {
+		return role;
+	}
+	public void setRole(Byte role) {
+		this.role = role;
+	}
+	public Integer getIndex() {
+		return index;
+	}
+	public void setIndex(Integer index) {
+		this.index = index;
+	}
+	public Integer getCount() {
+		return count;
+	}
+	public void setCount(Integer count) {
+		this.count = count;
+	}
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

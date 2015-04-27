@@ -1,0 +1,124 @@
+package com.ve.marketingcenter.core.manager.coupon.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import com.ve.marketingcenter.common.constant.coupon.RetCodeEnum;
+import com.ve.marketingcenter.common.domain.dto.coupon.CouponParamDTO;
+import com.ve.marketingcenter.common.domain.qto.coupon.ActivityCouponQTO;
+import com.ve.marketingcenter.core.domain.ActivityDO;
+import com.ve.marketingcenter.core.domain.ActualParamDO;
+import com.ve.marketingcenter.core.domain.coupon.ActivityCoupon;
+import com.ve.marketingcenter.core.domain.coupon.BaseDo;
+import com.ve.marketingcenter.core.exception.MarketingException;
+import com.ve.marketingcenter.core.manager.coupon.ActivityCouponManager;
+import com.ve.marketingcenter.core.manager.coupon.BaseManager;
+
+@Service
+public class ActivityCouponManagerImpl extends BaseManager implements
+		ActivityCouponManager {
+
+	@Override
+	public ActivityCoupon addActivityCoupon(ActivityCoupon activityCoupon)
+			throws MarketingException {
+		if (activityCoupon == null) {
+			throw new MarketingException(RetCodeEnum.PARAMETER_NULL.getCode(),
+					"activityCoupon is null");
+		}
+		// 执行新增操作
+		activityCoupon = (ActivityCoupon) getBaseDao().insert(activityCoupon);
+		return activityCoupon;
+	}
+
+	@Override
+	public int updateGrantedCount(List<ActivityCoupon> activityCouponList)
+			throws MarketingException {
+		if (activityCouponList == null) {
+			throw new MarketingException(RetCodeEnum.PARAMETER_NULL.getCode(),
+					"activityCouponList is null");
+		}
+
+		// 执行更新操作
+		return getBaseDao().batchUpdate("ACTIVITYCOUPON.updateGrantedCount",
+				activityCouponList);
+	}
+
+	@Override
+	public List queryActivityCoupon(ActivityCouponQTO activityCouponQTO)
+			throws MarketingException {
+		if (activityCouponQTO == null) {
+			throw new MarketingException(RetCodeEnum.PARAMETER_NULL.getCode(),
+					"activityCouponQTO is null");
+		}
+		List<BaseDo> activityCouponList = query(activityCouponQTO);
+		return activityCouponList;
+	}
+
+	@Override
+	public List<ActivityCoupon> queryCouponByCode(String couponCode)
+			throws MarketingException {
+		if (couponCode == null) {
+			throw new MarketingException(RetCodeEnum.PARAMETER_NULL.getCode(),
+					"couponCode is null");
+		}
+		return getBaseDao().queryForList("ACTIVITYCOUPON.queryCouponByCode",
+				couponCode);
+	}
+
+	@Override
+	public ActivityDO getActivity(Long activityId) throws MarketingException {
+		if (activityId == null) {
+			throw new MarketingException(RetCodeEnum.PARAMETER_NULL.getCode(),
+					"activityId is null");
+		}
+		return (ActivityDO) getBaseDao().queryForObject(
+				"ACTIVITYCOUPON.getActivity", activityId);
+	}
+
+	@Override
+	public ActivityCoupon getActivityCoupon(Long couponId)
+			throws MarketingException {
+		if (couponId == null) {
+			throw new MarketingException(RetCodeEnum.PARAMETER_NULL.getCode(),
+					"couponId is null");
+		}
+		ActivityCoupon activityCoupon = new ActivityCoupon();
+		activityCoupon.setId(couponId);
+		return (ActivityCoupon) getBaseDao().get(activityCoupon);
+	}
+
+	@Override
+	public List<CouponParamDTO> queryActivityParam(Long activityId)
+			throws MarketingException {
+		if (activityId == null) {
+			throw new MarketingException(RetCodeEnum.PARAMETER_NULL.getCode(),
+					"activityId is null");
+		}
+		List<ActualParamDO> actualParamList = getBaseDao().queryForList(
+				"ACTIVITYCOUPON.queryActivityParam", activityId);
+		List<CouponParamDTO> couponParamDTOList = new ArrayList<CouponParamDTO>();
+		// DO转换成DTO
+		for (ActualParamDO actualParam : actualParamList) {
+			CouponParamDTO couponParamDTO = new CouponParamDTO();
+			BeanUtils.copyProperties(actualParam, couponParamDTO);
+			couponParamDTOList.add(couponParamDTO);
+		}
+		return couponParamDTOList;
+	}
+
+	@Override
+	public int batchAddActivityCoupon(List<ActivityCoupon> activityCouponList)
+			throws MarketingException {
+		if (activityCouponList == null) {
+			throw new MarketingException(RetCodeEnum.PARAMETER_NULL.getCode(),
+					"activityCouponList is null");
+		}
+		// 执行新增操作
+		getBaseDao().batchInsert("ACTIVITYCOUPON.batchAddActivityCoupon",
+				activityCouponList);
+		return activityCouponList.size();
+	}
+}

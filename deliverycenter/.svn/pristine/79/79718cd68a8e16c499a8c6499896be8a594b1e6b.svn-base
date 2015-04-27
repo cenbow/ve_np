@@ -1,0 +1,97 @@
+package com.ve.deliverycenter.core.dao;
+
+import java.util.List;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+
+import com.ve.deliverycenter.common.constant.DeliveryConstant;
+import com.ve.deliverycenter.common.constant.RetCodeEnum;
+import com.ve.deliverycenter.common.qto.BaseQTO;
+import com.ve.deliverycenter.common.qto.Page;
+import com.ve.deliverycenter.core.domain.BaseDo;
+import com.ve.deliverycenter.core.exception.DeliveryException;
+
+public class BaseDao extends SqlMapClientDaoSupport {
+
+	public int delete(BaseDo bo) {
+		return getSqlMapClientTemplate().delete(
+				getStatementName(bo.getClass(), "delete"), bo);
+	}
+
+	public BaseDo insert(BaseDo bo) {
+		Object result = getSqlMapClientTemplate().insert(
+				getStatementName(bo.getClass(), "add"), bo);
+		if (result == null) {
+			return bo;
+		} else {
+			return get(bo);
+		}
+	}
+
+	public int update(BaseDo bo) {
+		return getSqlMapClientTemplate().update(
+				getStatementName(bo.getClass(), "update"), bo);
+	}
+
+	public BaseDo get(BaseDo bo) {
+		return (BaseDo) getSqlMapClientTemplate().queryForObject(
+				getStatementName(bo.getClass(), "get"), bo);
+	}
+
+	private String getStatementName(Class classT, String crudName) {
+		String className = classT.getName().substring(
+				classT.getName().lastIndexOf(".") + 1);
+		return className.toUpperCase() + "." + crudName + className;
+	}
+
+	private String getQueryStatement(Class qtoClass, String curdName) {
+		String className = qtoClass.getName()
+				.substring(qtoClass.getName().lastIndexOf(".") + 1)
+				.replace("QTO", "");
+		return className.toUpperCase() + "." + curdName + className;
+	}
+
+	private String getCountStatement(Class qtoClass, String curdName) {
+		String className = qtoClass.getName()
+				.substring(qtoClass.getName().lastIndexOf(".") + 1)
+				.replace("QTO", "");
+		return className.toUpperCase() + "." + curdName;
+	}
+
+	public Object queryForObject(String statementName, Object obj) {
+		return getSqlMapClientTemplate().queryForObject(statementName, obj);
+	}
+
+	public List queryForList(String statementName, Object obj) {
+		return getSqlMapClientTemplate().queryForList(statementName, obj);
+	}
+
+	public List<BaseDo> query(BaseQTO qto) throws DeliveryException {
+		if (qto.getPageNo() == null) {
+			throw new DeliveryException(RetCodeEnum.PARAMERTER_NULL.getCode(),
+					"pageNo is null");
+		}
+		if (qto.getPageNo() > DeliveryConstant.MAX_PAGE_NO) {
+			throw new DeliveryException(RetCodeEnum.PARAMERTER_NULL.getCode(),
+					"pageNo over max no");
+		}
+		if (qto.getPageSize() == null) {
+			throw new DeliveryException(RetCodeEnum.PARAMERTER_NULL.getCode(),
+					"pageSize is null");
+		}
+		if (qto.getPageSize() > Long.valueOf(DeliveryConstant.MAX_PAGE_SIZE)) {
+			throw new DeliveryException(RetCodeEnum.PARAMERTER_NULL.getCode(),
+					"pageSize over max size");
+		}
+		String listStatementName = getQueryStatement(qto.getClass(), "query");
+		String countStatementName = getCountStatement(qto.getClass(),
+				"queryCount");
+		Long totalCount = (Long) queryForObject(countStatementName, qto);
+		qto.setTotalCount(totalCount);
+		Page page = new Page();
+		page.initPageParameter(totalCount, qto.getPageNo().toString(),
+				qto.getPageSize());
+		qto.setStartRow(page.getStartRow());
+		return queryForList(listStatementName, qto);
+	}
+}

@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="user_auth_info" >
+  <resultMap id="BaseResultMap" class="com.ve.usercenter.core.domain.UserAuthInfoDO" >
+    <result column="id" property="id" jdbcType="BIGINT" />
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="real_name" property="realName" jdbcType="VARCHAR" />
+    <result column="idcard_no" property="idcardNo" jdbcType="VARCHAR" />
+    <result column="idcard_front_img" property="idcardFrontImg" jdbcType="VARCHAR" />
+    <result column="idcard_reverse_img" property="idcardReverseImg" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="TINYINT" />
+    <result column="birthday" property="birthday" jdbcType="DATE" />
+    <result column="height" property="height" jdbcType="INTEGER" />
+    <result column="weight" property="weight" jdbcType="INTEGER" />
+    <result column="profession" property="profession" jdbcType="VARCHAR" />
+    <result column="country" property="country" jdbcType="VARCHAR" />
+    <result column="province" property="province" jdbcType="VARCHAR" />
+    <result column="city" property="city" jdbcType="VARCHAR" />
+    <result column="area" property="area" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="m_phone_no" property="mPhoneNo" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="remark" property="remark" jdbcType="TEXT"/>
+    <result column="deleted" property="deleted" jdbcType="TINYINT" />
+    <result column="gmt_created" property="gmtCreated" jdbcType="TIMESTAMP" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <iterate property="oredCriteria" conjunction="or" prepend="where" removeFirstPrepend="iterate" >
+      <isEqual property="oredCriteria[].valid" compareValue="true" >
+        (
+        <iterate prepend="and" property="oredCriteria[].criteriaWithoutValue" conjunction="and" >
+          $oredCriteria[].criteriaWithoutValue[]$
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithSingleValue" conjunction="and" >
+          $oredCriteria[].criteriaWithSingleValue[].condition$ #oredCriteria[].criteriaWithSingleValue[].value#
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithListValue" conjunction="and" >
+          $oredCriteria[].criteriaWithListValue[].condition$
+          <iterate property="oredCriteria[].criteriaWithListValue[].values" open="(" close=")" conjunction="," >
+            #oredCriteria[].criteriaWithListValue[].values[]#
+          </iterate>
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithBetweenValue" conjunction="and" >
+          $oredCriteria[].criteriaWithBetweenValue[].condition$
+          #oredCriteria[].criteriaWithBetweenValue[].values[0]# and
+          #oredCriteria[].criteriaWithBetweenValue[].values[1]#
+        </iterate>
+        )
+      </isEqual>
+    </iterate>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, user_id, real_name, idcard_no, idcard_front_img, idcard_reverse_img, sex, birthday, 
+    height, weight, profession, country, province, city, area, address, email, m_phone_no, 
+    status,deleted,remark, gmt_created, gmt_modified
+  </sql>
+ 
+  
+  <insert id="insert" parameterClass="com.ve.usercenter.core.domain.UserAuthInfoDO" >
+    insert into user_auth_info
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        id
+      </isNotNull>
+      <isNotNull prepend="," property="userId" >
+        user_id
+      </isNotNull>
+      <isNotNull prepend="," property="realName" >
+        real_name
+      </isNotNull>
+      <isNotNull prepend="," property="idcardNo" >
+        idcard_no
+      </isNotNull>
+      <isNotNull prepend="," property="idcardFrontImg" >
+        idcard_front_img
+      </isNotNull>
+      <isNotNull prepend="," property="idcardReverseImg" >
+        idcard_reverse_img
+      </isNotNull>
+      <isNotNull prepend="," property="sex" >
+        sex
+      </isNotNull>
+      <isNotNull prepend="," property="birthday" >
+        birthday
+      </isNotNull>
+      <isNotNull prepend="," property="height" >
+        height
+      </isNotNull>
+      <isNotNull prepend="," property="weight" >
+        weight
+      </isNotNull>
+      <isNotNull prepend="," property="profession" >
+        profession
+      </isNotNull>
+      <isNotNull prepend="," property="country" >
+        country
+      </isNotNull>
+      <isNotNull prepend="," property="province" >
+        province
+      </isNotNull>
+      <isNotNull prepend="," property="city" >
+        city
+      </isNotNull>
+      <isNotNull prepend="," property="area" >
+        area
+      </isNotNull>
+      <isNotNull prepend="," property="address" >
+        address
+      </isNotNull>
+      <isNotNull prepend="," property="email" >
+        email
+      </isNotNull>
+      <isNotNull prepend="," property="mPhoneNo" >
+        m_phone_no
+      </isNotNull>
+      <isNotNull prepend="," property="remark" >
+        remark
+      </isNotNull>
+      ,deleted,status,gmt_created, gmt_modified
+      )
+    </dynamic>
+    values
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        #id:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="userId" >
+        #userId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="realName" >
+        #realName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="idcardNo" >
+        #idcardNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="idcardFrontImg" >
+        #idcardFrontImg:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="idcardReverseImg" >
+        #idcardReverseImg:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="sex" >
+        #sex:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="birthday" >
+        #birthday:DATE#
+      </isNotNull>
+      <isNotNull prepend="," property="height" >
+        #height:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="weight" >
+        #weight:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="profession" >
+        #profession:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="country" >
+        #country:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="province" >
+        #province:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="city" >
+        #city:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="area" >
+        #area:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="address" >
+        #address:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="email" >
+        #email:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="mPhoneNo" >
+        #mPhoneNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="remark">
+      	#remark:VARCHAR#
+      </isNotNull>
+      ,0,0,now(),now()
+      )
+    </dynamic>
+    <selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+	</selectKey>
+  </insert>
+  
+  <select id="selectById" resultMap="BaseResultMap" parameterClass="java.lang.Long">
+  	select * from user_auth_info where id = #id:BIGINT# and deleted = 0
+  </select>
+  
+  <select id="selectByUserId" resultMap="BaseResultMap" parameterClass="java.lang.Long">
+  	select * from user_auth_info where user_id = #userId:BIGINT# and deleted = 0
+  </select>
+ 
+  <update id="updateByExampleSelective" >
+    update user_auth_info
+    <dynamic prepend="set" >
+      <isNotNull prepend="," property="record.id" >
+        id = #record.id:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="record.userId" >
+        user_id = #record.userId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="record.realName" >
+        real_name = #record.realName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.idcardNo" >
+        idcard_no = #record.idcardNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.idcardFrontImg" >
+        idcard_front_img = #record.idcardFrontImg:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.idcardReverseImg" >
+        idcard_reverse_img = #record.idcardReverseImg:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.sex" >
+        sex = #record.sex:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="record.birthday" >
+        birthday = #record.birthday:DATE#
+      </isNotNull>
+      <isNotNull prepend="," property="record.height" >
+        height = #record.height:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="record.weight" >
+        weight = #record.weight:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="record.profession" >
+        profession = #record.profession:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.country" >
+        country = #record.country:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.province" >
+        province = #record.province:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.city" >
+        city = #record.city:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.area" >
+        area = #record.area:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.address" >
+        address = #record.address:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.email" >
+        email = #record.email:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.mPhoneNo" >
+        m_phone_no = #record.mPhoneNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.status" >
+        status = #record.status:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="record.gmtCreated" >
+        gmt_created = #record.gmtCreated:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="record.gmtModified" >
+        gmt_modified = #record.gmtModified:TIMESTAMP#
+      </isNotNull>
+    </dynamic>
+    <isParameterPresent >
+      <include refid="user_auth_info.Example_Where_Clause" />
+    </isParameterPresent>
+  </update>
+  <update id="update" parameterClass="com.ve.usercenter.core.domain.UserAuthInfoDO" >
+    update user_auth_info set gmt_modified = now(),status=0,remark=null
+    
+      <isNotNull prepend="," property="userId" >
+        user_id = #userId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="realName" >
+        real_name = #realName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="idcardNo" >
+        idcard_no = #idcardNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="idcardFrontImg" >
+        idcard_front_img = #idcardFrontImg:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="idcardReverseImg" >
+        idcard_reverse_img = #idcardReverseImg:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="sex" >
+        sex = #sex:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="birthday" >
+        birthday = #birthday:DATE#
+      </isNotNull>
+      <isNotNull prepend="," property="height" >
+        height = #height:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="weight" >
+        weight = #weight:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="profession" >
+        profession = #profession:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="country" >
+        country = #country:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="province" >
+        province = #province:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="city" >
+        city = #city:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="area" >
+        area = #area:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="address" >
+        address = #address:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="email" >
+        email = #email:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="mPhoneNo" >
+        m_phone_no = #mPhoneNo:VARCHAR#
+      </isNotNull>
+    where user_id = #userId:BIGINT# and deleted = 0
+  </update>
+  
+  <update id="indentified" parameterClass="com.ve.usercenter.core.domain.UserAuthInfoDO">
+  	update user_auth_info set status=1,remark=#remark:TEXT#,gmt_modified=now() where user_id=#userId:BIGINT# and deleted = 0
+  </update>
+  
+  <update id="failIndentified" parameterClass="com.ve.usercenter.core.domain.UserAuthInfoDO">
+  	update user_auth_info set status=2,remark=#remark:TEXT#,gmt_modified=now() where user_id=#userId:BIGINT# and deleted = 0
+  </update>
+  
+  <update id="delete" parameterClass="java.lang.Long">
+  	update user_auth_info set deleted = 1,gmt_modified=now() where user_id=#userId:BIGINT#
+  </update>
+  <update id="restore" parameterClass="java.lang.Long">
+  	update user_auth_info set deleted = 0,gmt_modified=now() where user_id=#userId:BIGINT#
+  </update>
+  
+</sqlMap>

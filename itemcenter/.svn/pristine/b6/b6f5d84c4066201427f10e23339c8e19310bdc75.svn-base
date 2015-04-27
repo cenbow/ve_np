@@ -1,0 +1,38 @@
+package itemsku;
+
+import javax.annotation.Resource;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.ve.itemcenter.common.api.BaseRequest;
+import com.ve.itemcenter.common.api.ItemService;
+import com.ve.itemcenter.common.api.Request;
+import com.ve.itemcenter.common.api.Response;
+import com.ve.itemcenter.common.domain.ItemSkuDTO;
+import com.ve.itemcenter.core.service.action.ActionEnum;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:applicationContext.xml" })
+public class DecreaseItemSkuStockTest {
+	@Resource
+	private ItemService itemService;
+
+	@Test
+	public void test() {
+		System.out.println(1);
+		Request request = new BaseRequest();
+		ItemSkuDTO itemSkuDTO = new ItemSkuDTO();
+		itemSkuDTO.setId(4L);
+		itemSkuDTO.setSellerId(1L);
+		itemSkuDTO.setStockNum(2L);
+		request.setParam("skuId", 4L);
+		request.setParam("sellerId", 1L);
+		request.setParam("number", 2L);
+		request.setCommand(ActionEnum.DECREASE_ITEM_SKU_STOCK.getActionName());
+		Response response = itemService.execute(request);
+		System.out.println(1);
+	}
+}

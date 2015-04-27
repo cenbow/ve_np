@@ -1,0 +1,63 @@
+package com.ve.itemcenter.core.service.action.skuproperty;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.api.ItemResponse;
+import com.ve.itemcenter.common.constant.ActionEnum;
+import com.ve.itemcenter.common.constant.ResCodeNum;
+import com.ve.itemcenter.common.domain.dto.SkuPropertyDTO;
+import com.ve.itemcenter.core.exception.ItemException;
+import com.ve.itemcenter.core.manager.SkuPropertyManager;
+import com.ve.itemcenter.core.service.ItemRequest;
+import com.ve.itemcenter.core.service.RequestContext;
+import com.ve.itemcenter.core.service.action.Action;
+import com.ve.itemcenter.core.util.ResponseUtil;
+
+/**
+ * 查看商品属性Action
+ * 
+ * @author chen.huang
+ *
+ */
+@Service
+public class GetSkuPropertyAction implements Action {
+	private static final Logger log = LoggerFactory.getLogger(GetSkuPropertyAction.class);
+
+	@Resource
+	private SkuPropertyManager skuPropertyManager;
+
+	@Override
+	public ItemResponse execute(RequestContext context) throws ItemException {
+		SkuPropertyDTO skuPropertyDTO = null;
+		ItemResponse response = null;
+		ItemRequest request = context.getRequest();
+		// 验证ID
+		if (request.getLong("ID") == null) {
+			return ResponseUtil.getErrorResponse(ResCodeNum.PARAM_E_MISSING, "skuPropertyID is missing");
+		}
+		if (request.getLong("sellerId") == null) {
+			return ResponseUtil.getErrorResponse(ResCodeNum.PARAM_E_MISSING, "sellerId is missing");
+		}
+		
+		Long skuPropertyId = request.getLong("ID");// SKU属性模板ID
+		Long sellerId = request.getLong("sellerId");// 供应商ID
+		try {
+			skuPropertyDTO = skuPropertyManager.getSkuProperty(skuPropertyId, sellerId);
+		} catch (ItemException e) {
+			response = ResponseUtil.getErrorResponse(e.getErrorCode(), e.getMessage());
+			log.error("do action:" + request.getCommand() + " occur Exception:" + e.getMessage(), e);
+			return response;
+		}
+		response = ResponseUtil.getSuccessResponse(skuPropertyDTO);
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		return ActionEnum.GET_SKU_PROPERTY.getActionName();
+	}
+}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="order_seq">
+	<resultMap id="BaseResultMap" class="com.ve.tradecenter.core.domain.OrderSeqDO">
+		<result column="id" property="id" jdbcType="INTEGER" />
+		<result column="day" property="day" jdbcType="DATE" />
+		<result column="seq" property="seq" jdbcType="INTEGER" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, day, seq
+	</sql>
+
+	<insert id="addOrderSeq" parameterClass="com.ve.tradecenter.core.domain.OrderSeqDO">
+		insert into order_seq (id, day, seq)
+		values (#id:INTEGER#, #day:DATE#, #seq:INTEGER#)
+	</insert>
+
+	<select id="getOrderSeq" parameterClass="java.sql.Date"
+		resultClass="java.lang.Integer">
+		select seq from order_seq where day = #value#
+	</select>
+
+	<update id="updateOrderSeq" parameterClass="java.sql.Date">
+		update order_seq set seq = seq + 1 where day = #value#
+	</update>
+
+</sqlMap>

@@ -1,0 +1,70 @@
+package com.ve.itemcenter.core.manager;
+
+import java.util.List;
+
+import com.ve.itemcenter.common.domain.ItemBrandDTO;
+import com.ve.itemcenter.common.domain.ItemBrandQTO;
+import com.ve.itemcenter.core.domain.ItemBrandDO;
+import com.ve.itemcenter.core.exception.ItemException;
+
+public interface ItemBrandManager {
+
+	/**
+	 * 添加商品品牌
+	 * 
+	 * @param itemBrandDO
+	 * @return
+	 * @throws ItemException
+	 */
+	public ItemBrandDO addItemBrand(ItemBrandDO itemBrandDO)
+			throws ItemException;
+
+	/**
+	 * 添加商品品牌
+	 * 
+	 * @param itemBrandDO
+	 * @return
+	 * @throws ItemException
+	 */
+	public boolean updateItemBrand(ItemBrandDO itemBrandDO)
+			throws ItemException;
+
+	/**
+	 * 查看商品品牌
+	 * 
+	 * @param itemBrandDO
+	 * @return
+	 * @throws ItemException
+	 */
+	public ItemBrandDO getItemBrand(long id) throws ItemException;
+
+	/**
+	 * 删除商品品牌
+	 * 
+	 * @param itemBrandDO
+	 * @return
+	 * @throws ItemException
+	 */
+	public boolean deleteItemBrand(long id) throws ItemException;
+
+	/**
+	 * 验证ItemBrandDTO
+	 * 
+	 * @param itemBrandDO
+	 * @return
+	 * @throws ItemException
+	 */
+	public boolean verifyItemBrandDTOProperty(ItemBrandDTO itemBrandDTO)
+			throws ItemException;
+
+	/**
+	 * 查询商品品牌列表
+	 * 
+	 * @param itemBrandQTO
+	 * @return
+	 * @throws ItemException
+	 */
+	public List<ItemBrandDO> queryItemBrandList(ItemBrandQTO itemBrandQTO)
+			throws ItemException;
+
+}

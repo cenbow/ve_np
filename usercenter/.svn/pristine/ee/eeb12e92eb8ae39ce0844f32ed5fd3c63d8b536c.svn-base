@@ -1,0 +1,49 @@
+package com.ve.usercenter.core.service.action.user;
+
+import javax.annotation.Resource;
+
+import com.ve.usercenter.common.constant.ErrorCode;
+import com.ve.usercenter.core.domain.UserDO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserManager;
+import com.ve.usercenter.core.service.UserRequest;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.service.RequestContext;
+import com.ve.usercenter.core.service.action.Action;
+import com.ve.usercenter.core.service.action.ActionEnum;
+import com.ve.usercenter.core.util.ExceptionUtil;
+
+public class FreezeUserAction implements Action{
+
+	@Resource
+	private UserManager userManager;
+	
+	@Override
+	public UserResponse execute(RequestContext context)
+			throws UserException {
+		// TODO Auto-generated method stub
+		UserDO userDo = null;
+		UserResponse response = null;
+		
+		UserRequest request = context.getRequest();
+		Long userId = (Long)request.getParam("userId");
+		
+		
+		try{
+			userManager.freezeUser(userId);
+		}catch(UserException e){
+			return new UserResponse(e.getResponseCode().getCode(),e.getResponseCode().getMessage());
+		}
+		
+		response = new UserResponse(true);
+		
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return ActionEnum.FREEZE_USER.getActionName();
+	}
+	
+}

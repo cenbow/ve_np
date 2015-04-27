@@ -1,0 +1,130 @@
+package com.ve.itemcenter.common.domain.dto;
+
+import java.util.Date;
+
+public class ItemImageDTO {
+	private Long id;
+
+	private Long itemId;// 商品ID
+
+	private Long supplierId;// 供应商ID
+
+	private Integer imageType;// 图片类型：1代表商品主图，2代表商品属性图，3代表商品详情图
+
+	private String imageName;// 图片名称
+
+	private String imgUrl;// 图片地址
+
+	private Integer imgLengthPixel;// 图片象素长度
+
+	private Integer imgWidthPixel;// 图片象素宽度
+
+	private Integer sort;// 排序字段
+
+	private Integer isDeleted;
+
+	private Date gmtCreated;
+
+	private Date gmtModified;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getItemId() {
+		return itemId;
+	}
+
+	public void setItemId(Long itemId) {
+		this.itemId = itemId;
+	}
+
+	public Long getSupplierId() {
+		return supplierId;
+	}
+
+	public void setSupplierId(Long supplierId) {
+		this.supplierId = supplierId;
+	}
+
+	public Integer getImageType() {
+		return imageType;
+	}
+
+	public void setImageType(Integer imageType) {
+		this.imageType = imageType;
+	}
+
+	public String getImageName() {
+		return imageName;
+	}
+
+	public void setImageName(String imageName) {
+		this.imageName = imageName == null ? null : imageName.trim();
+	}
+
+	public String getImgUrl() {
+		return imgUrl;
+	}
+
+	public void setImgUrl(String imgUrl) {
+		this.imgUrl = imgUrl == null ? null : imgUrl.trim();
+	}
+
+	public Integer getImgLengthPixel() {
+		return imgLengthPixel;
+	}
+
+	public void setImgLengthPixel(Integer imgLengthPixel) {
+		this.imgLengthPixel = imgLengthPixel;
+	}
+
+	public Integer getImgWidthPixel() {
+		return imgWidthPixel;
+	}
+
+	public void setImgWidthPixel(Integer imgWidthPixel) {
+		this.imgWidthPixel = imgWidthPixel;
+	}
+
+	public Integer getSort() {
+		return sort;
+	}
+
+	public void setSort(Integer sort) {
+		this.sort = sort;
+	}
+
+	public Integer getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Integer isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
+	public Date getGmtCreated() {
+		return gmtCreated;
+	}
+
+	public void setGmtCreated(Date gmtCreated) {
+		this.gmtCreated = gmtCreated;
+	}
+
+	public Date getGmtModified() {
+		return gmtModified;
+	}
+
+	public void setGmtModified(Date gmtModified) {
+		this.gmtModified = gmtModified;
+	}
+
+	@Override
+	public String toString() {
+		return "ItemImageDTO [id=" + id + ", itemId=" + itemId + ", supplierId=" + supplierId + "]";
+	}
+}

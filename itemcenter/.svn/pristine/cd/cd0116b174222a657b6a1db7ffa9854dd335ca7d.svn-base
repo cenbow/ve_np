@@ -1,0 +1,69 @@
+package com.ve.itemcenter.core.manager;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.domain.ItemImageDTO;
+import com.ve.itemcenter.common.domain.ItemImageQTO;
+import com.ve.itemcenter.core.exception.ItemException;
+
+@Service
+public interface ItemImageManager {
+
+	/**
+	 * 添加商品图片
+	 * 
+	 * @param itemImageDTOList
+	 * @return
+	 * @throws ItemException
+	 */
+	public ArrayList<ItemImageDTO> addItemImage(ArrayList<ItemImageDTO> itemImageDTOList) throws ItemException;
+
+	/**
+	 * 添加商品图片
+	 * 
+	 * @param ItemImageDO
+	 * @return
+	 * @throws ItemException
+	 */
+	public boolean updateItemImage(ItemImageDTO itemImageDTO) throws ItemException;
+
+	/**
+	 * 查看商品图片
+	 * 
+	 * @param ItemImageDO
+	 * @return
+	 * @throws ItemException
+	 */
+	public ItemImageDTO getItemImage(long id) throws ItemException;
+
+	/**
+	 * 删除商品图片
+	 * 
+	 * @param ItemImageDO
+	 * @return
+	 * @throws ItemException
+	 */
+	public boolean deleteItemImage(ArrayList<Long> deletedImageDTOList) throws ItemException;
+
+	/**
+	 * 验证ItemImageDTO
+	 * 
+	 * @param itemImageDTO
+	 * @return
+	 * @throws ItemException
+	 */
+	public boolean verifyItemImageDTOProperty(ItemImageDTO itemImageDTO) throws ItemException;
+
+	/**
+	 * 查询商品图片列表
+	 * 
+	 * @param itemImageQTO
+	 * @return
+	 * @throws ItemException
+	 */
+	public List<ItemImageDTO> queryItemImage(ItemImageQTO itemImageQTO) throws ItemException;
+
+}

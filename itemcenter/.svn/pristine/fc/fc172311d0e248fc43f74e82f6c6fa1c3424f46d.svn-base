@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="item_extra_info">
+	<typeAlias alias="itemExtraInfoDO" type="com.ve.itemcenter.core.domain.ItemExtraInfoDO" />
+	<typeAlias alias="itemExtraInfoQTO"	type="com.ve.itemcenter.common.domain.qto.ItemExtraInfoQTO" />
+
+	<resultMap class="itemExtraInfoDO" id="itemExtraInfoDOResult">
+		 <result column="id" property="id"  />
+	    <result column="supplier_id" property="supplierId"  />
+	    <result column="item_id" property="itemId"  />
+	    <result column="cart_type" property="cartType"  />
+	    <result column="level_limit" property="levelLimit"  />
+	    <result column="comment_count" property="commentCount"  />
+	    <result column="collect_count" property="collectCount"  />
+	    <result column="score" property="score"  />
+	    <result column="stock_num" property="stockNum"  />
+	    <result column="sold_num" property="soldNum"  />
+	    <result column="is_deleted" property="isDeleted"  />
+	    <result column="gmt_created" property="gmtCreated"  />
+	    <result column="gmt_modified" property="gmtModified"  />
+	</resultMap>
+
+
+	<sql id="itemExtraInfoFields">
+		 id, supplier_id, item_id, cart_type, level_limit, comment_count, collect_count, score, 
+    stock_num, sold_num, is_deleted, gmt_created, gmt_modified
+	</sql>
+
+	<insert id="ItemExtraInfoDAO.addItemExtraInfo" parameterClass="itemExtraInfoDO">
+		insert into item_extra_info(
+		<include refid="itemExtraInfoFields" />
+		)values(
+		#id#,
+		#supplierId#,
+		#itemId#,
+		#cartType#,
+		#levelLimit#,
+		#commentCount#,
+		#collectCount#,
+		#score#,
+		#stockNum#,
+		#soldNum#,
+		#isDeleted#,
+		now(),
+		now()
+		)
+		<selectKey keyProperty="id" resultClass="Long">
+			SELECT
+			LAST_INSERT_ID();
+		</selectKey>
+	</insert>
+
+	<sql id="item_extra_info_base_column_list">
+		 id, supplier_id, item_id, cart_type, level_limit, comment_count, collect_count, score, 
+    stock_num, sold_num, is_deleted, gmt_created, gmt_modified
+	</sql>
+
+	<select id="ItemExtraInfoDAO.getItemExtraInfo" resultMap="itemExtraInfoDOResult"
+		parameterClass="Long">
+		select
+		<include refid="item_extra_info_base_column_list" />
+		from item_extra_info
+		where id = #id# and is_deleted=0
+	</select>
+
+	<update id="ItemExtraInfoDAO.updateItemExtraInfo" parameterClass="itemExtraInfoDO">
+		update item_extra_info
+		set gmt_modified=now()
+		<dynamic prepend="">
+	      <isNotNull prepend="," property="supplierId" >
+	        supplier_id = #supplierId#
+	      </isNotNull>
+	      <isNotNull prepend="," property="itemId" >
+	        item_id = #itemId#
+	      </isNotNull>
+	      <isNotNull prepend="," property="cartType" >
+	        cart_type = #cartType#
+	      </isNotNull>
+	      <isNotNull prepend="," property="levelLimit" >
+	        level_limit = #levelLimit#
+	      </isNotNull>
+	      <isNotNull prepend="," property="commentCount" >
+	        comment_count = #commentCount#
+	      </isNotNull>
+	      <isNotNull prepend="," property="collectCount" >
+	        collect_count = #collectCount#
+	      </isNotNull>
+	      <isNotNull prepend="," property="score" >
+	        score = #score#
+	      </isNotNull>
+	      <isNotNull prepend="," property="stockNum" >
+	        stock_num = #stockNum#
+	      </isNotNull>
+	      <isNotNull prepend="," property="soldNum" >
+	        sold_num = #soldNum#
+	      </isNotNull>
+	      <isNotNull prepend="," property="isDeleted" >
+	        is_deleted = #isDeleted#
+	      </isNotNull>
+		</dynamic>
+		where id = #id# and is_deleted=0
+	</update>
+	
+	<select id="ItemExtraInfoDAO.queryItemExtraInfoList" resultMap="itemExtraInfoDOResult"
+		parameterClass="itemExtraInfoQTO">
+		select
+		<include refid="item_extra_info_base_column_list" />
+		from item_extra_info
+		 limit #currentPage#,#pageSize#
+	</select>
+	
+	
+</sqlMap>

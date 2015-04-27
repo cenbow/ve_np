@@ -1,0 +1,48 @@
+package com.ve.usercenter.core.service.action.user;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.qto.UserQTO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserManager;
+import com.ve.usercenter.core.service.RequestContext;
+import com.ve.usercenter.core.service.UserRequest;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.service.action.Action;
+import com.ve.usercenter.core.service.action.ActionEnum;
+
+@Service
+public class QueryUserAction implements Action {
+
+	@Resource
+	private UserManager userManager;
+
+	@Override
+	public UserResponse execute(RequestContext context) throws UserException {
+
+		List<UserQTO> users = null;
+
+		UserRequest request = context.getRequest();
+		UserQTO userQto = (UserQTO) request.getParam("userQto");
+		try {
+			users = userManager.queryUser(userQto);
+		} catch (UserException e) {
+			log.error(e.getMessage());
+			return new UserResponse(e.getResponseCode().getCode(),
+					e.getMessage());
+		}
+
+		return new UserResponse(users, users.get(0).getTotalCount());
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return ActionEnum.QUERY_USER.getActionName();
+	}
+
+}

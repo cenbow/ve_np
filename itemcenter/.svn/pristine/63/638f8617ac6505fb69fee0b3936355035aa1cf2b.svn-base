@@ -1,0 +1,13 @@
+package com.ve.itemcenter.common.domain;
+
+import com.ve.itemcenter.common.page.PageInfo;
+
+/**
+ * 商品品牌QTO
+ * 
+ * @author chen.huang
+ * @date 2015年1月21日
+ */
+public class ItemBrandQTO extends PageInfo {
+
+}

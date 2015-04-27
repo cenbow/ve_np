@@ -1,0 +1,34 @@
+package globalproperty;
+
+import javax.annotation.Resource;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.ve.itemcenter.common.api.BaseRequest;
+import com.ve.itemcenter.common.api.ItemService;
+import com.ve.itemcenter.common.api.Request;
+import com.ve.itemcenter.common.api.Response;
+import com.ve.itemcenter.common.domain.GlobalPropertyQTO;
+import com.ve.itemcenter.core.service.action.ActionEnum;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:applicationContext.xml" })
+public class QueryGlobalPropertyTest {
+	@Resource
+	private ItemService itemService;
+
+	@Test
+	public void test() {
+		Request request = new BaseRequest();
+		GlobalPropertyQTO globalPropertyQTO = new GlobalPropertyQTO();
+		globalPropertyQTO.setCurrentPage(1);
+		globalPropertyQTO.setPageSize(3);
+		request.setParam("globalPropertyQTO", globalPropertyQTO);
+		request.setCommand(ActionEnum.QUERY_GLOBAL_PROPERTY.getActionName());
+		Response response = itemService.execute(request);
+		System.out.println(1);
+	}
+}

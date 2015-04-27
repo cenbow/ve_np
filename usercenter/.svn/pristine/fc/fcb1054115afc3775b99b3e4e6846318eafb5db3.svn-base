@@ -1,0 +1,26 @@
+package com.ve.usercenter.core.dao;
+
+import com.ve.usercenter.common.dto.UserDTO;
+import com.ve.usercenter.common.qto.UserQTO;
+import com.ve.usercenter.core.domain.UserDO;
+
+
+
+public interface UserDao {
+	Long addUser(UserDO userDo);
+	int updatePwd(Long userId,String newPwd);
+	int updateEmail(Long userId,String email);
+	int updateMobile(Long userId,String mobile);
+	int activeUser(Long userId);
+	UserDO getUserByName(String name);
+	UserDO getUserByEmail(String email);
+	UserDO getUserByMobile(String mobile);
+	UserDO getUserById(Long userId);
+	int freezeUser(Long userId);
+	int moveUser(Long userId);
+	int deleteUser(Long userId);
+	/**
+	 * 复合查询用户列表
+	 * */
+	void queryUser(UserQTO userQto);
+}

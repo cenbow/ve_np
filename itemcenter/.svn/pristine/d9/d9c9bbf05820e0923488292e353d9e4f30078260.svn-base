@@ -1,0 +1,59 @@
+package com.ve.itemcenter.core.manager;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.domain.ItemCommentDTO;
+import com.ve.itemcenter.common.domain.ItemCommentQTO;
+import com.ve.itemcenter.core.exception.ItemException;
+
+@Service
+public interface ItemCommentManager {
+
+	/**
+	 * 添加商品评论
+	 * 
+	 * @param itemCommentDO
+	 * @return
+	 * @throws ItemException
+	 */
+	public ItemCommentDTO addItemComment(ItemCommentDTO itemCommentDO) throws ItemException;
+
+	/**
+	 * 查看商品评论
+	 * 
+	 * @param id
+	 * @return
+	 * @throws ItemException
+	 */
+	public ItemCommentDTO getItemComment(long id) throws ItemException;
+
+	/**
+	 * 删除商品评论
+	 * 
+	 * @param id
+	 * @return
+	 * @throws ItemException
+	 */
+	public boolean deleteItemComment(long id) throws ItemException;
+
+	/**
+	 * 验证itemCommentDTO
+	 * 
+	 * @param itemCommentDO
+	 * @return
+	 * @throws ItemException
+	 */
+	public boolean verifyItemCommentDTOProperty(ItemCommentDTO itemCommentDTO) throws ItemException;
+
+	/**
+	 * 根据商品ID查询所有的评论
+	 * 
+	 * @param itemCommentDTO
+	 * @return
+	 * @throws ItemException
+	 */
+	public List<ItemCommentDTO> queryItemComment(ItemCommentQTO itemCommentDTO) throws ItemException;
+
+}

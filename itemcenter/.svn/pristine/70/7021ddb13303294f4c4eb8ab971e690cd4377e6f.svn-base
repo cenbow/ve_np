@@ -1,0 +1,54 @@
+package com.ve.itemcenter.core.service.action.brand;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.ResCodeNum;
+import com.ve.itemcenter.common.domain.ItemBrandDTO;
+import com.ve.itemcenter.common.domain.ItemBrandQTO;
+import com.ve.itemcenter.core.domain.ItemBrandDO;
+import com.ve.itemcenter.core.exception.ItemException;
+import com.ve.itemcenter.core.manager.ItemBrandManager;
+import com.ve.itemcenter.core.service.ItemRequest;
+import com.ve.itemcenter.core.service.ItemResponse;
+import com.ve.itemcenter.core.service.RequestContext;
+import com.ve.itemcenter.core.service.action.Action;
+import com.ve.itemcenter.core.service.action.ActionEnum;
+import com.ve.itemcenter.core.util.ItemUtil;
+import com.ve.itemcenter.core.util.ResponseUtil;
+
+@Service
+public class ListItemBrandAciton implements Action {
+	@Resource
+	private ItemBrandManager itemBrandManager;
+
+	@Override
+	public ItemResponse execute(RequestContext context) throws ItemException {
+		ItemRequest request = context.getRequest();
+		if (request.getParam("itemBrandQTO") == null) {
+			return ResponseUtil.returnErrorResponse(ResCodeNum.PARAM_E_MISSING);
+
+		}
+		ItemBrandQTO itemBrandQTO = (ItemBrandQTO) request
+				.getParam("itemBrandQTO");
+		List<ItemBrandDO> itemBrandDO_list = itemBrandManager
+				.queryItemBrandList(itemBrandQTO);
+		List<ItemBrandDTO> itemBrandDTO_list = new ArrayList<ItemBrandDTO>();// 需要返回的DTO列表
+		for (ItemBrandDO itemBrandDO : itemBrandDO_list) {
+			ItemBrandDTO dto = new ItemBrandDTO();
+			ItemUtil.copyProperties(itemBrandDO, dto);
+			itemBrandDTO_list.add(dto);
+		}
+		ItemResponse response = new ItemResponse(itemBrandDTO_list);
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		return ActionEnum.LIST_ITEMBRAND.getActionName();
+	}
+}

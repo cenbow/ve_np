@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="item_property_tmpl">
+	<typeAlias alias="ItemPropertyTmplDO" type="com.ve.itemcenter.core.domain.ItemPropertyTmplDO" />
+	<typeAlias alias="ItemPropertyTmplDTO"	type="com.ve.itemcenter.common.domain.ItemPropertyTmplDTO" />
+	<typeAlias alias="ItemPropertyTmplQTO"	type="com.ve.itemcenter.common.domain.ItemPropertyTmplQTO" />
+
+	<resultMap class="ItemPropertyTmplDO" id="ItemPropertyTmplDOResult">
+		<result property="id" column="id" />
+		<result column="tmpl_name" property="tmplName" />
+		<result property="ownerType" column="owner_type" />
+		<result property="ownerId" column="owner_id" />
+		<result column="property_type" property="propertyType"/>
+		<result property="keyName" column="key_name" />
+		<result property="val" column="val" />
+		<result property="valType" column="val_type" />
+		<result property="sort" column="sort" />
+		<result property="inheritType" column="inherit_type" />
+		<result property="bizMark" column="biz_mark" />
+		<result property="imgUrl" column="img_url" />
+		<result property="categoryId" column="category_id" />
+		<result property="isDeleted" column="is_deleted" />
+		<result property="gmtCreated" column="gmt_created" />
+		<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+
+	<sql id="ItemPropertyTmplFields">
+		id,
+		tmpl_name,
+		owner_type,
+		owner_id,
+		property_type,
+		key_name,
+		val,
+		val_type,
+		sort,
+		inherit_type,
+		biz_mark,
+		img_url,
+		category_id,
+		is_deleted,
+		gmt_created,
+		gmt_modified
+	</sql>
+
+	<insert id="ItemPropertyTmplDAO.addItemPropertyTmpl" parameterClass="ItemPropertyTmplDO">
+		insert into item_property_tmpl(
+		<include refid="ItemPropertyTmplFields" />
+		)values(
+		#id#,
+		#tmplName#,
+		#ownerType#,
+		#ownerId#,
+		#propertyType#,
+		#keyName#,
+		#val#,
+		#valType#,
+		#sort#,
+		#inheritType#,
+		#bizMark#,
+		#imgUrl#,
+		#categoryId#,
+		#isDeleted#,
+		now(),
+		now()
+		)
+		<selectKey keyProperty="id" resultClass="Long">
+			SELECT
+			LAST_INSERT_ID();
+		</selectKey>
+	</insert>
+
+	<sql id="item_property_tmpl_Base_Column_List">
+		id,
+		tmpl_name,
+		owner_type,
+		owner_id,
+		property_type,
+		key_name,
+		val,
+		val_type,
+		sort,
+		inherit_type,
+		biz_mark,
+		img_url,
+		category_id,
+		is_deleted,
+		gmt_created,
+		gmt_modified
+	</sql>
+	
+	<update id="ItemPropertyTmplDAO.updateItemPropertyTmpl" parameterClass="ItemPropertyTmplDO">
+		update item_property_tmpl
+		set gmt_modified=now()
+		<dynamic prepend="">
+	      <isNotNull prepend="," property="tmplName" >
+	        tmpl_name = #tmplName#
+	      </isNotNull>
+	      <isNotNull prepend="," property="ownerType" >
+	        owner_type = #ownerType#
+	      </isNotNull>
+	      <isNotNull prepend="," property="ownerId" >
+	        owner_id = #ownerId#
+	      </isNotNull>
+	      <isNotNull prepend="," property="propertyType" >
+	        property_type = #propertyType#
+	      </isNotNull>
+	      <isNotNull prepend="," property="keyName" >
+	        key_name = #keyName#
+	      </isNotNull>
+	      <isNotNull prepend="," property="val" >
+	        val = #val#
+	      </isNotNull>
+	      <isNotNull prepend="," property="valType" >
+	        val_type = #valType#
+	      </isNotNull>
+	      <isNotNull prepend="," property="sort" >
+	        sort = #sort#
+	      </isNotNull>
+	      <isNotNull prepend="," property="inheritType" >
+	        inherit_type = #inheritType#
+	      </isNotNull>
+	      <isNotNull prepend="," property="bizMark" >
+	        biz_mark = #bizMark#
+	      </isNotNull>
+	      <isNotNull prepend="," property="imgUrl" >
+	        img_url = #imgUrl#
+	      </isNotNull>
+	      <isNotNull prepend="," property="categoryId" >
+	        category_id = #categoryId#
+	      </isNotNull>
+	      <isNotNull prepend="," property="isDeleted" >
+	        is_deleted = #isDeleted#
+	      </isNotNull>
+		</dynamic>
+		where id = #id# and is_deleted=0
+	</update>
+	
+	<select id="ItemPropertyTmplDAO.getItemPropertyTmpl" resultMap="ItemPropertyTmplDOResult"
+		parameterClass="Long">
+		select
+		<include refid="item_property_tmpl_Base_Column_List" />
+		from item_property_tmpl
+		where id = #id# and is_deleted=0
+	</select>
+	
+	<select id="ItemPropertyTmplDAO.queryItemPropertyTmpl" resultMap="ItemPropertyTmplDOResult"
+		parameterClass="ItemPropertyTmplQTO">
+		select
+		<include refid="item_property_tmpl_Base_Column_List" />
+		from item_property_tmpl where is_deleted=0
+		 limit #currentPage#,#pageSize#
+	</select>
+</sqlMap>

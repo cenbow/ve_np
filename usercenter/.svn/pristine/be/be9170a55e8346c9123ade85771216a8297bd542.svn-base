@@ -1,0 +1,52 @@
+package com.ve.usercenter.core.service.action.user;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserManager;
+import com.ve.usercenter.core.service.RequestContext;
+import com.ve.usercenter.core.service.UserRequest;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.service.action.Action;
+import com.ve.usercenter.core.service.action.ActionEnum;
+
+@Service
+public class UpdateEmailAction implements Action {
+
+	@Resource
+	private UserManager userManager;
+
+	@Override
+	public UserResponse execute(RequestContext context) throws UserException {
+		// TODO Auto-generated method stub
+
+		UserResponse response = null;
+		UserRequest request = context.getRequest();
+
+		String email = (String) request.getParam("email");
+		Long userId = (Long) request.getParam("userId");
+
+		log.info("email:", email);
+		log.info("userId:", userId);
+
+		try {
+			userManager.updateEmail(userId, email);
+		} catch (UserException e) {
+			return new UserResponse(e.getResponseCode().getCode(),
+					e.getMessage());
+		}
+
+		response = new UserResponse(true);
+
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return ActionEnum.UPDATE_EMAIL.getActionName();
+	}
+
+}

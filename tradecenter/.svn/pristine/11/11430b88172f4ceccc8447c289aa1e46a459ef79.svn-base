@@ -1,0 +1,81 @@
+package com.ve.tradecenter.core.service.action.order;
+
+import java.util.Date;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.ve.tradecenter.common.api.Request;
+import com.ve.tradecenter.common.constant.ResponseCode;
+import com.ve.tradecenter.core.constants.TradeConstants;
+import com.ve.tradecenter.core.domain.OrderDO;
+import com.ve.tradecenter.core.exception.TradeException;
+import com.ve.tradecenter.core.manager.DeliveryNoticeManager;
+import com.ve.tradecenter.core.manager.OrderLogManager;
+import com.ve.tradecenter.core.manager.OrderManager;
+import com.ve.tradecenter.core.service.RequestContext;
+import com.ve.tradecenter.core.service.ResponseUtils;
+import com.ve.tradecenter.core.service.TradeResponse;
+import com.ve.tradecenter.core.service.action.Action;
+import com.ve.tradecenter.core.service.action.ActionEnum;
+import com.ve.tradecenter.core.service.action.cart.AddCartItem;
+
+/**
+ * 结单操作
+ * @author cwr
+ */
+public class closeOrder implements Action{
+
+	private static final Logger log = LoggerFactory.getLogger(AddCartItem.class);
+	
+	@Resource
+	private OrderManager orderManager;	
+
+	@Resource
+	private OrderLogManager orderLogManager;
+	
+	public TradeResponse<Boolean> execute(RequestContext context) throws TradeException {
+		Request request = context.getRequest();
+		TradeResponse<Boolean> response = null;
+		if(request.getParam("userId") == null ){
+			log.error("userId is null");
+			return ResponseUtils.getFailResponse(ResponseCode.PARAM_E_PARAM_MISSING,"userId is null");
+		}else if(request.getParam("orderId") == null){
+			log.error("orderId is null");
+			return ResponseUtils.getFailResponse(ResponseCode.PARAM_E_PARAM_MISSING,"orderId is null");
+		}
+		
+		Long orderId = (Long) request.getParam("userId");
+		Long userId = (Long) request.getParam("orderId");
+		
+		OrderDO order = this.orderManager.getActiveOrder(orderId, userId);
+		if(order == null){
+			log.error("order doesn't exist orderId:" +orderId + " userId:" + userId );
+			return ResponseUtils.getFailResponse(ResponseCode.BIZ_E_RECORD_NOT_EXIST,"order doesn't exist");
+		}
+		
+		// 只有未支付的订单才可以取消
+		int result =0;
+		Date now  =new Date();
+		try{
+			result = this.orderManager.closeOrder(orderId, userId,now);;
+		}catch(TradeException e){
+			log.error("db error: " + e);
+			return ResponseUtils.getFailResponse(e.getErrorCode());
+		}
+		if(result > 0){
+			return ResponseUtils.getSuccessResponse(true);
+		}else{
+			log.error("order doesn't exist");
+			return ResponseUtils.getFailResponse(ResponseCode.BIZ_E_RECORD_NOT_EXIST,"order doesn't exist");
+		}
+	}
+
+	@Override
+	public String getName() {
+		return ActionEnum.CANCEL_ORDER.getActionName();
+	}
+}
+

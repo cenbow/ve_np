@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="order_item" >
+  <resultMap id="BaseResultMap" class="com.ve.tradecenter.core.domain.OrderItem" >
+    <result column="id" property="id" jdbcType="BIGINT" />
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="order_id" property="orderId" jdbcType="BIGINT" />
+    <result column="order_sn" property="orderSn" jdbcType="VARCHAR" />
+    <result column="item_id" property="itemId" jdbcType="BIGINT" />
+    <result column="item_sku_id" property="itemSkuId" jdbcType="BIGINT" />
+    <result column="unit_price" property="unitPrice" jdbcType="BIGINT" />
+    <result column="number" property="number" jdbcType="INTEGER" />
+    <result column="total_price" property="totalPrice" jdbcType="BIGINT" />
+    <result column="delivery_id" property="deliveryId" jdbcType="INTEGER" />
+    <result column="delivery_status" property="deliveryStatus" jdbcType="TINYINT" />
+    <result column="item_name" property="itemName" jdbcType="VARCHAR" />
+    <result column="return_money" property="returnMoney" jdbcType="BIGINT" />
+    <result column="return_total_money" property="returnTotalMoney" jdbcType="BIGINT" />
+    <result column="return_point" property="returnPoint" jdbcType="INTEGER" />
+    <result column="return_total_point" property="returnTotalPoint" jdbcType="INTEGER" />
+    <result column="return_score" property="returnScore" jdbcType="INTEGER" />
+    <result column="return_total_score" property="returnTotalScore" jdbcType="INTEGER" />
+    <result column="buy_type" property="buyType" jdbcType="TINYINT" />
+    <result column="pay_status" property="payStatus" jdbcType="TINYINT" />
+    <result column="is_cod" property="isCod" jdbcType="TINYINT" />
+    <result column="return_status" property="isReturned" jdbcType="TINYINT" />
+    <result column="is_gift" property="isGift" jdbcType="TINYINT" />
+    <result column="barcode" property="barcode" jdbcType="VARCHAR" />
+    <result column="gmt_created" property="gmtCreated" jdbcType="DATE" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="DATE" />
+  </resultMap>
+ 
+  <sql id="Base_Column_List" >
+    id, user_id, user_name, order_id, order_sn, item_id, item_sku_id, unit_price, number, 
+    total_price, delivery_id, delivery_status, item_name, return_money, return_total_money, 
+    return_point, return_total_point, return_score, return_total_score, buy_type, pay_status, 
+    is_cod, return_status, is_gift, barcode, gmt_created, gmt_modified
+  </sql>
+  
+  
+  <!-- <insert id="addOrderItem" parameterClass="com.ve.tradecenter.core.domain.OrderItem" >
+    insert into order_item (id, user_id, user_name, order_id, order_sn, 
+      item_id, item_sku_id, unit_price, number, total_price, 
+      delivery_id, delivery_status, item_name, return_money, 
+      return_total_money, return_point, return_total_point, return_score, 
+      return_total_score, buy_type, pay_status, is_cod, 
+      return_status, is_gift, barcode, gmt_created, gmt_modified
+      )
+    values (#id:BIGINT#, #userId:BIGINT#, #userName:VARCHAR#, #orderId:BIGINT#, #orderSn:VARCHAR#, 
+      #itemId:BIGINT#, #itemSkuId:BIGINT#, #unitPrice:BIGINT#, #number:INTEGER#, #totalPrice:BIGINT#, 
+      #deliveryId:INTEGER#, #deliveryStatus:TINYINT#, #itemName:VARCHAR#, #returnMoney:BIGINT#, 
+      #returnTotalMoney:BIGINT#, #returnPoint:INTEGER#, #returnTotalPoint:INTEGER#, #returnScore:INTEGER#, 
+      #returnTotalScore:INTEGER#, #buyType:TINYINT#, #payStatus:TINYINT#, #isCod:TINYINT#, 
+      #isReturned:TINYINT#, #isGift:TINYINT#, #barcode:VARCHAR#, #gmtCreated:DATE#, #gmtModified:DATE#
+      )
+  </insert> -->
+  
+  <insert id="addOrderItem" parameterClass="com.ve.tradecenter.core.domain.OrderItemDO" >
+    insert into order_item
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        id
+      </isNotNull>
+      <isNotNull prepend="," property="userId" >
+        user_id
+      </isNotNull>
+      <isNotNull prepend="," property="userName" >
+        user_name
+      </isNotNull>
+      <isNotNull prepend="," property="orderId" >
+        order_id
+      </isNotNull>
+      <isNotNull prepend="," property="orderSn" >
+        order_sn
+      </isNotNull>
+      <isNotNull prepend="," property="itemId" >
+        item_id
+      </isNotNull>
+      <isNotNull prepend="," property="itemSkuId" >
+        item_sku_id
+      </isNotNull>
+      <isNotNull prepend="," property="unitPrice" >
+        unit_price
+      </isNotNull>
+      <isNotNull prepend="," property="number" >
+        number
+      </isNotNull>
+      <isNotNull prepend="," property="totalPrice" >
+        total_price
+      </isNotNull>
+      <isNotNull prepend="," property="deliveryId" >
+        delivery_id
+      </isNotNull>
+      <isNotNull prepend="," property="deliveryStatus" >
+        delivery_status
+      </isNotNull>
+      <isNotNull prepend="," property="itemName" >
+        item_name
+      </isNotNull>
+      <isNotNull prepend="," property="returnMoney" >
+        return_money
+      </isNotNull>
+      <isNotNull prepend="," property="returnTotalMoney" >
+        return_total_money
+      </isNotNull>
+      <isNotNull prepend="," property="returnPoint" >
+        return_point
+      </isNotNull>
+      <isNotNull prepend="," property="returnTotalPoint" >
+        return_total_point
+      </isNotNull>
+      <isNotNull prepend="," property="returnScore" >
+        return_score
+      </isNotNull>
+      <isNotNull prepend="," property="returnTotalScore" >
+        return_total_score
+      </isNotNull>
+      <isNotNull prepend="," property="buyType" >
+        buy_type
+      </isNotNull>
+      <isNotNull prepend="," property="payStatus" >
+        pay_status
+      </isNotNull>
+      <isNotNull prepend="," property="isCod" >
+        is_cod
+      </isNotNull>
+      <isNotNull prepend="," property="isReturned" >
+        return_status
+      </isNotNull>
+      <isNotNull prepend="," property="isGift" >
+        is_gift
+      </isNotNull>
+      <isNotNull prepend="," property="barcode" >
+        barcode
+      </isNotNull>
+      <isNotNull prepend="," property="gmtCreated" >
+        gmt_created
+      </isNotNull>
+      <isNotNull prepend="," property="gmtModified" >
+        gmt_modified
+      </isNotNull>
+      )
+    </dynamic>
+    values
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        #id:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="userId" >
+        #userId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="userName" >
+        #userName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="orderId" >
+        #orderId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="orderSn" >
+        #orderSn:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="itemId" >
+        #itemId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="itemSkuId" >
+        #itemSkuId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="unitPrice" >
+        #unitPrice:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="number" >
+        #number:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="totalPrice" >
+        #totalPrice:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="deliveryId" >
+        #deliveryId:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="deliveryStatus" >
+        #deliveryStatus:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="itemName" >
+        #itemName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="returnMoney" >
+        #returnMoney:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="returnTotalMoney" >
+        #returnTotalMoney:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="returnPoint" >
+        #returnPoint:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="returnTotalPoint" >
+        #returnTotalPoint:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="returnScore" >
+        #returnScore:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="returnTotalScore" >
+        #returnTotalScore:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="buyType" >
+        #buyType:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="payStatus" >
+        #payStatus:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="isCod" >
+        #isCod:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="isReturned" >
+        #isReturned:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="isGift" >
+        #isGift:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="barcode" >
+        #barcode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="gmtCreated" >
+        #gmtCreated:DATE#
+      </isNotNull>
+      <isNotNull prepend="," property="gmtModified" >
+        #gmtModified:DATE#
+      </isNotNull>
+      )
+    </dynamic>
+  </insert>
+  
+  <update id="deliveryOrderItems" parameterClass="com.ve.tradecenter.core.domain.OrderItemDO" >
+  	update order_item set delivery_status = 1
+   	where  user_id = #userId:BIGINT# and id = #id:BIGINT#   
+  </update>
+  
+  <select id="getOrderItems" parameterClass="com.ve.tradecenter.core.domain.OrderItemDO" >
+	select 
+		<include refid="order_item.Base_Column_List" />
+	from order_item where user_id = #userId:BIGINT# and order_id =#orderId:BIGINT#   	
+  </select>
+  
+  <update id="updateItem" parameterClass="com.ve.tradecenter.core.domain.OrderItemDO">
+  	update order_item set return_status = #return_status#
+   	where  user_id = #userId:BIGINT# and id = #id#"
+  </update>
+  
+</sqlMap>

@@ -1,0 +1,44 @@
+package com.ve.itemcenter.core.dao.impl;
+
+import java.util.List;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.domain.qto.ItemExtraInfoQTO;
+import com.ve.itemcenter.core.dao.ItemExtraInfoDAO;
+import com.ve.itemcenter.core.domain.ItemExtraInfoDO;
+
+@Service
+public class ItemExtraInfoDAOImpl extends SqlMapClientDaoSupport implements ItemExtraInfoDAO {
+
+	public ItemExtraInfoDAOImpl() {
+		super();
+	}
+
+	public Long addItemExtraInfo(ItemExtraInfoDO itemExtraInfoDO) {
+		itemExtraInfoDO.setIsDeleted(DBConst.UN_DELETED.getCode());
+		Long newInsertedId = (Long) getSqlMapClientTemplate()
+				.insert("ItemExtraInfoDAO.addItemExtraInfo", itemExtraInfoDO);
+		return newInsertedId;
+	}
+
+	public ItemExtraInfoDO getItemExtraInfo(Long id) {
+		ItemExtraInfoDO record = (ItemExtraInfoDO) getSqlMapClientTemplate()
+				.queryForObject("ItemExtraInfoDAO.getItemExtraInfo", id);
+		return record;
+	}
+
+	public int updateItemExtraInfo(ItemExtraInfoDO itemExtraInfoDO) {
+		int rows = getSqlMapClientTemplate().update("ItemExtraInfoDAO.updateItemExtraInfo", itemExtraInfoDO);
+		return rows;
+	}
+
+	public List<ItemExtraInfoDO> queryItemExtraInfo(ItemExtraInfoQTO itemExtraInfoQTO) {
+		List<ItemExtraInfoDO> list = getSqlMapClientTemplate()
+				.queryForList("ItemExtraInfoDAO.queryItemExtraInfoList", itemExtraInfoQTO);
+		return list;
+	}
+
+}

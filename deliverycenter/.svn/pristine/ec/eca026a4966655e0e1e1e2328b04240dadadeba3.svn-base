@@ -1,0 +1,7 @@
+package com.ve.deliverycenter.common.constant;
+
+public interface DeliveryConstant {
+	public final String PARAM_METHOD_NAME = "methodName";
+	public final String PARAM_ARGS_NAME = "argsName";
+
+}

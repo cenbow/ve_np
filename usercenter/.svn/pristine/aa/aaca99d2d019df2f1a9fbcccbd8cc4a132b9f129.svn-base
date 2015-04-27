@@ -1,0 +1,140 @@
+package com.ve.usercenter.core.util;
+
+import com.ve.usercenter.common.constant.ErrorCode;
+import com.ve.usercenter.common.constant.ResponseCode;
+import com.ve.usercenter.common.dto.UserDTO;
+import com.ve.usercenter.core.domain.UserDO;
+import com.ve.usercenter.core.exception.UserException;
+
+/**
+ * 用户工具类
+ * */
+public class UserUtil {
+	/**
+	 * 检验用户的注册信息是否合法
+	 * */
+	public static ResponseCode userInfoIsLegal(UserDTO userDto)
+			throws UserException {
+		String name = userDto.getName();
+		String pwd = userDto.getPassword();
+		String email = userDto.getEmail();
+		String mobile = userDto.getmPhoneNo();
+
+		// 用户名为空
+		if (null == name) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"username is null");
+		}
+
+		if (null == pwd) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"password is null");
+		}
+
+		// 用户名用中英文、数字、下划线，长度为4-16位(包含中文时为2-8位)
+		if (getStringLength(name) > 16 || getStringLength(name) < 4) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"username length error");
+		}
+
+		// 密码的长度必须为8-20,并且由字母，数字和下划线组成
+		if (!pwd.matches("^[a-zA-Z0-9_]{8,20}$")) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"password format error");
+		}
+
+		// 手机和邮箱可以有一个为空，但手机号或者是邮箱必须满足指定的格式
+		if (null != email || null != mobile) {
+
+			checkEamil(email);
+
+			checkMobile(mobile);
+		}
+		return null;
+	}
+
+	/**
+	 * 查看密码是否合法
+	 * */
+	public static ErrorCode userPwdLegal(UserDO userDo, String newPwd,
+			String oldPwd) {
+
+		return ErrorCode.BASE_PARAM_E_PARAM_INVALID;
+	}
+
+	/**
+	 * 查看手机号码是否合法
+	 * */
+	public static ResponseCode checkMobile(String phoneNo) throws UserException {
+		if (null != phoneNo) {
+			// 判断手机号码长度是否满足
+			if (!phoneNo.matches("(\\d){11}")) {
+				System.out.println(1);
+				throw new UserException(ResponseCode.P_PARAM_ERROR,
+						"phoneNo format error");
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 检查qq号
+	 * */
+	public static ResponseCode checkQQ(String QQ) throws UserException {
+		if (null != QQ) {
+			// 判断手机号码长度是否满足
+			if (!QQ.matches("(\\d){5,11}")) {
+				System.out.println(1);
+				throw new UserException(ResponseCode.P_PARAM_ERROR,
+						"phoneNo format error");
+			}
+		}
+		return null;
+	}
+
+	public static ResponseCode checkEamil(String email) throws UserException {
+		if (null != email) {
+			// 判断邮箱是否满足格式
+			if (!email
+					.matches("^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$")) {
+				throw new UserException(ResponseCode.P_PARAM_ERROR,
+						"email format error");
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 获取允许包含中文字符的字符串的长度 中文字符为两个长度，英文字符为一个长度
+	 * */
+	public static int getStringLength(String str) {
+		int length = 0;
+		char[] names = str.toCharArray();
+		for (char name : names) {
+			if (name >= 19968 && name <= 171941) {
+				length = length + 2;
+			} else {
+				length = length + 1;
+			}
+		}
+		return length;
+	}
+
+	public static void main(String[] args) {
+		/*
+		 * String str = "454_fd63@sinadsf.com"; System.out.println(str
+		 * .matches("^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$"));
+		 * String name = "叶正磊012"; char[] names = name.toCharArray();
+		 * System.out.println(names[2]); char a = '叶'; System.out.println((int)
+		 * a); System.out.println(getStringLength("叶正磊1fds"));
+		 */
+
+		try {
+			checkQQ("123522689546");
+		} catch (UserException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+}

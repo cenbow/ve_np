@@ -1,0 +1,97 @@
+package com.ve.itemcenter.core.manager.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.constant.ResCodeNum;
+import com.ve.itemcenter.common.domain.ItemPropertyTmplDTO;
+import com.ve.itemcenter.common.domain.ItemPropertyTmplQTO;
+import com.ve.itemcenter.core.dao.ItemPropertyTmplDAO;
+import com.ve.itemcenter.core.domain.ItemPropertyTmplDO;
+import com.ve.itemcenter.core.exception.ItemException;
+import com.ve.itemcenter.core.manager.ItemPropertyTmplManager;
+import com.ve.itemcenter.core.util.ExceptionUtil;
+import com.ve.itemcenter.core.util.ItemUtil;
+
+@Service
+public class ItemPropertyTmplManagerImpl implements ItemPropertyTmplManager {
+	@Resource
+	private ItemPropertyTmplDAO itemPropertyTmplDAO;
+
+	@Override
+	public ItemPropertyTmplDTO addItemPropertyTmpl(ItemPropertyTmplDTO itemPropertyTmplDTO) throws ItemException {
+		try {
+			// 验证itemPropertyTmplDTO内的属性
+			if (!verifyItemPropertyTmplDTOProperty(itemPropertyTmplDTO)) {
+				throw ExceptionUtil.getException(ResCodeNum.PARAM_E_INVALID, "itemPropertyTmplDTO property incorrect");
+			}
+			ItemPropertyTmplDO itemPropertyTmplDO = new ItemPropertyTmplDO();
+			ItemUtil.copyProperties(itemPropertyTmplDTO, itemPropertyTmplDO);// DTO转DO
+			long newInsertedId = itemPropertyTmplDAO.addItemPropertyTmpl(itemPropertyTmplDO);// 新增的记录返回的ID
+			itemPropertyTmplDTO = getItemPropertyTmpl(newInsertedId);// 新增加的记录对应的itemPropertyTmplDO
+			return itemPropertyTmplDTO;
+		} catch (Exception e) {
+			throw new ItemException(ResCodeNum.SYS_E_DEFAULT_ERROR, e);
+		}
+	}
+
+	@Override
+	public boolean updateItemPropertyTmpl(ItemPropertyTmplDTO itemPropertyTmplDTO) throws ItemException {
+		// 验证参数
+		if (itemPropertyTmplDTO.getId() == null) {
+			throw ExceptionUtil.getException(ResCodeNum.PARAM_E_MISSING, "itemPropertyTmplDTO is null");
+		}
+		if (!verifyItemPropertyTmplDTOProperty(itemPropertyTmplDTO)) {
+			throw ExceptionUtil.getException(ResCodeNum.PARAM_E_INVALID, "itemPropertyTmplDTO property incorrect");
+		}
+		ItemPropertyTmplDO itemPropertyTmplDO = new ItemPropertyTmplDO();
+		ItemUtil.copyProperties(itemPropertyTmplDTO, itemPropertyTmplDO);
+		int num = itemPropertyTmplDAO.updateItemPropertyTmpl(itemPropertyTmplDO);
+		return num > 0 ? true : false;
+	}
+
+	@Override
+	public ItemPropertyTmplDTO getItemPropertyTmpl(long id) throws ItemException {
+		ItemPropertyTmplDO itemPropertyTmplDO = itemPropertyTmplDAO.getItemPropertyTmpl(id);
+		if (itemPropertyTmplDO == null) {
+			throw ExceptionUtil.getException(ResCodeNum.BASE_PARAM_E_RECORD_NOT_EXIST, "Cannot find requested record");
+		}
+		ItemPropertyTmplDTO itemPropertyTmplDTO = new ItemPropertyTmplDTO();
+		ItemUtil.copyProperties(itemPropertyTmplDO, itemPropertyTmplDTO);
+		return itemPropertyTmplDTO;
+	}
+
+	@Override
+	public boolean deleteItemPropertyTmpl(long id) throws ItemException {
+		// TODO 验证id
+
+		ItemPropertyTmplDO itemPropertyTmplDO = new ItemPropertyTmplDO();
+		itemPropertyTmplDO.setId(id);
+		itemPropertyTmplDO.setIsDeleted(DBConst.DELETED.getCode());
+		int num = itemPropertyTmplDAO.updateItemPropertyTmpl(itemPropertyTmplDO);
+		return num > 0 ? true : false;
+	}
+
+	@Override
+	public boolean verifyItemPropertyTmplDTOProperty(ItemPropertyTmplDTO itemPropertyTmplDTO) throws ItemException {
+		// TODO 验证ItemPropertyTmplDTO字段属性
+		return true;
+	}
+
+	public List<ItemPropertyTmplDTO> queryItemPropertyTmpl(ItemPropertyTmplQTO itemPropertyTmplQTO)
+			throws ItemException {
+		List<ItemPropertyTmplDO> list = itemPropertyTmplDAO.queryItemPropertyTmpl(itemPropertyTmplQTO);
+		List<ItemPropertyTmplDTO> itemPropertyTmplDTOList = new ArrayList<ItemPropertyTmplDTO>();// 需要返回的DTO列表
+		for (ItemPropertyTmplDO itemPropertyTmplDO : list) {
+			ItemPropertyTmplDTO dto = new ItemPropertyTmplDTO();
+			ItemUtil.copyProperties(itemPropertyTmplDO, dto);
+			itemPropertyTmplDTOList.add(dto);
+		}
+		return itemPropertyTmplDTOList;
+	}
+}

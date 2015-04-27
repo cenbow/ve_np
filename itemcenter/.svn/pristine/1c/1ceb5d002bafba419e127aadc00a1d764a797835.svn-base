@@ -1,0 +1,62 @@
+package com.ve.itemcenter.core.service.action.globalpropertyvalue;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.ResCodeNum;
+import com.ve.itemcenter.common.domain.GlobalPropertyValueDTO;
+import com.ve.itemcenter.common.domain.GlobalPropertyValueQTO;
+import com.ve.itemcenter.core.exception.ItemException;
+import com.ve.itemcenter.core.manager.GlobalPropertyValueManager;
+import com.ve.itemcenter.core.service.ItemRequest;
+import com.ve.itemcenter.core.service.ItemResponse;
+import com.ve.itemcenter.core.service.RequestContext;
+import com.ve.itemcenter.core.service.action.Action;
+import com.ve.itemcenter.core.service.action.ActionEnum;
+import com.ve.itemcenter.core.util.ResponseUtil;
+
+/**
+ * 查询增加商品属性列表Action
+ * 
+ * @author chen.huang
+ *
+ */
+@Service
+public class QueryGlobalPropertyValueAction implements Action {
+	private static final Logger log = LoggerFactory.getLogger(QueryGlobalPropertyValueAction.class);
+	@Resource
+	private GlobalPropertyValueManager globalPropertyValueManager;
+
+	@Override
+	public ItemResponse execute(RequestContext context) throws ItemException {
+		ItemResponse response = null;
+		ItemRequest request = context.getRequest();
+		if (request.getParam("globalPropertyValueQTO") == null) {
+			return ResponseUtil.getErrorResponse(ResCodeNum.PARAM_E_MISSING, "globalPropertyValueQTO is null");
+		}
+		GlobalPropertyValueQTO GlobalPropertyValueQTO = (GlobalPropertyValueQTO) request
+				.getParam("globalPropertyValueQTO");
+
+		try {
+			List<GlobalPropertyValueDTO> GlobalPropertyValueDTOList = globalPropertyValueManager
+					.queryGlobalPropertyValue(GlobalPropertyValueQTO);
+			response = ResponseUtil.getSuccessResponse(GlobalPropertyValueDTOList, GlobalPropertyValueDTOList.size());
+			return response;
+		} catch (ItemException e) {
+			response = ResponseUtil.getErrorResponse(e.getErrorCode(), e.getMessage());
+			log.error("do action:" + request.getCommand() + " occur Exception:" + e.getMessage(), e);
+			return response;
+		}
+
+	}
+
+	@Override
+	public String getName() {
+		return ActionEnum.QUERY_GLOBAL_PROPERTY_VALUE.getActionName();
+	}
+}

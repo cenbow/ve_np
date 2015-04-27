@@ -1,0 +1,27 @@
+package com.ve.tradecenter.core.dao.impl;
+
+import java.sql.Date;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+
+import com.ve.tradecenter.core.dao.OrderSeqDao;
+import com.ve.tradecenter.core.domain.OrderSeqDO;
+
+public class OrderSeqDaoImpl extends SqlMapClientDaoSupport implements OrderSeqDao {
+
+	@Override
+	public Integer updateOrderDaySeq(Date date) {
+		// TODO Auto-generated method stub
+		return this.getSqlMapClientTemplate().update("order_seq.updateOrderSeq",date);
+	}
+
+	@Override
+	public Integer getOrderDaySeq(Date date) {
+		return (Integer)this.getSqlMapClientTemplate().queryForObject("order_seq.getOrderSeq",date);
+	}
+
+	@Override
+	public Integer AddOrderDaySeq(OrderSeqDO orderDaySeqDO){
+		return (Integer)this.getSqlMapClientTemplate().insert("order_seq.addOrderSeq",orderDaySeqDO);
+	}
+}

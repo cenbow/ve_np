@@ -1,0 +1,71 @@
+package com.ve.itemcenter.core.manager;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.domain.GlobalPropertyValueDTO;
+import com.ve.itemcenter.common.domain.GlobalPropertyValueQTO;
+import com.ve.itemcenter.core.exception.ItemException;
+
+@Service
+public interface GlobalPropertyValueManager {
+
+	/**
+	 * 添加全局属性值域
+	 * 
+	 * @param globalPropertyValueDO
+	 * @return
+	 * @throws ItemException
+	 */
+	public GlobalPropertyValueDTO addGlobalPropertyValue(GlobalPropertyValueDTO globalPropertyValueDTO)
+			throws ItemException;
+
+	/**
+	 * 添加全局属性值域
+	 * 
+	 * @param globalPropertyValueDTO
+	 * @return
+	 * @throws ItemException
+	 */
+	public boolean updateGlobalPropertyValue(GlobalPropertyValueDTO globalPropertyValueDTO) throws ItemException;
+
+	/**
+	 * 查看全局属性值域
+	 * 
+	 * @param id
+	 * @return
+	 * @throws ItemException
+	 */
+	public GlobalPropertyValueDTO getGlobalPropertyValue(long id) throws ItemException;
+
+	/**
+	 * 删除全局属性值域
+	 * 
+	 * @param id
+	 * @return
+	 * @throws ItemException
+	 */
+	public boolean deleteGlobalPropertyValue(long id) throws ItemException;
+
+	/**
+	 * 验证GlobalPropertyValueDTO
+	 * 
+	 * @param globalPropertyValueDTO
+	 * @return
+	 * @throws ItemException
+	 */
+	public boolean verifyGlobalPropertyValueDTOProperty(GlobalPropertyValueDTO globalPropertyValueDTO)
+			throws ItemException;
+
+	/**
+	 * 查询全局属性值域列表
+	 * 
+	 * @param globalPropertyValueQTO
+	 * @return
+	 * @throws ItemException
+	 */
+	public List<GlobalPropertyValueDTO> queryGlobalPropertyValue(GlobalPropertyValueQTO globalPropertyValueQTO)
+			throws ItemException;
+
+}

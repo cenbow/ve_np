@@ -1,0 +1,43 @@
+package com.ve.itemcenter.core.dao.impl;
+
+import java.util.List;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.domain.ItemPropertyQTO;
+import com.ve.itemcenter.core.dao.ItemPropertyDAO;
+import com.ve.itemcenter.core.domain.ItemPropertyDO;
+
+@Service
+public class ItemPropertyDAOImpl extends SqlMapClientDaoSupport implements ItemPropertyDAO {
+
+	public ItemPropertyDAOImpl() {
+		super();
+	}
+
+	public Long addItemProperty(ItemPropertyDO itemPropertyDO) {
+		itemPropertyDO.setIsDeleted(DBConst.UN_DELETED.getCode());
+		Long newInsertedId = (Long) getSqlMapClientTemplate().insert("ItemPropertyDAO.addItemProperty", itemPropertyDO);
+		return newInsertedId;
+	}
+
+	public ItemPropertyDO getItemProperty(Long id) {
+		ItemPropertyDO record = (ItemPropertyDO) getSqlMapClientTemplate()
+				.queryForObject("ItemPropertyDAO.getItemProperty", id);
+		return record;
+	}
+
+	public int updateItemProperty(ItemPropertyDO itemPropertyDO) {
+		int rows = getSqlMapClientTemplate().update("ItemPropertyDAO.updateItemProperty", itemPropertyDO);
+		return rows;
+	}
+
+	public List<ItemPropertyDO> queryItemProperty(ItemPropertyQTO itemPropertyQTO) {
+		List<ItemPropertyDO> list = getSqlMapClientTemplate()
+				.queryForList("ItemPropertyDAO.queryItemProperty", itemPropertyQTO);
+		return list;
+	}
+
+}

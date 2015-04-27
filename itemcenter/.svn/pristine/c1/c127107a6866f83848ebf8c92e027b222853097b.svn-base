@@ -1,0 +1,40 @@
+package spupropertytmpl;
+
+import javax.annotation.Resource;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.ve.itemcenter.common.api.BaseRequest;
+import com.ve.itemcenter.common.api.ItemService;
+import com.ve.itemcenter.common.api.Request;
+import com.ve.itemcenter.common.api.Response;
+import com.ve.itemcenter.common.domain.SpuPropertyTmplDTO;
+import com.ve.itemcenter.core.service.action.ActionEnum;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:applicationContext.xml" })
+public class UpdateSpuPropertyTmplTest {
+	@Resource
+	private ItemService itemService;
+
+	@Test
+	public void test() {
+		System.out.println(1);
+		Request request = new BaseRequest();
+		SpuPropertyTmplDTO spuPropertyTmplDTO = new SpuPropertyTmplDTO();
+		spuPropertyTmplDTO.setId(7L);
+		spuPropertyTmplDTO.setOwnerType(1);
+		spuPropertyTmplDTO.setOwnerType(0);
+		spuPropertyTmplDTO.setKeyName("颜色");
+		spuPropertyTmplDTO.setVal("水蓝色");
+		spuPropertyTmplDTO.setValType(1);
+		spuPropertyTmplDTO.setCategoryId(1);
+		request.setParam("spuPropertyTmplDTO", spuPropertyTmplDTO);
+		request.setCommand(ActionEnum.UPDATE_SPU_PROPERTY_TMPL.getActionName());
+		Response response = itemService.execute(request);
+		System.out.println(1);
+	}
+}

@@ -1,0 +1,806 @@
+package com.ve.deliverycenter.core.util.lang;
+
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.net.URLDecoder;
+import java.text.DecimalFormat;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
+
+/**
+ * String工具类
+ * 
+ * @author ruigang
+ */
+@SuppressWarnings("all")
+public class StringUtil extends StringUtils {
+
+	public static final String EMPTY_STRING = "";
+
+	public static final DecimalFormat textDf = new DecimalFormat("#0.00");
+
+	public static String defaultIfNull(String str) {
+		return (str == null) ? EMPTY_STRING : str;
+	}
+
+	public static String subStr(String value, int beginIndex, int offset) {
+		return value.substring(beginIndex, beginIndex + offset);
+	}
+
+	/**
+	 * 获取字母和数字
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static String getLetterOrDigit(String str) {
+		StringBuffer sb = new StringBuffer();
+		char[] arr = str.toCharArray();
+		for (int i = 0; i < arr.length; i++) {
+			if (Character.isLetterOrDigit(arr[i])) {
+				sb.append(arr[i]);
+			}
+		}
+		return sb.toString();
+	}
+
+	public static String holdByBlank(String o, int m) {
+
+		StringBuilder sb = new StringBuilder(o);
+		if (o.length() == m) {
+			return o;
+		}
+		if (o.length() > m) {
+
+			throw new RuntimeException(" param string length is large than m ");
+		}
+
+		for (int i = 0; i < m - o.length(); i++) {
+
+			sb.append(" ");
+		}
+		return sb.toString();
+
+	}
+
+	public static String toPascalCase(String str) {
+		return PASCAL_CASE_TOKENIZER.parse(str);
+	}
+
+	private static final WordTokenizer PASCAL_CASE_TOKENIZER = new WordTokenizer() {
+
+		@Override
+		protected void startSentence(StringBuffer buffer, char ch) {
+			buffer.append(Character.toUpperCase(ch));
+		}
+
+		@Override
+		protected void startWord(StringBuffer buffer, char ch) {
+			buffer.append(Character.toUpperCase(ch));
+		}
+
+		@Override
+		protected void inWord(StringBuffer buffer, char ch) {
+			buffer.append(Character.toLowerCase(ch));
+		}
+
+		@Override
+		protected void startDigitSentence(StringBuffer buffer, char ch) {
+			buffer.append(ch);
+		}
+
+		@Override
+		protected void startDigitWord(StringBuffer buffer, char ch) {
+			buffer.append(ch);
+		}
+
+		@Override
+		protected void inDigitWord(StringBuffer buffer, char ch) {
+			buffer.append(ch);
+		}
+
+		@Override
+		protected void inDelimiter(StringBuffer buffer, char ch) {
+			if (ch != UNDERSCORE) {
+				buffer.append(ch);
+			}
+		}
+	};
+
+	private abstract static class WordTokenizer {
+
+		protected static final char UNDERSCORE = '_';
+
+		/**
+		 * Parse sentence
+		 */
+		public String parse(String str) {
+			if (StringUtil.isEmpty(str)) {
+				return str;
+			}
+
+			int length = str.length();
+			StringBuffer buffer = new StringBuffer(length);
+
+			for (int index = 0; index < length; index++) {
+				char ch = str.charAt(index);
+
+				if (Character.isWhitespace(ch)) {
+					continue;
+				}
+
+				if (Character.isUpperCase(ch)) {
+					int wordIndex = index + 1;
+
+					while (wordIndex < length) {
+						char wordChar = str.charAt(wordIndex);
+
+						if (Character.isUpperCase(wordChar)) {
+							wordIndex++;
+						} else if (Character.isLowerCase(wordChar)) {
+							wordIndex--;
+							break;
+						} else {
+							break;
+						}
+					}
+
+					if ((wordIndex == length) || (wordIndex > index)) {
+						index = parseUpperCaseWord(buffer, str, index,
+								wordIndex);
+					} else {
+						index = parseTitleCaseWord(buffer, str, index);
+					}
+
+					continue;
+				}
+
+				if (Character.isLowerCase(ch)) {
+					index = parseLowerCaseWord(buffer, str, index);
+					continue;
+				}
+
+				if (Character.isDigit(ch)) {
+					index = parseDigitWord(buffer, str, index);
+					continue;
+				}
+
+				inDelimiter(buffer, ch);
+			}
+
+			return buffer.toString();
+		}
+
+		private int parseUpperCaseWord(StringBuffer buffer, String str,
+				int index, int length) {
+			char ch = str.charAt(index++);
+
+			if (buffer.length() == 0) {
+				startSentence(buffer, ch);
+			} else {
+				startWord(buffer, ch);
+			}
+
+			for (; index < length; index++) {
+				ch = str.charAt(index);
+				inWord(buffer, ch);
+			}
+
+			return index - 1;
+		}
+
+		private int parseLowerCaseWord(StringBuffer buffer, String str,
+				int index) {
+			char ch = str.charAt(index++);
+
+			if (buffer.length() == 0) {
+				startSentence(buffer, ch);
+			} else {
+				startWord(buffer, ch);
+			}
+
+			int length = str.length();
+
+			for (; index < length; index++) {
+				ch = str.charAt(index);
+
+				if (Character.isLowerCase(ch)) {
+					inWord(buffer, ch);
+				} else {
+					break;
+				}
+			}
+
+			return index - 1;
+		}
+
+		private int parseTitleCaseWord(StringBuffer buffer, String str,
+				int index) {
+			char ch = str.charAt(index++);
+
+			if (buffer.length() == 0) {
+				startSentence(buffer, ch);
+			} else {
+				startWord(buffer, ch);
+			}
+
+			int length = str.length();
+
+			for (; index < length; index++) {
+				ch = str.charAt(index);
+
+				if (Character.isLowerCase(ch)) {
+					inWord(buffer, ch);
+				} else {
+					break;
+				}
+			}
+
+			return index - 1;
+		}
+
+		private int parseDigitWord(StringBuffer buffer, String str, int index) {
+			char ch = str.charAt(index++);
+
+			if (buffer.length() == 0) {
+				startDigitSentence(buffer, ch);
+			} else {
+				startDigitWord(buffer, ch);
+			}
+
+			int length = str.length();
+
+			for (; index < length; index++) {
+				ch = str.charAt(index);
+
+				if (Character.isDigit(ch)) {
+					inDigitWord(buffer, ch);
+				} else {
+					break;
+				}
+			}
+
+			return index - 1;
+		}
+
+		protected boolean isDelimiter(char ch) {
+			return !Character.isUpperCase(ch) && !Character.isLowerCase(ch)
+					&& !Character.isDigit(ch);
+		}
+
+		protected abstract void startSentence(StringBuffer buffer, char ch);
+
+		protected abstract void startWord(StringBuffer buffer, char ch);
+
+		protected abstract void inWord(StringBuffer buffer, char ch);
+
+		protected abstract void startDigitSentence(StringBuffer buffer, char ch);
+
+		protected abstract void startDigitWord(StringBuffer buffer, char ch);
+
+		protected abstract void inDigitWord(StringBuffer buffer, char ch);
+
+		protected abstract void inDelimiter(StringBuffer buffer, char ch);
+	}
+
+	public static String[] getStringByComma(String strComma) {
+
+		if (org.apache.commons.lang.StringUtils.isBlank(strComma)) {
+
+			throw new RuntimeException("strComma:" + strComma
+					+ "is null or  blank ");
+
+		}
+		String[] strArr = strComma.split(",");
+
+		return strArr;
+	}
+
+	public static byte[] decodeBase64(String s) {
+
+		try {
+			return Base64.decodeBase64(s.getBytes("gbk"));
+		} catch (UnsupportedEncodingException e) {
+
+			throw new RuntimeException(" Base64.decodeBase64 error ....  ");
+
+		}
+
+	}
+
+	/**
+	 * 将Set集合转换为数组
+	 * 
+	 * @param set
+	 * @return
+	 */
+	public static String[] setToArray(Set<String> set) {
+		final int size = set.size();
+		String[] strArray = set.toArray(new String[size]);
+		return strArray;
+	}
+
+	/**
+	 * 把Map<String, String>参数转换成queryString
+	 * 
+	 * @param map
+	 * @return
+	 */
+	public static final String getQueryString(Map<String, String> params) {
+		if (null == params || params.size() == 0)
+			return null;
+		StringBuilder sb = new StringBuilder();
+		for (java.util.Iterator<Entry<String, String>> it = params.entrySet()
+				.iterator(); it.hasNext();) {
+			Map.Entry entry = it.next();
+			String val = (String) entry.getValue();
+			if (val != null) {
+				Object key = entry.getKey();
+				sb.append(key).append("=").append(val).append("&");
+			}
+
+		}
+
+		return (sb.length() > 0) ? sb.substring(0, sb.length() - 1) : null;
+	}
+
+	/**
+	 * 组装queryString （*不校验key-value的合法性*）
+	 * 
+	 * @param params
+	 * @return
+	 */
+	public static String joinQueryString(Map<String, String[]> params) {
+		StringBuilder sb = new StringBuilder();
+		for (java.util.Iterator<Entry<String, String[]>> it = params.entrySet()
+				.iterator(); it.hasNext();) {
+			Map.Entry entry = it.next();
+			String[] val = (String[]) entry.getValue();
+			if (val != null) {
+				Object key = entry.getKey();
+				for (String v : val) {
+					sb.append(key).append("=").append(v).append("&");
+				}
+			}
+
+		}
+		return (sb.length() > 0) ? sb.substring(0, sb.length() - 1) : "";
+	}
+
+	/**
+	 * 解析request 的query字符串
+	 * 
+	 * @param queryString
+	 * @param encoding
+	 * @return
+	 */
+	public static Map<String, String[]> parseQueryString(String queryString,
+			String encoding) {
+		Map<String, String[]> result = new LinkedHashMap<String, String[]>();
+		if (queryString != null && queryString.length() > 0) {
+			if (null == encoding)
+				encoding = "UTF-8";
+			try {
+				for (String kv : queryString.split("&")) {
+					int idx = kv.indexOf('=');
+					String name = null;
+					String value = null;
+					if (idx > 0) {
+						name = URLDecoder
+								.decode(kv.substring(0, idx), encoding);
+						value = URLDecoder.decode(kv.substring(idx + 1),
+								encoding);
+					} else {
+						name = URLDecoder.decode(kv, encoding);
+						value = "";
+					}
+					if (result.containsKey(name)) {
+						String[] currentParamValues = result.get(name);
+						List valList = new ArrayList(
+								Arrays.asList(currentParamValues));
+						valList.add(value);
+						String[] newParamValues = new String[valList.size()];
+						result.put(name,
+								(String[]) valList.toArray(newParamValues));
+					} else {
+						result.put(name, new String[] { value });
+					}
+				}
+			} catch (UnsupportedEncodingException e) {
+				throw new RuntimeException(e.getMessage(), e);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 按','分割字符串-Set
+	 * 
+	 * @param s
+	 * @return
+	 */
+	public static Set<String> commaDelimitedStringToSet(String s) {
+		if (s == null || s.trim().length() == 0) {
+			return null;
+		}
+		Set<String> set = new HashSet<String>();
+		String[] split = s.split(",");
+		for (String aSplit : split) {
+			String trimmed = aSplit.trim();
+			if (trimmed.length() > 0)
+				set.add(trimmed);
+		}
+		return set;
+	}
+
+	/**
+	 * 将Date转换为String
+	 * 
+	 * @param date
+	 * @param dateformat
+	 * @return
+	 */
+	public static String convertDateToString(Date date, String dateformat) {
+		return new SimpleDateFormat(
+				StringUtils.isBlank(dateformat) ? "yyyy-MM-dd HH:mm:ss"
+						: dateformat).format(date);
+	}
+
+	/**
+	 * 将String转换为Date
+	 * 
+	 * @param str
+	 * @param dateformat
+	 * @return
+	 */
+	public static Date convertStringToDate(String str, String dateformat) {
+		try {
+			return new SimpleDateFormat(
+					StringUtils.isBlank(dateformat) ? "yyyy-MM-dd HH:mm:ss"
+							: dateformat).parse(str);
+		} catch (ParseException e) {
+			return null;
+		}
+	}
+
+	/**
+	 * 将Textarea字符串转换为Database字符串
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static String convertTextareaToDatabase(String str) {
+		if (str == null || str.equals("")) {
+			return str;
+		}
+		str = str.replace("\r\n", "<br>").replace("\n", "<br>");
+		return str;
+	}
+
+	/**
+	 * 将Database字符串转换为Textarea字符串
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static String convertDatabaseToTextarea(String str) {
+		if (str == null || str.equals("")) {
+			return str;
+		}
+		str = str.replace("<br>", "\r\n");
+		return str;
+	}
+
+	/**
+	 * 将日期转换为时间间隔
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static String dateToChinese(Date date) {
+		if (date == null) {
+			return "";
+		}
+		long cha = (new Date().getTime() - date.getTime()) / 1000;
+		long day = cha / (24 * 3600);
+		long hour = cha % (24 * 3600) / 3600;
+		long minute = cha % 3600 / 60;
+		String str = "";
+		if (day >= 1) {
+			str = day + "天前";
+		} else if (day < 1 && hour >= 1) {
+			str = hour + "小时前";
+		} else if (hour < 1 && minute > 1) {
+			str = minute + "分钟前";
+		} else {
+			str = "刚才";
+		}
+		return str;
+	}
+
+	/**
+	 * 限制字符串长度
+	 * 
+	 * @param input
+	 *            输入的字符串
+	 * @param length
+	 *            限制长度
+	 * @param suffix
+	 *            超过限制长度时追加字符
+	 * @return
+	 */
+	public static String truncate(String source, int length, String suffix) {
+		if (StringUtils.isBlank(source)) {
+			return "";
+		}
+		int currLen = source.length();
+		if (currLen <= length) {
+			return source;
+		} else {
+			return source.substring(0, length)
+					+ (suffix == null ? "..." : suffix);
+		}
+	}
+
+	/**
+	 * 替换字符
+	 * 
+	 * @param source
+	 * @param str
+	 * @return
+	 */
+	public static String replace(String source, String placeholder) {
+		if (StringUtils.isNotBlank(source)) {
+			return source.replace(source, placeholder);
+		}
+		return source;
+	}
+
+	/**
+	 * 给图片添加后缀
+	 * 
+	 * @param rule
+	 *            如果图片是-100-200.jpg,传入参数100x200 如果图片是-scale1_0.jpg,传入参数1.0
+	 *            如果图片是-size600.jpg,传入参数600
+	 * @return
+	 */
+	public static String imageSuffix(String rule) {
+		if (StringUtils.isBlank(rule)) {
+			return "";
+		}
+		if (rule.indexOf("x") != -1) {
+			return "-" + rule.replace("x", "-") + ".jpg";
+		} else if (rule.indexOf(".") != -1) {
+			return "-scale" + rule.replace(".", "_") + ".jpg";
+		} else {
+			return "-size" + rule + ".jpg";
+		}
+	}
+
+	/**
+	 * 指定字符截取
+	 * 
+	 * @param source
+	 * @param startChar
+	 * @param endChar
+	 * @return
+	 */
+	public static String substring(String source, String startChar,
+			String endChar) {
+		if (isBlank(source)) {
+			return "";
+		}
+		int endIndex = source.lastIndexOf(endChar);
+		if (endIndex < source.lastIndexOf(startChar)) {
+			endIndex = source.length();
+		}
+		return source.substring(source.lastIndexOf(startChar) + 1, endIndex);
+	}
+
+	/**
+	 * 获取字符串长度
+	 * 
+	 * @param source
+	 * @return
+	 */
+	public static int getLength(String source) {
+		if (isBlank(source)) {
+			return 0;
+		}
+		return source.length();
+	}
+
+	/**
+	 * 截取指定字节长度字符串（汉字占2个字节）
+	 * 
+	 * @author zhihui.li
+	 * @param sourceStr
+	 *            源字符串
+	 * @param length
+	 *            截取字节长度
+	 * @param suffix
+	 *            超过限制长度时追加字符
+	 * @return
+	 */
+	public static String truncateStringByByte(String sourceStr, int length,
+			String suffix) {
+		if (isBlank(sourceStr)) {
+			return "";
+		}
+		if (sourceStr.getBytes().length < length) {
+			return sourceStr;
+		}
+
+		int strByteLen = 0;
+		StringBuilder strBuider = new StringBuilder();
+		for (int i = 0; i < sourceStr.length(); i++) {
+			String tempStr = sourceStr.substring(i, i + 1);
+			int tempByteLen = tempStr.getBytes().length;
+			if (tempByteLen == 3 || tempByteLen == 2) { // 汉字
+				strByteLen += 2;
+			} else {
+				strByteLen += 1;
+			}
+			if (strByteLen > length) {
+				break;
+			}
+			strBuider.append(tempStr);
+			if (strByteLen == length) {
+				break;
+			}
+		}
+
+		if (sourceStr.equals(strBuider.toString())) {
+			return sourceStr;
+		}
+
+		return strBuider.toString() + (suffix == null ? "" : suffix);
+	}
+
+	/**
+	 * 隐藏部分银行账户.
+	 * 
+	 * @param bankNo
+	 *            银行账户
+	 * @return
+	 */
+	public static String hideBankNo(String bankNo) {
+		StringBuilder str = new StringBuilder();
+		if (StringUtils.isBlank(bankNo)) {
+			return null;
+		}
+		// 去空格
+		String handle = StringUtils.replace(bankNo, " ", "").trim();
+		String head = handle.substring(0, 4);
+		str.append(head);
+		String footer = handle.substring(handle.length() - 4, handle.length());
+		for (int i = 0; i < handle.length() - 8; i++) {
+			str.append("*");
+		}
+		str.append(footer);
+		return str.toString();
+	}
+
+	/**
+	 * 得到银行账号指定的后几位.
+	 * 
+	 * @param bangNo
+	 *            银行账号
+	 * @param num
+	 *            后几位
+	 * @return
+	 */
+	public static String getBankNoLastNo(String bankNo, int num) {
+		if (StringUtils.isBlank(bankNo) && num > 0) {
+			return null;
+		}
+		// 去空格
+		String handle = StringUtils.replace(bankNo, " ", "").trim();
+		return handle.substring(handle.length() - num, handle.length());
+	}
+
+	/**
+	 * 对字符串进行格式化 替换STR里面的变量.
+	 * 
+	 * @param str
+	 * @param array
+	 * @return
+	 */
+	public static String messageFormatHandle(String str, Object[] array) {
+		if (StringUtils.isBlank(str) || null == array) {
+			return null;
+		}
+		MessageFormat msformat = new MessageFormat(str);
+		return msformat.format(array);
+	}
+
+	/**
+	 * 得到返佣比例，以%的形式展现
+	 * 
+	 * @param rate
+	 *            推客二期的返佣比例
+	 * @return 在vm以百分比，且保留两位小数点的形式返回
+	 */
+	public static String showOfferSpreadRate(BigDecimal rate) {
+		if (null == rate) {
+			return "5.00%";
+		}
+		return textDf.format(rate.divide(new BigDecimal(100))) + "%";
+	}
+
+	/**
+	 * 修改单个offer的返佣比例时，弹出框的返佣比例显示
+	 * 
+	 * @param rate
+	 * @return
+	 */
+	public static String showOfferboxText(BigDecimal rate) {
+		if (null == rate) {
+			return "5.00";
+		}
+		return textDf.format(rate.divide(new BigDecimal(100)).doubleValue());
+	}
+
+	/**
+	 * 拼接字符串
+	 * 
+	 * @param params
+	 * @return
+	 */
+	public static String concat(Object... params) {
+		if (params == null || params.length == 0) {
+			return null;
+		}
+		StringBuilder str = new StringBuilder();
+		for (Object param : params) {
+			str.append(param);
+		}
+		return str.toString();
+	}
+
+	/**
+	 * 参数中是否有空值，只要有一个为空，则返回true，全不为空则返回false<br>
+	 * "空值"说明：
+	 * <ul>
+	 * <li>1，如果是字符串：null，或"", " "
+	 * <li>2，如果是long类型：null, 或者<=0
+	 * <li>3，如果是其它对象：为null
+	 * </ul>
+	 * 
+	 * @param params
+	 * @return
+	 */
+	public static boolean hasBlank(Object... params) {
+		for (Object param : params) {
+			if (param instanceof String) {
+				if (StringUtils.isBlank((String) param)) {
+					return true;
+				}
+			} else if (param instanceof Long) {
+				if (param == null || ((Long) param) <= 0) {
+					return true;
+				}
+			} else if (param instanceof Integer) {
+				if (param == null || ((Integer) param) <= 0) {
+					return true;
+				}
+			} else if (param == null) {
+				return true;
+			}
+		}
+		return false;
+	}
+}

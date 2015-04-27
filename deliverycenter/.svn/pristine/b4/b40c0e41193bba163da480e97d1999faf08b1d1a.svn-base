@@ -1,0 +1,177 @@
+package com.ve.deliverycenter.core.service.action;
+
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.beanutils.MethodUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeanUtils;
+
+import com.ve.deliverycenter.common.constant.DeliveryConstant;
+import com.ve.deliverycenter.common.constant.RetCodeEnum;
+import com.ve.deliverycenter.common.dto.BaseDTO;
+import com.ve.deliverycenter.common.qto.BaseQTO;
+import com.ve.deliverycenter.core.crud.query.Page;
+import com.ve.deliverycenter.core.domain.BaseDo;
+import com.ve.deliverycenter.core.exception.DeliveryException;
+import com.ve.deliverycenter.core.manager.BaseManager;
+import com.ve.deliverycenter.core.service.DeliveryRequest;
+import com.ve.deliverycenter.core.service.DeliveryResponse;
+import com.ve.deliverycenter.core.service.RequestContext;
+
+public class ActionBase implements Action {
+	private BaseManager baseManager;
+
+	public BaseManager getBaseManager() {
+		return baseManager;
+	}
+
+	public void setBaseManager(BaseManager baseManager) {
+		this.baseManager = baseManager;
+	}
+
+	@Override
+	public DeliveryResponse execute(RequestContext context)
+			throws DeliveryException {
+		// 获取参数
+		DeliveryRequest deliveryRequest = context.getRequest();
+		try {
+			// 根据方法名和参数执行Action对应的方法
+			DeliveryResponse deliveryResponse = (DeliveryResponse) MethodUtils
+					.invokeMethod(
+							this,
+							deliveryRequest.getAttribute(
+									DeliveryConstant.PARAM_METHOD_NAME)
+									.toString(),
+							deliveryRequest
+									.getAttribute(DeliveryConstant.PARAM_ARGS_NAME));
+
+			// 返回对象设到context中
+			context.setResponse(deliveryResponse);
+		} catch (Exception e) {
+			context.setResponse(getResponse(RetCodeEnum.SYSTEM_ERROR));
+			log.error(e.getMessage(), e);
+		}
+		// 返回参数
+		return context.getResponse();
+	}
+
+	@Override
+	public String getName() {
+		String actionClassName = getClass().getName();
+		return actionClassName.substring(actionClassName.lastIndexOf(".") + 1);
+	}
+
+	private static final Log log = LogFactory.getLog(ActionBase.class);
+
+	public BaseDo add(BaseDo domain) {
+		Object result = getBaseManager().insert(domain);
+		if (result == null) {
+			return domain;
+		} else {
+			return (BaseDo) getBaseManager().queryForObject(
+					getStatementName(domain) + ".select", domain);
+		}
+	}
+
+	public int update(BaseDo domain) {
+		return getBaseManager().update(domain);
+	}
+
+	public int delete(BaseDo domain) {
+		return getBaseManager().delete(domain);
+	}
+
+	protected BaseDo trans2Do(BaseDTO dto, BaseDo domain) {
+		BeanUtils.copyProperties(dto, domain);
+		return domain;
+	}
+
+	protected BaseDTO trans2Dto(BaseDTO dto, BaseDo domain) {
+		BeanUtils.copyProperties(domain, dto);
+		return dto;
+	}
+
+	protected DeliveryResponse getResponse(RetCodeEnum retCodeEnum) {
+		DeliveryResponse response = new DeliveryResponse(retCodeEnum);
+		return response;
+	}
+
+	protected DeliveryResponse getResponse(Object model) {
+		DeliveryResponse response = new DeliveryResponse(RetCodeEnum.SUCCESS,
+				model);
+		return response;
+	}
+
+	protected DeliveryResponse getResponse(List modelList, long totalCount) {
+		DeliveryResponse response = new DeliveryResponse(RetCodeEnum.SUCCESS,
+				modelList, totalCount);
+		return response;
+	}
+
+	private Map<String, Object> transBean2Map(BaseQTO qto) {
+		if (qto == null) {
+			return null;
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		try {
+			BeanInfo beanInfo = Introspector.getBeanInfo(qto.getClass());
+			PropertyDescriptor[] propertyDescriptors = beanInfo
+					.getPropertyDescriptors();
+			for (PropertyDescriptor property : propertyDescriptors) {
+				String key = property.getName();
+				// 过滤class属性
+				if (!key.equals("class")) {
+					// 得到property对应的getter方法
+					Method getter = property.getReadMethod();
+					Object value = getter.invoke(qto);
+					map.put(key, value);
+				}
+
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return map;
+
+	}
+
+	private String getQueryStatement(BaseQTO qto) {
+		String className = qto.getClass().getName();
+		return className.substring(className.lastIndexOf(".") + 1)
+				.replace("QTO", "").toUpperCase();
+	}
+
+	private String getStatementName(Object obj) {
+		String className = obj.getClass().getName();
+		return className.substring(className.lastIndexOf(".") + 1)
+				.toUpperCase();
+	}
+
+	protected DeliveryResponse query(BaseQTO qto) {
+		String listStatementName = getQueryStatement(qto) + ".selectList";
+		String countStatementName = getQueryStatement(qto) + ".selectCount";
+		Map queryMap = transBean2Map(qto);
+		Long totalCount = (Long) getBaseManager().queryForObject(
+				countStatementName, queryMap);
+		page.initPageParameter(totalCount, qto.getPageNo(), getPageSize());
+		queryMap.put("startRow", page.getStartRow());
+		queryMap.put("offset", getPageSize());
+		return getResponse(
+				getBaseManager().queryForList(listStatementName, queryMap),
+				totalCount);
+	}
+
+	private Page page = new Page();
+
+	protected int getPageSize() {
+		return page.getPageSize();
+	}
+
+}

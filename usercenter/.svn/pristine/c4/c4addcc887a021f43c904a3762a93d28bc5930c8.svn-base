@@ -1,0 +1,20 @@
+package com.ve.usercenter.core.dao;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.core.domain.UserExtraInfoDO;
+
+@Service
+public interface UserExtraInfoDao {
+	/** 添加用户扩展信息 */
+	Long addUserExtraInfo(UserExtraInfoDO userExtraDo);
+
+	/** 根据扩展表的id，获取扩展信息 */
+	UserExtraInfoDO getUserExtraInfoById(Long id);
+
+	/** 根据用户id，获取指定用户的扩展信息 */
+	UserExtraInfoDO getUserExtraInfoByUserId(Long userId);
+
+	/** 修改用户的扩展信息 */
+	int updateUserExtraInfo(UserExtraInfoDO userExtraDo);
+}

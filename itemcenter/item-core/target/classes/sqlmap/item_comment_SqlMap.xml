@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="item_comment">
+	<typeAlias alias="itemCommentDO" type="com.ve.itemcenter.core.domain.ItemCommentDO" />
+	<typeAlias alias="itemCommentQTO"	type="com.ve.itemcenter.common.domain.qto.ItemCommentQTO" />
+
+	<resultMap class="itemCommentDO" id="itemCommentDOResult">
+		<result property="id" column="id" />
+		<result property="userId" column="user_id" />
+		<result property="userName" column="user_name" />
+		<result property="itemId" column="item_id" />
+		<result property="sellerId" column="seller_id" />
+		<result property="orderId" column="order_id" />
+		<result property="title" column="title" />
+		<result property="content" column="content" />
+		<result property="score" column="score" />
+		<result property="imgs" column="imgs" />
+		<result property="praiseNum" column="praise_num" />
+		<result property="replyTime" column="reply_time" />
+		<result property="replyUserId" column="reply_user_id" />
+		<result property="replyContent" column="reply_content" />
+		<result property="isDeleted" column="is_deleted" />
+		<result property="gmtCreated" column="gmt_created" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="auditStatus" column="audit_status"/>
+	</resultMap>
+
+	<insert id="ItemCommentDAO.addItemComment" parameterClass="itemCommentDO">
+		insert into item_comment
+		<dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        id
+      </isNotNull>
+      <isNotNull prepend="," property="userId" >
+        user_id
+      </isNotNull>
+      <isNotNull prepend="," property="userName" >
+        user_name
+      </isNotNull>
+      <isNotNull prepend="," property="itemId" >
+        item_id
+      </isNotNull>
+      <isNotNull prepend="," property="orderId" >
+        order_id
+      </isNotNull>
+      <isNotNull prepend="," property="sellerId" >
+        seller_id
+      </isNotNull>
+      <isNotNull prepend="," property="title" >
+        title
+      </isNotNull>
+      <isNotNull prepend="," property="score" >
+        score
+      </isNotNull>
+      <isNotNull prepend="," property="imgs" >
+        imgs
+      </isNotNull>
+      <isNotNull prepend="," property="praiseNum" >
+        praise_num
+      </isNotNull>
+      <isNotNull prepend="," property="replyTime" >
+        reply_time
+      </isNotNull>
+      <isNotNull prepend="," property="replyUserId" >
+        reply_user_id
+      </isNotNull>
+      <isNotNull prepend="," property="isDeleted" >
+        is_deleted
+      </isNotNull>
+      <isNotNull prepend="," property="auditStatus" >
+        audit_status
+      </isNotNull>
+      <isNotNull prepend="," property="content" >
+        content
+      </isNotNull>
+      <isNotNull prepend="," property="replyContent" >
+        reply_content
+      </isNotNull>
+      )
+    </dynamic>
+    values
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        #id:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="userId" >
+        #userId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="userName" >
+        #userName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="itemId" >
+        #itemId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="orderId" >
+        #orderId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="sellerId" >
+        #sellerId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="title" >
+        #title:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="score" >
+        #score:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="imgs" >
+        #imgs:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="praiseNum" >
+        #praiseNum:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="replyTime" >
+        #replyTime:DATE#
+      </isNotNull>
+      <isNotNull prepend="," property="replyUserId" >
+        #replyUserId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="isDeleted" >
+        #isDeleted:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="auditStatus" >
+        #auditStatus:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="content" >
+        #content:LONGVARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="replyContent" >
+        #replyContent:LONGVARCHAR#
+      </isNotNull>
+      )
+    </dynamic>
+		<selectKey keyProperty="id" resultClass="Long">
+			SELECT
+			LAST_INSERT_ID();
+		</selectKey>
+	</insert>
+
+	<sql id="item_comment_base_column_list">
+		id,
+		user_id,
+		user_name,
+		item_id,
+		seller_id,
+		order_id,
+		title,
+		content,
+		score,
+		imgs,
+		praise_num,
+		reply_time,
+		reply_user_id,
+		reply_content,
+		is_deleted,
+		gmt_created,
+		gmt_modified,
+		audit_status
+	</sql>
+	
+	<sql id="ItemCommentDAO.queryWhere">
+		<dynamic prepend="where">
+			<isNotNull prepend="AND" property="isDeleted"> 
+				is_deleted = #isDeleted#
+			</isNotNull>
+			<isNotNull prepend="AND" property="id"> 
+				id = #id#
+			</isNotNull>
+			<isNotNull prepend="AND" property="itemId"> 
+				item_id = #itemId#
+			</isNotNull>
+			<isNotNull prepend="AND" property="sellerId"> 
+				seller_id = #sellerId#
+			</isNotNull>
+			<isNotNull prepend="AND" property="auditStatus"> 
+				audit_status = #auditStatus#
+			</isNotNull>
+		</dynamic>
+	</sql>
+	
+	
+	<!-- 今后可能会用更新，先不删除 
+	 <update id="ItemCommentDAO.updateItemComment" parameterClass="itemCommentDO">
+		update item_comment
+		set gmt_modified=now(),is_deleted=1
+		where id = #id# and is_deleted=0 and seller_id=#sellerId#
+	</update>
+	 -->
+	
+	<update id="ItemCommentDAO.deleteItemComment">
+		update item_comment
+		set gmt_modified=now()
+		<dynamic prepend="">
+			<isNotNull prepend="," property="record.isDeleted">
+				is_deleted = #record.isDeleted#
+			</isNotNull>
+		</dynamic>
+		<include refid="ItemCommentDAO.queryWhere" />
+	</update>
+	
+	<select id="ItemCommentDAO.getItemComment" resultMap="itemCommentDOResult"	parameterClass="itemCommentQTO">
+		select <include refid="item_comment_base_column_list" /> from item_comment
+		<include refid="ItemCommentDAO.queryWhere" />  
+	</select>
+	
+	<select id="ItemCommentDAO.countItemComment" resultClass="Integer" parameterClass="itemCommentQTO">
+		select count(1) count from item_comment
+		<include refid="ItemCommentDAO.queryWhere" />
+	</select>
+	
+	<select id="ItemCommentDAO.queryItemCommentByItemId" resultMap="itemCommentDOResult"
+		parameterClass="itemCommentQTO">
+		select <include refid="item_comment_base_column_list" /> from item_comment
+		       <include refid="ItemCommentDAO.queryWhere" />  order by gmt_created desc 
+			<isNotNull property="needPaging">
+				limit #offset#,#pageSize#
+			</isNotNull>
+	</select>
+</sqlMap>

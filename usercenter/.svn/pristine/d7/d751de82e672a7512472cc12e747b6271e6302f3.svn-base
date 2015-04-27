@@ -1,0 +1,67 @@
+package com.ve.usercenter.core.service;
+
+import java.util.Collection;
+
+import com.ve.usercenter.common.api.Response;
+import com.ve.usercenter.common.constant.ErrorCode;
+
+
+
+public class UserResponse<T> implements Response<T>{
+	private static final long serialVersionUID = 8295766534182699773L;
+	
+	private T module;
+    private String code;
+    private String message;
+    private long totalCount = 0;
+
+    public UserResponse(String code,String message){
+    	this.code = code;
+    	this.message = message;
+    }
+    
+    public UserResponse(String code,String message,T module){
+    	this.code = code;
+    	this.message = message;
+    	this.module = module;
+    }
+    
+    public UserResponse(T module){
+    	this.module = module;
+    	if(module != null){
+    		if(module instanceof Collection){
+    			totalCount = ((Collection)module).size();
+    		}else{
+    			totalCount = 1;
+    		}    		
+    	}
+    }
+    
+	public T getModule() {
+		return module;
+	}
+	
+	public long getTotalCount() {
+		return totalCount;
+	}
+	public void setTotalCount(long totalCount) {
+		this.totalCount = totalCount;
+	}
+
+	public void setModule(T module) {
+		this.module = module;
+	}
+
+	@Override
+	public String getCode() {
+		// TODO Auto-generated method stub
+		return code;
+	}
+
+	@Override
+	public String getMessage() {
+		// TODO Auto-generated method stub
+		return message;
+	}
+	
+}

@@ -1,0 +1,48 @@
+package com.ve.itemcenter.core.service.action.brand;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.ResCodeNum;
+import com.ve.itemcenter.common.domain.ItemBrandDTO;
+import com.ve.itemcenter.core.domain.ItemBrandDO;
+import com.ve.itemcenter.core.exception.ItemException;
+import com.ve.itemcenter.core.manager.ItemBrandManager;
+import com.ve.itemcenter.core.service.ItemRequest;
+import com.ve.itemcenter.core.service.ItemResponse;
+import com.ve.itemcenter.core.service.RequestContext;
+import com.ve.itemcenter.core.service.action.Action;
+import com.ve.itemcenter.core.service.action.ActionEnum;
+import com.ve.itemcenter.core.util.ItemUtil;
+import com.ve.itemcenter.core.util.ResponseUtil;
+
+@Service
+public class GetItemBrandAciton implements Action {
+	@Resource
+	private ItemBrandManager itemBrandManager;
+
+	@Override
+	public ItemResponse execute(RequestContext context) throws ItemException {
+		ItemRequest request = context.getRequest();
+		ItemBrandDTO itemBrandDTO = new ItemBrandDTO();
+
+		// 验证ID
+		if (request.getLong("ID") == null) {
+			return ResponseUtil.returnErrorResponse(ResCodeNum.PARAM_E_MISSING);
+		}
+
+		Long itemBrandId = request.getLong("ID");// 商品品牌ID
+		ItemBrandDO itemBrandDO = itemBrandManager.getItemBrand(itemBrandId);
+		ItemUtil.copyProperties(itemBrandDO, itemBrandDTO);
+		ItemResponse response = new ItemResponse(itemBrandDTO);
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		return ActionEnum.GET_ITEMBRAND.getActionName();
+	}
+}

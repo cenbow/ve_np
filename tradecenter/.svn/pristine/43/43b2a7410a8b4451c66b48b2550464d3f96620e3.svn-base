@@ -1,0 +1,31 @@
+package com.ve.tradecenter.core.manager.impl;
+
+import java.sql.Date;
+
+import javax.annotation.Resource;
+
+import com.ve.tradecenter.core.dao.OrderSeqDao;
+import com.ve.tradecenter.core.domain.OrderSeqDO;
+import com.ve.tradecenter.core.exception.TradeException;
+import com.ve.tradecenter.core.manager.OrderSeqManager;
+
+public class OrderSeqManagerImpl implements OrderSeqManager {
+	@Resource 
+	private OrderSeqDao orderSeqDao;
+	
+	@Override
+	public Integer updateOrderSeq(Date date) throws TradeException {
+		return this.orderSeqDao.updateOrderDaySeq(date);
+	}
+
+	@Override
+	public Integer getOrderSeq(Date date) throws TradeException {
+		return (Integer)this.orderSeqDao.getOrderDaySeq(date);
+	}
+
+	@Override
+	public Integer addOrderSeq(OrderSeqDO orderSeqDO) throws TradeException {
+		return this.orderSeqDao.AddOrderDaySeq(orderSeqDO);
+	}
+	
+}

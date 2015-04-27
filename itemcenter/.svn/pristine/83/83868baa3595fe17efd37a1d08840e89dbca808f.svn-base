@@ -1,0 +1,44 @@
+package com.ve.itemcenter.core.dao.impl;
+
+import java.util.List;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.domain.GlobalPropertyQTO;
+import com.ve.itemcenter.core.dao.GlobalPropertyDAO;
+import com.ve.itemcenter.core.domain.GlobalPropertyDO;
+
+@Service
+public class GlobalPropertyDAOImpl extends SqlMapClientDaoSupport implements GlobalPropertyDAO {
+
+	public GlobalPropertyDAOImpl() {
+		super();
+	}
+
+	public Long addGlobalProperty(GlobalPropertyDO globalPropertyDO) {
+		globalPropertyDO.setIsDeleted(DBConst.UN_DELETED.getCode());
+		Long newInsertedId = (Long) getSqlMapClientTemplate()
+				.insert("GlobalPropertyDAO.addGlobalProperty", globalPropertyDO);
+		return newInsertedId;
+	}
+
+	public GlobalPropertyDO getGlobalProperty(Long id) {
+		GlobalPropertyDO record = (GlobalPropertyDO) getSqlMapClientTemplate()
+				.queryForObject("GlobalPropertyDAO.getGlobalProperty", id);
+		return record;
+	}
+
+	public int updateGlobalProperty(GlobalPropertyDO globalPropertyDO) {
+		int rows = getSqlMapClientTemplate().update("GlobalPropertyDAO.updateGlobalProperty", globalPropertyDO);
+		return rows;
+	}
+
+	public List<GlobalPropertyDO> queryGlobalProperty(GlobalPropertyQTO globalPropertyQTO) {
+		List<GlobalPropertyDO> list = getSqlMapClientTemplate()
+				.queryForList("GlobalPropertyDAO.queryGlobalProperty", globalPropertyQTO);
+		return list;
+	}
+
+}

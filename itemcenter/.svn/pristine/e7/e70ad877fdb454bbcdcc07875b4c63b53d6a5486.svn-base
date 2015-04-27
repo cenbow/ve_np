@@ -1,0 +1,41 @@
+package item;
+
+import javax.annotation.Resource;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.ve.itemcenter.common.api.BaseRequest;
+import com.ve.itemcenter.common.api.ItemService;
+import com.ve.itemcenter.common.api.Request;
+import com.ve.itemcenter.common.api.Response;
+import com.ve.itemcenter.common.domain.ItemDTO;
+import com.ve.itemcenter.core.service.action.ActionEnum;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:applicationContext.xml" })
+public class AddItemTest {
+	@Resource
+	private ItemService itemService;
+
+	@Test
+	public void test() {
+		// System.out.println(1);
+		Request request = new BaseRequest();
+		ItemDTO itemDTO = new ItemDTO();
+		itemDTO.setItemName("婴儿毛巾");
+		itemDTO.setSupplierId(1);
+		itemDTO.setItemBriefName("商品简称");
+		itemDTO.setItemBrandId(1);
+		itemDTO.setBriefIntroduction("商品简介");
+		itemDTO.setItemType(1);
+		itemDTO.setIconUrl("http://www.163.com/e.jpeg");
+		itemDTO.setCategoryId(1);
+		itemDTO.setIsSellerPost(1);
+		request.setParam("itemDTO", itemDTO);
+		request.setCommand(ActionEnum.ADD_ITEM.getActionName());
+		Response response = itemService.execute(request);
+	}
+}

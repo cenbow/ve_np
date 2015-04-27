@@ -1,0 +1,63 @@
+package com.ve.tradecenter.core.util;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import org.springframework.beans.BeanUtils;
+
+import com.ve.tradecenter.common.constant.ResponseCode;
+import com.ve.tradecenter.core.exception.TradeException;
+
+public class TradeUtils {
+
+	/**
+	 * 将DTO对象转换为DO对象用于数据持久化
+	 * @param srcObject
+	 * @param destObject
+	 * @return
+	 */
+	public static void convert2DO(Object srcObject,Object destObject){
+		BeanUtils.copyProperties(srcObject, destObject);
+	}
+	
+	/**
+	 * 将持久化的对象DO转化为DTO用户数据传输
+	 * @param srcObject
+	 * @param destObject
+	 * @return
+	 */
+	public static void convert2DTO(Object srcObject,Object destObject){
+		BeanUtils.copyProperties(srcObject, destObject);
+	}
+	
+	/**
+	 * md5加密
+	 * @param str
+	 * @return
+	 */
+	public static String md5(String str)throws TradeException{
+		if (str == null) {
+			return null;
+		}
+		try {
+			MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+			messageDigest.update(str.getBytes());
+			byte b[] = messageDigest.digest();
+			
+			StringBuffer buf = new StringBuffer("");
+			int i;
+			for (int offset = 0; offset < b.length; offset++) {
+				i = b[offset];
+				if(i<0) 
+					i+= 256;
+				if(i<16) 
+					buf.append("0");
+				buf.append(Integer.toHexString(i));
+			}
+			return buf.toString();
+		} catch (NoSuchAlgorithmException e){
+			throw new TradeException(ResponseCode.SYS_E_DEFAULT_ERROR,e);
+		}
+	}
+	
+}

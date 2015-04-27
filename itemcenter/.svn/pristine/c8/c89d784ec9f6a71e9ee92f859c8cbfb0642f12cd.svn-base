@@ -1,0 +1,45 @@
+package com.ve.itemcenter.core.dao;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.domain.ItemSkuQTO;
+import com.ve.itemcenter.core.domain.ItemSkuDO;
+
+@Service
+public interface ItemSkuDAO {
+
+	/**
+	 * 增加商品销售属性(ItemSku)
+	 * 
+	 * @param itemSkuDO
+	 * @return
+	 */
+	Long addItemSku(ItemSkuDO itemSkuDO);
+
+	/**
+	 * 根据id获取商品销售属性(ItemSku)
+	 * 
+	 * @param id
+	 * @return
+	 */
+	ItemSkuDO getItemSku(Long id);
+
+	/**
+	 * 更新商品销售属性(ItemSku)信息
+	 * 
+	 * @param itemSkuDO
+	 * @return
+	 */
+	int updateItemSku(ItemSkuDO itemSkuDO);
+
+	/**
+	 * 返回商品销售属性(ItemSku)列表
+	 * 
+	 * @param itemSkuQTO
+	 * @return
+	 */
+	List<ItemSkuDO> queryItemSku(ItemSkuQTO itemSkuQTO);
+
+}

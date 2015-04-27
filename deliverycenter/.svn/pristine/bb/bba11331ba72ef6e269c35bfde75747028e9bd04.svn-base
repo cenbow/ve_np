@@ -1,0 +1,18 @@
+package com.ve.deliverycenter.core.util;
+
+import org.springframework.beans.BeanUtils;
+
+import com.ve.deliverycenter.common.dto.BaseDTO;
+import com.ve.deliverycenter.core.domain.BaseDo;
+
+public class TransUtil {
+	public static BaseDo trans2Do(BaseDTO dto, BaseDo domain) {
+		BeanUtils.copyProperties(dto, domain);
+		return domain;
+	}
+
+	public static BaseDTO trans2Dto(BaseDTO dto, BaseDo domain) {
+		BeanUtils.copyProperties(domain, dto);
+		return dto;
+	}
+}

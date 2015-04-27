@@ -1,0 +1,320 @@
+package com.ve.tradecenter.core.service.action.order;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+
+import com.ve.tradecenter.common.api.Request;
+import com.ve.tradecenter.common.api.TradeResponse;
+import com.ve.tradecenter.common.constant.ResponseCode;
+import com.ve.tradecenter.common.domain.AlipaymentDTO;
+import com.ve.tradecenter.core.constants.TradeConstants;
+import com.ve.tradecenter.core.domain.OrderDO;
+import com.ve.tradecenter.core.domain.OrderItemDO;
+import com.ve.tradecenter.core.domain.PaymentDO;
+import com.ve.tradecenter.core.domain.PaymentNoticeDO;
+import com.ve.tradecenter.core.exception.TradeException;
+import com.ve.tradecenter.core.manager.OrderItemManager;
+import com.ve.tradecenter.core.manager.OrderLogManager;
+import com.ve.tradecenter.core.manager.OrderManager;
+import com.ve.tradecenter.core.manager.PaymentManager;
+import com.ve.tradecenter.core.manager.PaymentNoticeManager;
+import com.ve.tradecenter.core.manager.SellerOrderManager;
+import com.ve.tradecenter.core.manager.UserManager;
+import com.ve.tradecenter.core.service.RequestContext;
+import com.ve.tradecenter.core.service.ResponseUtils;
+import com.ve.tradecenter.core.service.action.Action;
+import com.ve.tradecenter.core.service.action.ActionEnum;
+import com.ve.tradecenter.core.service.action.cart.AddCartItem;
+import com.ve.tradecenter.core.util.TradeUtils;
+
+/**
+ * 支付宝回调处理类
+ * 
+ * paymentNotice 考虑不分表
+ * @author cwr
+ */
+public class AlipayCallback implements Action {
+	private static final Logger log = LoggerFactory.getLogger(AddCartItem.class);
+	@Resource
+
+	private PaymentNoticeManager paymentNoticeManager;
+	@Resource
+	
+	private PaymentManager paymentManager;
+	@Resource 
+	
+	private OrderManager orderManager;
+	
+	@Resource 
+	private OrderLogManager orderLogManager;
+	
+	@Resource
+	private SellerOrderManager sellerOrderManager;
+	
+	@Resource
+	private OrderItemManager orderItemManager;
+	
+	@Resource
+	private UserManager userManager;
+	
+	public TradeResponse<Boolean> execute(RequestContext context)
+			throws TradeException {
+		Request request = context.getRequest();
+		TradeResponse<Boolean> response = null;
+		if(request.getParam("alipaymentDTO") == null){
+			log.error("alipaymentDTO is null");
+			return ResponseUtils.getFailResponse(ResponseCode.PARAM_E_PARAM_MISSING,"alipaymenetDTO is null");
+		}
+		
+		// 字段验证
+		AlipaymentDTO alipaymentDTO = (AlipaymentDTO)request.getParam("alipaymentDTO");
+		String errorMsg = validateAlipaymentFields(alipaymentDTO);
+		if(!StringUtils.isEmpty(errorMsg)){
+			log.error(errorMsg);
+			return ResponseUtils.getFailResponse(ResponseCode.PARAM_E_PARAM_MISSING,errorMsg); 
+		}
+		
+		String toSign = alipaymentDTO.getToSign(); // 待签名字符串
+		String sign = alipaymentDTO.getSign(); // 签名字符串
+		long userId = alipaymentDTO.getUserId(); // 用户id
+		long totalFee = alipaymentDTO.getTotalFee(); // 总金额
+		
+		// TODO 总单暂时supplierId固定是ve   paymentNotice考虑无需分表 
+		long supplierId = alipaymentDTO.getSupplierId();  // 供应商id  
+		
+		String outerTradeNo = alipaymentDTO.getTradeNo(); // 支付宝交易号
+		String tradeNo = alipaymentDTO.getOutTradeNo(); // ve交易号 
+		String tradeStatus = alipaymentDTO.getTradeStatus(); // 支付宝交易状态
+		
+		// 获取支付宝支付方式
+		PaymentDO payment = this.paymentManager.getPaymentByClass(TradeConstants.PaymentType.ALI_PAY);
+		if(payment == null){
+			log.error("alipay doesn't exist : " + TradeConstants.PaymentType.ALI_PAY);
+			return ResponseUtils.getFailResponse(ResponseCode.BIZ_E_PAYMENT_TYPE_ERROR,"alipay doesn't exist");
+		}
+		
+		//签名验证
+		/*String key = payment.getKey(); // 支付宝提供的签名key
+		if(key == null){
+			log.error("alipay sign key config error");
+			return ResponseUtils.getFailResponse(ResponseCode.BIZ_E_PAYMENT_SIGN_ERROR,"alipay sign config error");
+		}*/
+		
+		// TODO
+		/*toSign = toSign + key;
+		String signed = TradeUtils.md5(toSign);
+		if(signed != null && !signed.equals(sign)){
+			log.error("sign is invalid");
+			throw new TradeException(ResponseCode.BIZ_E_PAYMENT_SIGN_ERROR,"sign is invalid");
+		}*/
+		
+		// 根据交易号判断是否存在该支付单
+		PaymentNoticeDO paymentNotice = this.paymentNoticeManager.getPaymentNoticeByTradeNo(tradeNo,supplierId);
+		// 如果是支付单不存在
+		if(paymentNotice == null){
+			log.error("paymentNotice is null : " + tradeNo);
+			return ResponseUtils.getFailResponse(ResponseCode.BIZ_E_RECORD_NOT_EXIST,"paymentNotice doesn't exist");
+		}
+		
+		// 如果支付宝支付成功  -- 整单支付成功
+		int paymentNoticeResult=0,orderResult = 0,sellerOrderResult=0;
+		if(tradeStatus.equals(TradeConstants.AlipayStatus.TRADE_FINISHED) || tradeStatus.equals(TradeConstants.AlipayStatus.TRADE_SUCCESS)
+				|| tradeStatus.equals(TradeConstants.AlipayStatus.WAIT_BUYER_CONFIRM_GOODS) || tradeStatus.equals(TradeConstants.AlipayStatus.WAIT_SELLER_SEND_GOODS)){
+			
+			int payStatus = TradeConstants.PaymentStatus.PAID; // 支付成功
+			Date now = new Date(); 
+			long id = paymentNotice.getId();
+			long orderId = paymentNotice.getOrderId();
+			
+			// 更新支付单状态为已支付  -- 总单
+			paymentNoticeResult = this.paymentNoticeManager.paySuccess(payStatus>0,totalFee,outerTradeNo, id,supplierId);
+			
+			// 更新订单表的支付状态为已支付
+			orderResult = this.orderManager.orderPaySuccess(payStatus,orderId, userId);
+			sellerOrderResult =this.sellerOrderManager.OrderPaySuccess(payStatus,orderId, supplierId);
+			
+			// TODO 日志完善
+			//this.orderLogManager.addOrderLog(TradeConstants.OrderLog.ALL_PAID, now, orderId, userId, (userId+""));
+			
+			//TODO 
+			// 支付成功后的拆单
+			OrderDO orderDO = this.orderManager.getOrder(orderId, userId);
+			if(orderDO == null){
+				log.error("order is null " + orderId + "," +userId);
+				return ResponseUtils.getFailResponse(ResponseCode.BIZ_E_RECORD_NOT_EXIST,"order doesn't exist");
+			}
+			
+			List<OrderItemDO> orderItems = this.orderItemManager.getOrderItems(orderId, userId);
+			// TODO 考虑是否异步的方式进行拆单
+			/*
+			 * 拆单逻辑: 按照供应商id拆单
+			 * 自营的和入驻的都是ve的 
+			 * 供应商直发按照供应商id拆
+			 * 海外购的按照海外供应商id拆单
+			 */
+			// 按照供应商类型进行商品分组
+			//Map<Integer,List<OrderItemDO>> supplierTypeItemsMap = new HashMap<Integer,List<OrderItemDO>>();
+			
+			// 按照供应商id分组
+			Map<Long,List<OrderItemDO>> supplierItemsMap = new HashMap<Long,List<OrderItemDO>>();
+			for(OrderItemDO item : orderItems){
+				int supplierType = item.getSupplierType().intValue();
+				Long supplierId2 = item.getSupplierId();
+				
+				if(supplierItemsMap.get(supplierId2) == null){
+					List<OrderItemDO> items = new ArrayList<OrderItemDO>();
+					items.add(item);
+					supplierItemsMap.put(supplierId2, items);
+				}else{
+					supplierItemsMap.get(supplierId2).add(item);
+				}
+				
+				/*if(supplierType == TradeConstants.SupplierType.VE 
+						|| supplierType == TradeConstants.SupplierType.ENTER
+						|| supplierType == TradeConstants.SupplierType.PROXY_DELIVERY){ // 如果是入驻、自营、代发货的属于一个订单
+					long veSupplierId = this.userManager.getVeSupplierId(); // 属于ve的订单
+					if(supplierItemsMap.get(veSupplierId) == null){
+						List<OrderItemDO> items = new ArrayList<OrderItemDO>();
+						items.add(item);
+						supplierItemsMap.put(veSupplierId, items);
+					}else{
+						supplierItemsMap.get(veSupplierId).add(item);
+					}
+				}else{
+					if(supplierItemsMap.get(supplierId2) == null){
+						List<OrderItemDO> items = new ArrayList<OrderItemDO>();
+						items.add(item);
+						supplierItemsMap.put(supplierId2, items);
+					}else{
+						supplierItemsMap.get(supplierId2).add(item);
+					}
+				}*/
+				/*
+				if(supplierTypeItemsMap.get(supplierType) == null){
+					List<OrderItemDO> items = new ArrayList<OrderItemDO>();
+					items.add(item);
+					supplierTypeItemsMap.put(supplierType, items);
+				}else{
+					supplierTypeItemsMap.get(supplierType).add(item);
+				}*/
+			}
+			
+			// 主单的运费  需要根据子订单数目平分
+			long mainOrderDeliveryFee = orderDO.getDeliveryFee();
+			// 按照供应商id进行分组处理
+			Iterator<Entry<Long,List<OrderItemDO>>> it = supplierItemsMap.entrySet().iterator();
+			int subOrderCount = supplierItemsMap.size();
+			int count=0;
+			long deliveryFeeSum = 0L;
+			while(it.hasNext()){
+				count++;
+				long subDeliveryFee = 0;
+				if(count == subOrderCount){
+					subDeliveryFee = orderDO.getDeliveryFee() - deliveryFeeSum; 
+				}else{
+					subDeliveryFee = orderDO.getDeliveryFee()/subOrderCount;
+					deliveryFeeSum += subDeliveryFee; //累加最后一个用于减法
+				}
+				Entry<Long,List<OrderItemDO>> entry = it.next();
+				long subSupplierId = entry.getKey().longValue();
+				List<OrderItemDO> supplierItems = entry.getValue();
+				long totalAmount = 0L,promotionDiscount=0L,couponDiscount=0L;
+				for(OrderItemDO orderItem : supplierItems){
+					totalAmount += orderItem.getTotalPrice();
+					promotionDiscount += orderItem.getPromotionDiscount() ==null? 0 : orderItem.getPromotionDiscount();
+					couponDiscount += orderItem.getCouponDiscount() ==null? 0 : orderItem.getCouponDiscount();
+				}
+				OrderDO subOrder = new OrderDO();
+				
+				/*BeanUtils.copyProperties(orderDO, subOrder);
+				orderDO.setTotalAmount(totalAmount);*/
+				// 部分字段同主单的字段相同
+				
+				// 子单的金额字段
+				subOrder.setSupplierId(subSupplierId);  // 子单按照供应商id写入卖家订单表
+				subOrder.setTotalAmount(totalAmount);
+				subOrder.setPromotionDiscount(promotionDiscount); // 子单促销活动中优惠的费用
+				subOrder.setCouponDiscount(couponDiscount); // 子单优惠券中优惠的费用
+				//子单承担的费用
+				subOrder.setPayAmount(totalAmount - couponDiscount - promotionDiscount - subDeliveryFee);
+				subOrder.setDeliveryFee(subDeliveryFee); // 子单的运费平分
+				
+				//TODO 子单的订单编号    临时生成策略  
+				subOrder.setOrderSn(orderDO.getOrderSn()+ StringUtils.leftPad(count+"", 2, '0'));
+				
+				// 子单写入买家订单表
+				Long subOrderId = this.orderManager.addOrder(subOrder);
+				
+				// 子单写入卖家订单表 -- id为买家订单的id
+				subOrder.setId(subOrderId); 
+				long subSellerId = this.sellerOrderManager.addOrder(subOrder);
+				
+				// 考虑只需买家角度的明细表 不需要卖家角度的明细表  卖家的明细表去买家查询
+				// 关联订单明细到子订单
+				for(OrderItemDO orderItem : supplierItems){
+					orderItem.setOrderId(subOrderId); // 关联子单表的id
+					orderItem.setOrderSn(subOrder.getOrderSn());
+					orderItem.setId(null);
+					this.orderItemManager.addOrderItem(orderItem);
+				}
+			}
+			boolean module = (orderResult > 0) && (paymentNoticeResult>0) && (sellerOrderResult >0);
+			if(module){
+				response = ResponseUtils.getSuccessResponse(module);
+			}else{
+				log.error("order doesn't exist" + paymentNoticeResult + "," + orderResult + "," + sellerOrderResult);
+				response = ResponseUtils.getFailResponse(ResponseCode.BIZ_E_RECORD_NOT_EXIST,"order doesn't exist");
+			}
+		}else{
+			log.error("aplipayStatus error: " + tradeStatus);
+			response = ResponseUtils.getFailResponse(ResponseCode.BIZ_E_PAYMNET_ALIPAY_ERROR,"alipay status error");
+		}
+		
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		return ActionEnum.ALIPAY_CALLBACK.getActionName();
+	}
+	
+	/**
+	 * 验证支付宝回调的参数
+	 * @return
+	 */
+	private String validateAlipaymentFields(AlipaymentDTO alipaymentDTO)throws TradeException{
+		if(alipaymentDTO.getUserId() == null){
+			return "userId is null";
+		}else if(alipaymentDTO.getTradeNo() == null){
+			return "tradeNo is null";
+		}else if(alipaymentDTO.getTotalFee() == null){
+			return ("outTradeNo is null");
+		}else if(alipaymentDTO.getSign() == null){
+			return ("sign is null");
+		}else if(alipaymentDTO.getToSign() == null){
+			return ("toSign is null");
+		}else if(alipaymentDTO.getTotalFee() == null){
+			return ("totalFee is null");	
+		}else if(alipaymentDTO.getTradeStatus() == null){
+			return ("tradeStatus is null");
+		}
+		return null;
+	}
+	
+	/**
+	 * 写入拆单后的子订单
+	 * @param order
+	 */
+}

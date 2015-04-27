@@ -1,0 +1,66 @@
+package com.ve.marketingcenter.common.domain.dto;
+
+import java.io.Serializable;
+import java.util.List;
+
+public class FavorableInfo implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4336574627439107164L;
+	private MarketingActivityDTO activity;// 活动对象
+	private List<MarketingItemDTO> itemList;// 活动的商品列表
+	private List<MarketingItemDTO> giftList;// 活动的赠品列表
+	private boolean noPostage;// 是否免邮
+	private Long offerAmount;// 优惠额
+	private List<CouponDTO> coupons;
+
+	public MarketingActivityDTO getActivity() {
+		return activity;
+	}
+
+	public void setActivity(MarketingActivityDTO activity) {
+		this.activity = activity;
+	}
+
+	public List<MarketingItemDTO> getItemList() {
+		return itemList;
+	}
+
+	public void setItemList(List<MarketingItemDTO> itemList) {
+		this.itemList = itemList;
+	}
+
+	public List<MarketingItemDTO> getGiftList() {
+		return giftList;
+	}
+
+	public void setGiftList(List<MarketingItemDTO> giftList) {
+		this.giftList = giftList;
+	}
+
+	public boolean isNoPostage() {
+		return noPostage;
+	}
+
+	public void setNoPostage(boolean noPostage) {
+		this.noPostage = noPostage;
+	}
+
+	public Long getOfferAmount() {
+		return offerAmount;
+	}
+
+	public void setOfferAmount(Long offerAmount) {
+		this.offerAmount = offerAmount;
+	}
+
+	public List<CouponDTO> getCoupons() {
+		return coupons;
+	}
+
+	public void setCoupons(List<CouponDTO> coupons) {
+		this.coupons = coupons;
+	}
+
+}

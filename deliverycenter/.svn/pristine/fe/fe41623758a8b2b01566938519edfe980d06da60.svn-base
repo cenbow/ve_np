@@ -1,0 +1,47 @@
+package com.ve.deliverycenter.core.service.action.fee;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.deliverycenter.common.constant.ActionEnum;
+import com.ve.deliverycenter.common.constant.RetCodeEnum;
+import com.ve.deliverycenter.core.exception.DeliveryException;
+import com.ve.deliverycenter.core.manager.fee.RegionFeeManager;
+import com.ve.deliverycenter.core.service.DeliveryResponse;
+import com.ve.deliverycenter.core.service.RequestContext;
+import com.ve.deliverycenter.core.service.action.Action;
+import com.ve.deliverycenter.core.util.ResponseUtil;
+
+@Service
+public class DeleteRegionFee implements Action {
+	@Resource
+	private RegionFeeManager regionFeeManager;
+
+	/**
+	 * 删除区域运费接口
+	 */
+	@Override
+	public DeliveryResponse execute(RequestContext context)
+			throws DeliveryException {
+		// 获取参数
+		List<Integer> regionFeeIdList = (List<Integer>) context.getRequest()
+				.getParam("regionFeeIdList");
+		int deleteCount = regionFeeManager.deleteRegionFee(regionFeeIdList);
+		// 返回response对象,如果行数为1返回true,不为1返回false
+		if (deleteCount == regionFeeIdList.size()) {
+			return ResponseUtil.getResponse(true);
+		} else {
+			return ResponseUtil.getResponse(RetCodeEnum.DELETE_ERROR);
+		}
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return ActionEnum.DELETE_REGION_FEE.getActionName();
+	}
+
+}

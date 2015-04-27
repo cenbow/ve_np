@@ -1,0 +1,24 @@
+package com.ve.marketingcenter.core.service.action.engine;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.marketingcenter.common.api.MarketingResponse;
+import com.ve.marketingcenter.common.domain.dto.FavorableInfo;
+import com.ve.marketingcenter.core.exception.MarketingException;
+import com.ve.marketingcenter.core.service.RequestContext;
+import com.ve.marketingcenter.core.service.action.Action;
+@Service
+public class OrderFavorable implements Action<FavorableInfo>{
+
+	@Override
+	public MarketingResponse<FavorableInfo> execute(
+			RequestContext<FavorableInfo> context) throws MarketingException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}}

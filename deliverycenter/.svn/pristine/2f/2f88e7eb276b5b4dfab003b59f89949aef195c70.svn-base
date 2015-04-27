@@ -1,0 +1,22 @@
+package com.ve.deliverycenter.core.manager.fee.intef;
+
+import java.util.List;
+
+import com.ve.deliverycenter.common.dto.fee.StdFeeDTO;
+import com.ve.deliverycenter.common.qto.fee.StdFeeQTO;
+import com.ve.deliverycenter.core.domain.fee.StdFee;
+import com.ve.deliverycenter.core.exception.DeliveryException;
+
+public interface StdFeeManager {
+
+	public StdFeeDTO addStdFee(StdFeeDTO StdFeeDTO);
+
+	public int updateStdFee(StdFeeDTO StdFeeDTO);
+
+	public int deleteStdFee(int id);
+
+	public List<StdFeeDTO> queryStdFee(StdFeeQTO StdFeeQTO)
+			throws DeliveryException;
+
+	public StdFee getStdFee(int id);
+}

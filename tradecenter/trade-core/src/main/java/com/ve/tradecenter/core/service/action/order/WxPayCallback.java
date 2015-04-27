@@ -1,0 +1,157 @@
+package com.ve.tradecenter.core.service.action.order;
+
+import java.util.Date;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.ve.tradecenter.common.api.Request;
+import com.ve.tradecenter.common.api.TradeResponse;
+import com.ve.tradecenter.common.constant.ResponseCode;
+import com.ve.tradecenter.common.domain.WxPaymentDTO;
+import com.ve.tradecenter.core.constants.TradeConstants;
+import com.ve.tradecenter.core.domain.PaymentDO;
+import com.ve.tradecenter.core.domain.PaymentNoticeDO;
+import com.ve.tradecenter.core.exception.TradeException;
+import com.ve.tradecenter.core.manager.OrderLogManager;
+import com.ve.tradecenter.core.manager.OrderManager;
+import com.ve.tradecenter.core.manager.PaymentManager;
+import com.ve.tradecenter.core.manager.PaymentNoticeManager;
+import com.ve.tradecenter.core.service.RequestContext;
+import com.ve.tradecenter.core.service.ResponseUtils;
+import com.ve.tradecenter.core.service.action.Action;
+import com.ve.tradecenter.core.service.action.ActionEnum;
+import com.ve.tradecenter.core.util.TradeUtils;
+
+/**
+ * 微信支付回调
+ * @author cwr
+ */
+public class WxPayCallback implements Action{
+	private static final Logger log = LoggerFactory.getLogger(UpdateOrderMemo.class);
+	
+	// TODO ref :   ion wxpay_notify_url_return
+	
+	@Resource
+	private PaymentNoticeManager paymentNoticeManager;
+	
+	@Resource
+	private PaymentManager paymentManager;
+	
+	@Resource
+	private OrderManager orderManager;
+	
+	@Resource
+	private OrderLogManager orderLogManager;
+	
+	public TradeResponse<Boolean> execute(RequestContext context)
+			throws TradeException {
+		Request request = context.getRequest();
+		TradeResponse<Boolean> response = null;
+		
+		if(request.getParam("wxPaymentDTO") == null){
+			log.error("wxPaymentDTO is null");
+			return ResponseUtils.getFailResponse(ResponseCode.PARAM_E_PARAM_MISSING,"wxPaymentDTO is null");
+		}
+		
+		// 字段验证
+		WxPaymentDTO wxPaymentDTO = (WxPaymentDTO)request.getParam("wxPaymentDTO");
+		String errorMsg = validateWxPaymentFields(wxPaymentDTO);
+		if(!StringUtils.isEmpty(errorMsg)){
+			log.error(errorMsg);
+			return ResponseUtils.getFailResponse(ResponseCode.PARAM_E_PARAM_MISSING,errorMsg); 
+		}
+		
+		//签名验证
+		String toSign = wxPaymentDTO.getToSign(); // 待签名字符串
+		String sign = wxPaymentDTO.getSign(); // 签名字符串
+				
+		String tradeNo = wxPaymentDTO.getOutTradeNo();  //ve交易号
+		String outTradeNo = wxPaymentDTO.getOutTradeNo(); // 微信支付号\
+		Long userId = wxPaymentDTO.getUserId(); // 用户id
+		Integer tradeState = wxPaymentDTO.getTradeState(); // 交易状态
+		Long totalMoney = wxPaymentDTO.getTotalFee(); // 总金额
+		
+		// 查询支付方式是否正确
+		PaymentDO payment = this.paymentManager.getPaymentByClass(TradeConstants.PaymentType.WX_PAY);
+		if(payment == null){
+			log.error("Wxpay doesn't exist : " + TradeConstants.PaymentType.WX_PAY);
+			return ResponseUtils.getFailResponse(ResponseCode.BIZ_E_PAYMENT_TYPE_ERROR,"Wxpay doesn't exist");
+		}
+		
+		//签名验证
+		String key = this.paymentManager.getPaymentSignKey(payment);
+		if(key == null){
+			log.error("alipay sign config error");
+			return ResponseUtils.getFailResponse(ResponseCode.BIZ_E_PAYMENT_SIGN_ERROR,"alipay sign config error");
+		}
+		toSign = toSign + key;
+		String signed = TradeUtils.md5(toSign);
+		if(signed != null && signed.equals(sign)){
+			throw new TradeException(ResponseCode.BIZ_E_PAYMENT_SIGN_ERROR,"sign is invalid");
+		}
+		
+		// 根据交易号判断是否存在该支付单
+		PaymentNoticeDO paymentNotice = this.paymentNoticeManager.getPaymentNoticeByTradeNo(tradeNo,userId);
+		if(paymentNotice == null){
+			log.error("paymentNotice dosnt't exist: " + tradeNo);
+			throw new TradeException(ResponseCode.BIZ_E_RECORD_NOT_EXIST,"paymentNotice doesn't exist");
+		}
+		
+		// 如果支付宝支付成功  -- 整单支付成功
+		//TODO  支付成功后子单的处理
+		int paymentNoticeResult=0,orderResult = 0;
+		if(tradeState == TradeConstants.WxpayStatus.TRADE_SUCCESS){ 
+			Date now = new Date(); 
+			Long id = paymentNotice.getId();
+			Long orderId = paymentNotice.getOrderId();
+			
+			//TODO 更新支付单的支付状态   
+			boolean payStatus = true; 
+			paymentNoticeResult = this.paymentNoticeManager.paySuccess(id,payStatus, outTradeNo,now);
+			
+			// 更新订单表的支付状态为已支付
+			orderResult = this.orderManager.orderPaySuccess(orderId, userId);
+			this.orderLogManager.addOrderLog(TradeConstants.OrderLog.ALL_PAID, now, orderId, userId, (userId+""));
+					
+			//TODO 
+			// 更新子单的支付状态
+			
+		}
+				
+		boolean module = (orderResult > 0 ? true : false) && (paymentNoticeResult>0 ?true: false);  
+		response = ResponseUtils.getSuccessResponse(module);
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		return ActionEnum.DELETE_ORDER.getActionName();
+	}
+	
+	/**
+	 * 验证支付宝回调的参数
+	 * @return
+	 */
+	public String validateWxPaymentFields(WxPaymentDTO wxPaymentDTO)throws TradeException{
+		if(wxPaymentDTO.getUserId() == null){
+			return "userId is null";
+		}else if(wxPaymentDTO.getTradeNo() == null){
+			return "tradeNo is null";
+		}else if(wxPaymentDTO.getTotalFee() == null){
+			return ("outTradeNo is null");
+		}else if(wxPaymentDTO.getSign() == null){
+			return ("sign is null");
+		}else if(wxPaymentDTO.getToSign() == null){
+			return ("toSign is null");
+		}else if(wxPaymentDTO.getTotalFee() == null){
+			return ("totalFee is null");	
+		}else if(wxPaymentDTO.getTradeState() == null){
+			return ("tradeStatus is null");
+		}
+		return null;
+	}
+}

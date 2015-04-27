@@ -1,0 +1,53 @@
+package com.ve.usercenter.core.service.action.userextra;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.SupplierExtraInfoManager;
+import com.ve.usercenter.core.service.RequestContext;
+import com.ve.usercenter.core.service.UserRequest;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.service.action.Action;
+import com.ve.usercenter.core.service.action.ActionEnum;
+
+/**
+ * 供应商的审核通过
+ * */
+@Service
+public class SupplierIgnoreIdentifiedAction implements Action {
+
+	@Resource
+	private SupplierExtraInfoManager supplierExtraManager;
+
+	@Override
+	public UserResponse execute(RequestContext context) throws UserException {
+		// TODO Auto-generated method stub
+
+		UserResponse response = null;
+
+		UserRequest userRequest = context.getRequest();
+		Long userId = (Long) userRequest.getParam("userId");
+
+		log.info("userId:", userId);
+
+		try {
+			supplierExtraManager.ignoreSupplierIdentity(userId);
+		} catch (UserException e) {
+			return new UserResponse(e.getResponseCode().getCode(),
+					e.getMessage());
+		}
+
+		response = new UserResponse(true);
+
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return ActionEnum.SUPPLIER_IGNORE_IDENTIFIED_ACTION.getActionName();
+	}
+
+}

@@ -1,0 +1,5 @@
+package com.ve.itemcenter.core.exception;
+
+public class DAOException extends Exception {
+
+}

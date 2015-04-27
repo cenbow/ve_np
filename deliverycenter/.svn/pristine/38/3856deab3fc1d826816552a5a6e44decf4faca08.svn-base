@@ -1,0 +1,88 @@
+package com.ve.deliverycenter.core.service.action.express;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.deliverycenter.common.constant.RetCodeEnum;
+import com.ve.deliverycenter.common.dto.express.ExpressDTO;
+import com.ve.deliverycenter.common.qto.express.ExpressQTO;
+import com.ve.deliverycenter.core.domain.BaseDo;
+import com.ve.deliverycenter.core.domain.express.Express;
+import com.ve.deliverycenter.core.service.DeliveryResponse;
+import com.ve.deliverycenter.core.service.action.ActionBase;
+
+@Service
+public class ExpressAction extends ActionBase {
+
+	/**
+	 * 新增快递
+	 * 
+	 * @param expressDTO
+	 * @return
+	 */
+	public DeliveryResponse addExpress(ExpressDTO expressDTO) {
+		// 创建一个DO
+		BaseDo express = new Express();
+		// DTO转换成DO
+		express = trans2Do(expressDTO, express);
+		// 执行新增操作
+		express = add(express);
+		// DO转换成DTO
+		expressDTO = (ExpressDTO) trans2Dto(expressDTO, express);
+		// 返回response对象
+		return getResponse(expressDTO);
+	}
+
+	/**
+	 * 删除快递
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public DeliveryResponse deleteExpress(int id) {
+		// 创建一个DO
+		Express express = new Express();
+		// DO赋值逻辑删除
+		express.setId(id);
+		express.setDeleted(1);
+		// 执行更新操作
+		int row = update(express);
+		// 返回response对象,如果行数为1返回true,不为1返回false
+		if (row == 1) {
+			return getResponse(true);
+		} else {
+			return getResponse(RetCodeEnum.DELETE_ERROR);
+		}
+	}
+
+	/**
+	 * 修改快递
+	 * 
+	 * @param expressDTO
+	 * @return
+	 */
+	public DeliveryResponse updateExpress(ExpressDTO expressDTO) {
+		// 创建一个DO
+		BaseDo express = new Express();
+		// DTO转换成DO
+		express = trans2Do(expressDTO, express);
+		// 执行更新操作
+		int row = update(express);
+		// 返回response对象,如果行数为1返回true,不为1返回false
+		if (row == 1) {
+			return getResponse(true);
+		} else {
+			return getResponse(RetCodeEnum.UPDATE_ERROR);
+		}
+	}
+
+	/**
+	 * 查询快递
+	 * 
+	 * @param expressQTO
+	 * @return
+	 */
+	public DeliveryResponse queryExpress(ExpressQTO expressQTO) {
+		// 根据QTO查询条件进行分页查询
+		return query(expressQTO);
+	}
+}

@@ -1,0 +1,59 @@
+package com.ve.deliverycenter.core.crud.service;
+
+import java.util.List;
+
+import com.ve.deliverycenter.core.crud.dao.CrudDao;
+import com.ve.deliverycenter.core.crud.inf.Crud;
+import com.ve.deliverycenter.core.crud.pojo.BaseObject;
+
+/**
+ * service 基类
+ * 
+ * @author dong.dong
+ */
+public class CrudService implements Crud {
+	private CrudDao crudDao;
+
+	public void setCrudDao(CrudDao crudDao) {
+		this.crudDao = crudDao;
+	}
+
+	public Crud getCrudDao() {
+		return getCrudDao();
+	}
+
+	@Override
+	public Object insert(BaseObject bo) {
+		return getCrudDao().insert(bo);
+	}
+
+	@Override
+	public int update(BaseObject bo) {
+		return getCrudDao().update(bo);
+	}
+
+	@Override
+	public int delete(BaseObject bo) {
+		return getCrudDao().delete(bo);
+	}
+
+	@Override
+	public Object queryForObject(String statementName, Object obj) {
+		return getCrudDao().queryForObject(statementName, obj);
+	}
+
+	@Override
+	public List queryForList(String statementName, Object obj) {
+		return getCrudDao().queryForList(statementName, obj);
+	}
+
+	@Override
+	public Object queryCachedObject(String statementName, Object cacheKey) {
+		return getCrudDao().queryCachedObject(statementName, cacheKey);
+	}
+
+	@Override
+	public List queryCachedList(String statementName, Object cacheKey) {
+		return getCrudDao().queryCachedList(statementName, cacheKey);
+	}
+}

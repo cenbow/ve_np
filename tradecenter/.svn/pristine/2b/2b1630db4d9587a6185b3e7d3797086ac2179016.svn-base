@@ -1,0 +1,15 @@
+package com.ve.tradecenter.core.manager;
+
+import com.ve.tradecenter.core.domain.OrderDO;
+import com.ve.tradecenter.core.exception.TradeException;
+
+public interface OrderManager {
+	
+	/**
+	 * 添加订单接口示例
+	 * @param orderDO
+	 * @return
+	 * @throws TradeException
+	 */
+	public OrderDO addOrder(OrderDO orderDO) throws TradeException;
+}

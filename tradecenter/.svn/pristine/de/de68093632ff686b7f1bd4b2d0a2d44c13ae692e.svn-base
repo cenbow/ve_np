@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans default-autowire="byName">
+	<!-- <bean id="orderDAO" class="com.ve.tradecenter.core.dao.impl.DefaultOrderDAO"/> -->
+	
+	<bean id="cartItemDao" class="com.ve.tradecenter.core.dao.impl.CartItemDaoImpl"/>
+	
+	<bean id="userCartItemDao" class="com.ve.tradecenter.core.dao.impl.UserCartItemDaoImpl"/>
+	
+	<bean id="paymentTypeDao" class="com.ve.tradecenter.core.dao.impl.PaymentTypeDaoImpl"/>
+	
+	<bean id="orderDao" class ="com.ve.tradecenter.core.dao.impl.OrderDaoImpl"/>
+	
+	<bean id="orderSeqDao" class ="com.ve.tradecenter.core.dao.impl.OrderSeqDaoImpl"/>
+	
+	<bean id="orderLogDao" class ="com.ve.tradecenter.core.dao.impl.OrderLogDaoImpl"/>
+	
+	<bean id="paymentNoticeDao" class ="com.ve.tradecenter.core.dao.impl.PaymentNoticeDaoImpl"/>
+	
+	
+</beans>

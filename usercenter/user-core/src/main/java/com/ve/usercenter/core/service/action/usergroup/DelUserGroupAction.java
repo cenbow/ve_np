@@ -1,0 +1,41 @@
+package com.ve.usercenter.core.service.action.usergroup;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.action.ActionEnum;
+import com.ve.usercenter.common.api.UserResponse;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserGroupManager;
+import com.ve.usercenter.core.service.RequestContext;
+import com.ve.usercenter.core.service.UserRequest;
+import com.ve.usercenter.core.service.action.Action;
+
+/**
+ * 
+ * */
+@Service
+public class DelUserGroupAction implements Action {
+
+	@Resource
+	private UserGroupManager userGroupManager;
+
+	@Override
+	public UserResponse execute(RequestContext context) throws UserException {
+
+		UserRequest userRequest = context.getRequest();
+		Integer groupId = (Integer) userRequest.getParam("groupId");
+
+		userGroupManager.delUserGroup(groupId);
+
+		return new UserResponse(true);
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return ActionEnum.DEL_USER_GROUP.getActionName();
+	}
+
+}

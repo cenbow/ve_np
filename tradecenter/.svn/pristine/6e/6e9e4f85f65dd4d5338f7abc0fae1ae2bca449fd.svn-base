@@ -1,0 +1,9 @@
+package com.ve.tradecenter.core.dao;
+
+import com.ve.tradecenter.core.domain.OrderDO;
+import com.ve.tradecenter.core.exception.DAOException;
+import com.ve.tradecenter.core.exception.TradeException;
+
+public interface OrderDao {
+	public Long addOrder(OrderDO orderDO) throws DAOException;
+}

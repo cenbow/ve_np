@@ -1,0 +1,19 @@
+package com.ve.tradecenter.core.dao.impl;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+
+import com.ve.tradecenter.core.dao.PaymentTypeDao;
+import com.ve.tradecenter.core.domain.PaymentTypeDO;
+/**
+ * 支付方式Dao实现类
+ * @author cwr
+ */
+public class PaymentTypeDaoImpl extends SqlMapClientDaoSupport implements PaymentTypeDao {
+	
+	@Override
+	public PaymentTypeDO getPaymentTypeById(Integer paymentId){
+		PaymentTypeDO paymentDO = (PaymentTypeDO)this.getSqlMapClientTemplate().queryForObject("payment_type.getPaymentTypeById", paymentId); 
+		return paymentDO;
+	}
+	
+}

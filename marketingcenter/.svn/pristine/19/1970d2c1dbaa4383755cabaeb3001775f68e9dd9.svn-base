@@ -1,0 +1,85 @@
+package com.ve.marketingcenter.core.manager.coupon.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.marketingcenter.common.constant.ReturnCodeEnum;
+import com.ve.marketingcenter.common.domain.qto.coupon.GrantedCouponQTO;
+import com.ve.marketingcenter.core.domain.coupon.BaseDo;
+import com.ve.marketingcenter.core.domain.coupon.GrantedCoupon;
+import com.ve.marketingcenter.core.exception.MarketingException;
+import com.ve.marketingcenter.core.manager.coupon.BaseManager;
+import com.ve.marketingcenter.core.manager.coupon.GrantedCouponManager;
+
+@Service
+public class GrantedCouponManagerImpl extends BaseManager implements
+		GrantedCouponManager {
+
+	@Override
+	public GrantedCoupon addGrantedCoupon(GrantedCoupon grantedCoupon)
+			throws MarketingException {
+		if (grantedCoupon == null) {
+			throw new MarketingException(ReturnCodeEnum.PARAMETER_NULL.getCode(),
+					"grantedCoupon is null");
+		}
+
+		// 执行新增操作
+		grantedCoupon = (GrantedCoupon) getBaseDao().insert(grantedCoupon);
+
+		return grantedCoupon;
+	}
+
+	@Override
+	public int batchAddGrantedCoupon(List<GrantedCoupon> grantedCouponList)
+			throws MarketingException {
+		if (grantedCouponList == null) {
+			throw new MarketingException(ReturnCodeEnum.PARAMETER_NULL.getCode(),
+					"grantedCouponList is null");
+		}
+		// 执行新增操作
+		getBaseDao().batchInsert("GRANTEDCOUPON.batchAddGrantedCoupon",
+				grantedCouponList);
+		return grantedCouponList.size();
+	}
+
+	@Override
+	public int freezeCoupon(GrantedCoupon grantedCoupon)
+			throws MarketingException {
+		if (grantedCoupon == null) {
+			throw new MarketingException(ReturnCodeEnum.PARAMETER_NULL.getCode(),
+					"grantedCoupon is null");
+		}
+
+		// 执行更新操作
+		int row = getBaseDao().update("GRANTEDCOUPON.freezeCoupon",
+				grantedCoupon);
+		return row;
+	}
+
+	@Override
+	public int updateCouponStatus(GrantedCoupon grantedCoupon)
+			throws MarketingException {
+		if (grantedCoupon == null) {
+			throw new MarketingException(ReturnCodeEnum.PARAMETER_NULL.getCode(),
+					"grantedCoupon is null");
+		}
+
+		// 执行更新操作
+		int row = getBaseDao().update("GRANTEDCOUPON.updateCouponStatus",
+				grantedCoupon);
+		return row;
+	}
+
+	@Override
+	public List queryGrantedCoupon(GrantedCouponQTO grantedCouponQTO)
+			throws MarketingException {
+		if (grantedCouponQTO == null) {
+			throw new MarketingException(ReturnCodeEnum.PARAMETER_NULL.getCode(),
+					"grantedCouponQTO is null");
+		}
+		List<BaseDo> grantedCouponList = query(grantedCouponQTO);
+		return grantedCouponList;
+	}
+
+}

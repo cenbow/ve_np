@@ -1,0 +1,251 @@
+package com.ve.usercenter.core.manager.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.constant.ResponseCode;
+import com.ve.usercenter.common.dto.UserGroupDTO;
+import com.ve.usercenter.core.dao.UserGroupDao;
+import com.ve.usercenter.core.domain.UserGroupDO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserGroupManager;
+
+@Service
+public class UserGroupManagerImpl implements UserGroupManager {
+
+	@Resource
+	private UserGroupDao userGroupDao;
+
+	@Override
+	public UserGroupDTO addUserGroup(UserGroupDTO userGroupDto)
+			throws UserException {
+		// TODO Auto-generated method stub
+		Long maxIntegral = userGroupDto.getMaxIntegral();
+		Long minIntegral = userGroupDto.getMinIntegral();
+		Integer discount = userGroupDto.getDiscount();
+		UserGroupDTO groupDto = null;
+		UserGroupDO userGroupDo = null;
+
+		if (null == userGroupDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"userGroupDto is null");
+		}
+
+		if (null == userGroupDto.getName()) {
+			throw new UserException(ResponseCode.P_PARAM_NULL, "name is null");
+		}
+
+		if (null == userGroupDto.getGroupNo()) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"groupNo is null");
+		}
+
+		if (null == maxIntegral) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"maxIntegral is null");
+		}
+
+		if (maxIntegral > 888888) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"maxIntegral can't greater than 888888");
+		}
+
+		if (discount != null) {
+			if (discount < 0) {
+				throw new UserException(ResponseCode.P_PARAM_ERROR,
+						"discount can't less than 0");
+			}
+			if (discount > 100) {
+				throw new UserException(ResponseCode.P_PARAM_ERROR,
+						"discount can't greater than 100");
+			}
+		}
+
+		// 判断指定的等级号是否存在
+		userGroupDo = userGroupDao.getUserGroupByNo(userGroupDto.getGroupNo());
+		if (userGroupDo != null) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"groupNo is exist");
+		}
+
+		// 查询当前max_integral最大的值
+		Long max = userGroupDao.getMaxIntegralValue();
+
+		if (null == max) {
+			max = 0L;
+		}
+
+		userGroupDto.setMinIntegral(max);
+
+		// 当前的max_integral大于传入的max_integral则错误
+		if (max > userGroupDto.getMaxIntegral()) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"the maximum current greater than the maximum incoming");
+		}
+
+		userGroupDo = new UserGroupDO();
+		BeanUtils.copyProperties(userGroupDto, userGroupDo);
+
+		Integer id = userGroupDao.addUserGroup(userGroupDo);
+		userGroupDto = getUserGroup(id);
+
+		return userGroupDto;
+	}
+
+	@Override
+	public UserGroupDTO compareMinIntegral(Integer minIntegral)
+			throws UserException {
+		// TODO Auto-generated method stub
+
+		UserGroupDO userGroupDo = userGroupDao.compareMinIntegral(minIntegral);
+		UserGroupDTO userGroupDto = null;
+		if (userGroupDo != null) {
+			userGroupDto = new UserGroupDTO();
+			BeanUtils.copyProperties(userGroupDo, userGroupDto);
+		}
+		return userGroupDto;
+	}
+
+	@Override
+	public UserGroupDTO getUserGroup(Integer id) throws UserException {
+		// TODO Auto-generated method stub
+		UserGroupDO userGroupDo = null;
+		UserGroupDTO userGroupDto = null;
+
+		if (null == id) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"minIntegral less than now maxIntegral");
+		}
+
+		userGroupDo = userGroupDao.getUserGroup(id);
+		if (userGroupDo != null) {
+			userGroupDto = new UserGroupDTO();
+			BeanUtils.copyProperties(userGroupDo, userGroupDto);
+		}
+		return userGroupDto;
+	}
+
+	@Override
+	public int delUserGroup(Integer groupId) throws UserException {
+		// TODO Auto-generated method stub
+
+		UserGroupDTO userGroupDto = null;
+
+		if (null == groupId) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"groupId is null");
+		}
+
+		// 等到当前等级最大的用户组
+		Integer max = userGroupDao.getMaxGroupNo();
+
+		userGroupDto = getUserGroup(groupId);
+		if (null == userGroupDto) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR,
+					"userGroup not exist");
+		}
+
+		if (null == max) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR,
+					"user_group table no record");
+		}
+
+		if (userGroupDto.getGroupNo() < max) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR,
+					"delete error,tot the largest group_no");
+		}
+
+		int result = userGroupDao.delUserGroup(groupId);
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "delete error");
+		}
+		return result;
+	}
+
+	@Override
+	public int updateUserGroup(UserGroupDTO userGroupDto) throws UserException {
+		// TODO Auto-generated method stub
+
+		Integer discount = userGroupDto.getDiscount();
+
+		if (null == userGroupDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"userGroupDto is null");
+		}
+
+		if (discount != null) {
+			if (discount < 0) {
+				throw new UserException(ResponseCode.P_PARAM_ERROR,
+						"discount can't less than 0");
+			}
+			if (discount > 100) {
+				throw new UserException(ResponseCode.P_PARAM_ERROR,
+						"discount can't greater than 100");
+			}
+		}
+
+		// 查询出最小的等级差的用户组
+
+		UserGroupDO searchGroup = userGroupDao.getMiniDiffer(userGroupDto
+				.getId());
+
+		UserGroupDO userGroupDo = new UserGroupDO();
+		BeanUtils.copyProperties(userGroupDto, userGroupDo);
+
+		int result = userGroupDao.updateUserGroup(userGroupDo);
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public List<UserGroupDTO> queryUserGroup() throws UserException {
+		// TODO Auto-generated method stub
+
+		List<UserGroupDO> groupDos = userGroupDao.queryUserGroup();
+		List<UserGroupDTO> groupDtos = new ArrayList<UserGroupDTO>();
+
+		if (groupDos != null) {
+			for (UserGroupDO groupDo : groupDos) {
+				UserGroupDTO c = new UserGroupDTO();
+				BeanUtils.copyProperties(groupDo, groupDo);
+				groupDtos.add(c);
+			}
+
+		}
+
+		return groupDtos;
+	}
+
+	@Override
+	public UserGroupDTO getUserGroupByIntegral(Long integral)
+			throws UserException {
+		// TODO Auto-generated method stub
+		if (null == integral) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"integral is null");
+		}
+
+		if (integral < 0) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"integral less than 0");
+		}
+
+		UserGroupDO userGroupDo = userGroupDao.getUserGroupByIntegral(integral);
+
+		UserGroupDTO userGroupDto = new UserGroupDTO();
+
+		if (userGroupDo != null) {
+			BeanUtils.copyProperties(userGroupDo, userGroupDto);
+		}
+
+		return userGroupDto;
+	}
+}

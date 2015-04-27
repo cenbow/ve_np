@@ -1,0 +1,146 @@
+package com.ve.itemcenter.core.dao.impl;
+
+import java.util.List;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+
+import com.ve.itemcenter.common.domain.ItemBrandQTO;
+import com.ve.itemcenter.core.dao.ItemBrandDAO;
+import com.ve.itemcenter.core.domain.ItemBrandDO;
+
+public class ItemBrandDAOImpl extends SqlMapClientDaoSupport implements
+		ItemBrandDAO {
+
+	public ItemBrandDAOImpl() {
+		super();
+	}
+
+	public Long addItemBrand(ItemBrandDO itemBrandDO) {
+		itemBrandDO.setIsDeleted(0);
+		Long newInsertedId = (Long) getSqlMapClientTemplate().insert(
+				"ItemBrandDAO.addItemBrand", itemBrandDO);
+		return newInsertedId;
+	}
+
+	public ItemBrandDO getItemBrand(Long id) {
+		ItemBrandDO record = (ItemBrandDO) getSqlMapClientTemplate()
+				.queryForObject("ItemBrandDAO.getItemBrand", id);
+		return record;
+	}
+
+	public int updateItemBrand(ItemBrandDO itemBrandDO) {
+		int rows = getSqlMapClientTemplate().update(
+				"ItemBrandDAO.updateItemBrand", itemBrandDO);
+		return rows;
+	}
+
+	public List<ItemBrandDO> queryItemBrandList(ItemBrandQTO itemBrandQTO) {
+		List<ItemBrandDO> list = getSqlMapClientTemplate().queryForList(
+				"ItemBrandDAO.queryItemBrandList", itemBrandQTO);
+		return list;
+	}
+
+	// public int countByExample(ItemBrandDOExample example) {
+	// Integer count = (Integer) getSqlMapClientTemplate().queryForObject(
+	// "item_brand.countByExample", example);
+	// return count;
+	// }
+	//
+	// public int deleteByExample(ItemBrandDOExample example) {
+	// int rows = getSqlMapClientTemplate().delete(
+	// "item_brand.deleteByExample", example);
+	// return rows;
+	// }
+	//
+	// public int deleteByPrimaryKey(Integer id) {
+	// ItemBrandDO _key = new ItemBrandDO();
+	// _key.setId(id);
+	// int rows = getSqlMapClientTemplate().delete(
+	// "item_brand.deleteByPrimaryKey", _key);
+	// return rows;
+	// }
+	//
+	//
+	// public void insertSelective(ItemBrandDO record) {
+	// getSqlMapClientTemplate().insert("item_brand.insertSelective", record);
+	// }
+	//
+	// @SuppressWarnings("unchecked")
+	// public List<ItemBrandDO> selectByExampleWithBLOBs(ItemBrandDOExample
+	// example) {
+	// List<ItemBrandDO> list = getSqlMapClientTemplate().queryForList(
+	// "item_brand.selectByExampleWithBLOBs", example);
+	// return list;
+	// }
+	//
+	// @SuppressWarnings("unchecked")
+	// public List<ItemBrandDO> selectByExampleWithoutBLOBs(
+	// ItemBrandDOExample example) {
+	// List<ItemBrandDO> list = getSqlMapClientTemplate().queryForList(
+	// "item_brand.selectByExample", example);
+	// return list;
+	// }
+	//
+	// public ItemBrandDO selectByPrimaryKey(Integer id) {
+	// ItemBrandDO _key = new ItemBrandDO();
+	// _key.setId(id);
+	// ItemBrandDO record = (ItemBrandDO) getSqlMapClientTemplate()
+	// .queryForObject("item_brand.selectByPrimaryKey", _key);
+	// return record;
+	// }
+	//
+	// public int updateByExampleSelective(ItemBrandDO record,
+	// ItemBrandDOExample example) {
+	// UpdateByExampleParms parms = new UpdateByExampleParms(record, example);
+	// int rows = getSqlMapClientTemplate().update(
+	// "item_brand.updateByExampleSelective", parms);
+	// return rows;
+	// }
+	//
+	// public int updateByExampleWithBLOBs(ItemBrandDO record,
+	// ItemBrandDOExample example) {
+	// UpdateByExampleParms parms = new UpdateByExampleParms(record, example);
+	// int rows = getSqlMapClientTemplate().update(
+	// "item_brand.updateByExampleWithBLOBs", parms);
+	// return rows;
+	// }
+	//
+	// public int updateByExampleWithoutBLOBs(ItemBrandDO record,
+	// ItemBrandDOExample example) {
+	// UpdateByExampleParms parms = new UpdateByExampleParms(record, example);
+	// int rows = getSqlMapClientTemplate().update(
+	// "item_brand.updateByExample", parms);
+	// return rows;
+	// }
+	//
+	// public int updateByPrimaryKeySelective(ItemBrandDO record) {
+	// int rows = getSqlMapClientTemplate().update(
+	// "item_brand.updateByPrimaryKeySelective", record);
+	// return rows;
+	// }
+	//
+	// public int updateByPrimaryKeyWithBLOBs(ItemBrandDO record) {
+	// int rows = getSqlMapClientTemplate().update(
+	// "item_brand.updateByPrimaryKeyWithBLOBs", record);
+	// return rows;
+	// }
+	//
+	// public int updateByPrimaryKeyWithoutBLOBs(ItemBrandDO record) {
+	// int rows = getSqlMapClientTemplate().update(
+	// "item_brand.updateByPrimaryKey", record);
+	// return rows;
+	// }
+	//
+	// protected static class UpdateByExampleParms extends ItemBrandDOExample {
+	// private Object record;
+	//
+	// public UpdateByExampleParms(Object record, ItemBrandDOExample example) {
+	// super(example);
+	// this.record = record;
+	// }
+	//
+	// public Object getRecord() {
+	// return record;
+	// }
+	// }
+}

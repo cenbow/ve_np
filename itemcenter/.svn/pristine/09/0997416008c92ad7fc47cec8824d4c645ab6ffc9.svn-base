@@ -1,0 +1,26 @@
+import javax.annotation.Resource;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.ve.deliverycenter.client.FeeClient;
+import com.ve.deliverycenter.common.api.Response;
+import com.ve.deliverycenter.common.qto.fee.DeliveryFeeQTO;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:applicationContext.xml" })
+public class Atest {
+	@Resource
+	FeeClient feeClient;
+
+	@Test
+	public void test() {
+		System.out.println(1);
+		Response<Long> response=feeClient.queryDeliveryFee(new DeliveryFeeQTO());
+		System.out.println(response.getModule());
+		System.out.println(2);
+
+	}
+}

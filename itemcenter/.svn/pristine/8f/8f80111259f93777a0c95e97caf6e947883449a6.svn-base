@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="global_property">
+	<typeAlias alias="GlobalPropertyDO" type="com.ve.itemcenter.core.domain.GlobalPropertyDO" />
+	<typeAlias alias="GlobalPropertyDTO"	type="com.ve.itemcenter.common.domain.GlobalPropertyDTO" />
+	<typeAlias alias="GlobalPropertyQTO"	type="com.ve.itemcenter.common.domain.GlobalPropertyQTO" />
+
+	<resultMap class="GlobalPropertyDO" id="GlobalPropertyDOResult">
+		<result column="id" property="id"  />
+	    <result column="property_name" property="propertyName"  />
+	    <result column="property_type" property="propertyType"  />
+	    <result column="is_deleted" property="isDeleted"  />
+	    <result column="gmt_created" property="gmtCreated"  />
+	    <result column="gmt_modified" property="gmtModified"  />
+	</resultMap>
+
+	<sql id="GlobalPropertyFields">
+		id, property_name, property_type, is_deleted, gmt_created, gmt_modified
+	</sql>
+
+	<insert id="GlobalPropertyDAO.addGlobalProperty" parameterClass="GlobalPropertyDO">
+		insert into global_property(
+		<include refid="GlobalPropertyFields" />
+		)values(
+		#id#,
+		#propertyName#,
+		#propertyType#,
+		#isDeleted#,
+		now(),
+		now()
+		)
+		<selectKey keyProperty="id" resultClass="Long">
+			SELECT
+			LAST_INSERT_ID();
+		</selectKey>
+	</insert>
+
+	<sql id="global_property_Base_Column_List">
+		id, property_name, property_type, is_deleted, gmt_created, gmt_modified
+	</sql>
+	
+	<update id="GlobalPropertyDAO.updateGlobalProperty" parameterClass="GlobalPropertyDO">
+		update global_property
+		set gmt_modified=now()
+		<dynamic prepend="">
+			<isNotNull prepend="," property="propertyName">
+				property_name = #propertyName#
+			</isNotNull>
+			<isNotNull prepend="," property="propertyType">
+				property_type = #propertyType#
+			</isNotNull>
+			<isNotNull prepend="," property="isDeleted">
+				is_deleted = #isDeleted#
+			</isNotNull>
+		</dynamic>
+		where id = #id# and is_deleted=0
+	</update>
+	
+	<select id="GlobalPropertyDAO.getGlobalProperty" resultMap="GlobalPropertyDOResult"
+		parameterClass="Long">
+		select
+		<include refid="global_property_Base_Column_List" />
+		from global_property
+		where id = #id# and is_deleted=0
+	</select>
+	
+	<select id="GlobalPropertyDAO.queryGlobalProperty" resultMap="GlobalPropertyDOResult"
+	parameterClass="GlobalPropertyQTO">
+	select
+		<include refid="global_property_Base_Column_List" />
+		from global_property where is_deleted=0
+		 limit #currentPage#,#pageSize#
+	</select>
+</sqlMap>

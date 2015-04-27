@@ -1,0 +1,60 @@
+package com.ve.itemcenter.core.service.action.brand;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.ErrorCode;
+import com.ve.itemcenter.common.constant.ResCodeNum;
+import com.ve.itemcenter.common.domain.ItemBrandDTO;
+import com.ve.itemcenter.core.domain.ItemBrandDO;
+import com.ve.itemcenter.core.exception.ItemException;
+import com.ve.itemcenter.core.manager.ItemBrandManager;
+import com.ve.itemcenter.core.service.ItemRequest;
+import com.ve.itemcenter.core.service.ItemResponse;
+import com.ve.itemcenter.core.service.RequestContext;
+import com.ve.itemcenter.core.service.action.Action;
+import com.ve.itemcenter.core.service.action.ActionEnum;
+import com.ve.itemcenter.core.util.ItemUtil;
+import com.ve.itemcenter.core.util.ResponseUtil;
+
+
+
+/**
+ * 
+ * @author chen.huang
+ *
+ */
+@Service
+public class AddItemBrandAciton implements Action {
+	@Resource
+	private ItemBrandManager itemBrandManager;
+
+	@Override
+	public ItemResponse execute(RequestContext context) throws ItemException {
+		ItemRequest request = context.getRequest();
+		// 验证DTO是否为空
+		if (request.getParam("itemBrandDTO") == null) {
+			return ResponseUtil.returnErrorResponse(ResCodeNum.PARAM_E_MISSING);
+		}
+		
+		ItemBrandDTO itemBrandDTO = (ItemBrandDTO) request
+				.getParam("itemBrandDTO");
+		if (!itemBrandManager.verifyItemBrandDTOProperty(itemBrandDTO)) {
+			return ResponseUtil.returnErrorResponse(ResCodeNum.PARAM_E_INVALID);
+		}
+
+		ItemBrandDO itemBrandDO = new ItemBrandDO();
+		ItemUtil.copyProperties(itemBrandDTO, itemBrandDO);// DTO转DO
+		// 新增加的itemBrandDO
+		ItemBrandDO newItemBrandDO = itemBrandManager.addItemBrand(itemBrandDO);
+		ItemUtil.copyProperties(newItemBrandDO, itemBrandDTO);// DO转DTO
+		ItemResponse response = new ItemResponse(itemBrandDTO);
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		return ActionEnum.ADD_ITEMBRAND.getActionName();
+	}
+}

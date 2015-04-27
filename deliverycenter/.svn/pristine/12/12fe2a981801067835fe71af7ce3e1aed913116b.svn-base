@@ -1,0 +1,291 @@
+package com.ve.deliverycenter.core.util.web;
+
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.Servlet;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.jsp.JspFactory;
+import javax.servlet.jsp.PageContext;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts2.ServletActionContext;
+import org.apache.struts2.dispatcher.StrutsResultSupport;
+import org.apache.struts2.views.JspSupportServlet;
+import org.apache.struts2.views.velocity.VelocityManager;
+import org.apache.velocity.Template;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.context.Context;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.tools.view.ToolboxManager;
+import org.apache.velocity.tools.view.context.ChainedContext;
+
+import com.opensymphony.xwork2.ActionContext;
+import com.opensymphony.xwork2.ActionInvocation;
+import com.opensymphony.xwork2.inject.Inject;
+import com.opensymphony.xwork2.util.ValueStack;
+
+/**
+ * 
+ * @author dongdong
+ *
+ */
+public class VelocityLayoutResult extends StrutsResultSupport {
+
+	private static final long serialVersionUID = -8451282275698861098L;
+
+	private static final Log log = LogFactory
+			.getLog(VelocityLayoutResult.class);
+
+	public static final String KEY_SCREEN_CONTENT = "screen_content";
+	public static final String KEY_LAYOUT = "layout";
+	public static final String PROPERTY_DEFAULT_LAYOUT = "tools.view.servlet.layout.default.template";
+	public static final String PROPERTY_LAYOUT_DIR = "tools.view.servlet.layout.directory";
+	public static final String PROPERTY_INPUT_ENCODING = "input.encoding";
+	public static final String PROPERTY_OUTPUT_ENCODING = "output.encoding";
+	public static final String PROPERTY_CONTENT_TYPE = "default.contentType";
+
+	// private String defaultEncoding;
+	protected VelocityManager velocityManager;
+	protected String defaultLayout;
+	protected String layoutDir;
+	protected String inputEncoding;
+	protected String outputEncoding;
+	protected String contentType;
+
+	private boolean controlEnable = false; // 是否使用control
+
+	public VelocityLayoutResult() {
+		super();
+	}
+
+	public VelocityLayoutResult(String location) {
+		super(location);
+	}
+
+	// @Inject(StrutsConstants.STRUTS_I18N_ENCODING)
+	// public void setDefaultEncoding(String val) {
+	// defaultEncoding = val;
+	// }
+
+	@Inject
+	public void setVelocityManager(VelocityManager mgr) {
+		this.velocityManager = mgr;
+	}
+
+	@Override
+	public void doExecute(String finalLocation, ActionInvocation invocation) {
+		long startTime = System.currentTimeMillis();
+		ValueStack stack = ActionContext.getContext().getValueStack();
+
+		HttpServletRequest request = ServletActionContext.getRequest();
+		HttpServletResponse response = ServletActionContext.getResponse();
+		JspFactory jspFactory = null;
+		ServletContext servletContext = ServletActionContext
+				.getServletContext();
+		Servlet servlet = JspSupportServlet.jspSupportServlet;
+
+		velocityManager.init(servletContext);
+
+		boolean usedJspFactory = false;
+		PageContext pageContext = (PageContext) ActionContext.getContext().get(
+				ServletActionContext.PAGE_CONTEXT);
+
+		if (pageContext == null && servlet != null) {
+			jspFactory = JspFactory.getDefaultFactory();
+			pageContext = jspFactory.getPageContext(servlet, request, response,
+					null, true, 8192, true);
+			ActionContext.getContext().put(ServletActionContext.PAGE_CONTEXT,
+					pageContext);
+			usedJspFactory = true;
+		}
+
+		try {
+			VelocityEngine engine = this.velocityManager.getVelocityEngine();
+			this.defaultLayout = (String) engine
+					.getProperty(PROPERTY_DEFAULT_LAYOUT);
+			this.layoutDir = (String) engine.getProperty(PROPERTY_LAYOUT_DIR);
+			if (!(this.layoutDir.endsWith("/"))) {
+				this.layoutDir += '/';
+			}
+
+			if (!(this.layoutDir.startsWith("/"))) {
+				this.layoutDir = "/" + this.layoutDir;
+			}
+			defaultLayout = layoutDir + defaultLayout;
+
+			this.inputEncoding = ((String) engine
+					.getProperty(PROPERTY_INPUT_ENCODING));
+			this.outputEncoding = ((String) engine
+					.getProperty(PROPERTY_OUTPUT_ENCODING));
+			this.contentType = ((String) engine
+					.getProperty(PROPERTY_CONTENT_TYPE));
+
+			Template t = getTemplate(stack, engine, invocation, finalLocation,
+					outputEncoding);
+
+			Context context = createContext(velocityManager, stack, request,
+					response, finalLocation);
+
+			if (controlEnable) {
+				// init control with toolbox if exists,add by robin
+				ToolboxManager toolboxManager = velocityManager
+						.getToolboxManager();
+				Map toolboxData = null;
+				if (toolboxManager != null) {
+					ChainedContext chainedContext = (ChainedContext) context;
+					toolboxData = chainedContext.getToolbox();
+				}
+				// ControlTool control = new ControlTool(toolboxData,
+				// initVelocityPropertiesForControl(engine));
+				// context.put(VelocityContants.CONTROL_NAME, control);
+			}
+
+			StringWriter stringWriter = new StringWriter();
+			t.merge(context, stringWriter);
+
+			context.put(KEY_SCREEN_CONTENT, stringWriter.toString());
+
+			Object obj = context.get(KEY_LAYOUT);
+			String layout = (obj == null) ? null : obj.toString();
+			if (layout == null) {
+				layout = defaultLayout;
+			} else {
+				layout = layoutDir + layout;
+			}
+
+			Template layoutVm = null;
+			try {
+				layoutVm = getTemplate(stack, engine, invocation, layout,
+						inputEncoding);
+			} catch (Exception e) {
+				log.error("VelocityLayoutResult: Can't load layout \"" + layout
+						+ "\": " + e);
+
+				if (!layout.equals(defaultLayout)) {
+					layoutVm = getTemplate(stack, engine, invocation,
+							defaultLayout, inputEncoding);
+				}
+			}
+
+			Writer writer = new OutputStreamWriter(response.getOutputStream(),
+					outputEncoding);
+
+			if (this.outputEncoding != null && this.contentType != null) {
+				this.contentType = this.contentType + ";charset="
+						+ this.outputEncoding;
+				response.setContentType(contentType);
+			}
+
+			layoutVm.merge(context, writer);
+			writer.flush();
+			// writer.close();
+		} catch (IOException e1) {
+			log.error(e1.getMessage(), e1);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		} finally {
+			if (usedJspFactory) {
+				jspFactory.releasePageContext(pageContext);
+			}
+		}
+
+	}
+
+	/**
+	 * Retrieve the content type for this template.
+	 * <p/>
+	 * People can override this method if they want to provide specific content
+	 * types for specific templates (eg text/xml).
+	 * 
+	 * @return The content type associated with this template (default
+	 *         "text/html")
+	 */
+	protected String getContentType(String templateLocation) {
+		return "text/html";
+	}
+
+	/**
+	 * Given a value stack, a Velocity engine, and an action invocation, this
+	 * method returns the appropriate Velocity template to render.
+	 * 
+	 * @param stack
+	 *            the value stack to resolve the location again (when parse
+	 *            equals true)
+	 * @param velocity
+	 *            the velocity engine to process the request against
+	 * @param invocation
+	 *            an encapsulation of the action execution state.
+	 * @param location
+	 *            the location of the template
+	 * @param encoding
+	 *            the charset encoding of the template
+	 * @return the template to render
+	 * @throws Exception
+	 *             when the requested template could not be found
+	 */
+	protected Template getTemplate(ValueStack stack, VelocityEngine velocity,
+			ActionInvocation invocation, String location, String encoding)
+			throws Exception {
+		if (!location.startsWith("/")) {
+			location = invocation.getProxy().getNamespace() + "/" + location;
+		}
+
+		Template template = velocity.getTemplate(location, encoding);
+
+		return template;
+	}
+
+	/**
+	 * Creates the VelocityContext that we'll use to render this page.
+	 * 
+	 * @param velocityManager
+	 *            a reference to the velocityManager to use
+	 * @param stack
+	 *            the value stack to resolve the location against (when parse
+	 *            equals true)
+	 * @param location
+	 *            the name of the template that is being used
+	 * @return the a minted Velocity context.
+	 */
+	protected Context createContext(VelocityManager velocityManager,
+			ValueStack stack, HttpServletRequest request,
+			HttpServletResponse response, String location) {
+		return velocityManager.createContext(stack, request, response);
+	}
+
+	private Map<String, Object> initVelocityPropertiesForControl(
+			VelocityEngine engine) {
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put(RuntimeConstants.FILE_RESOURCE_LOADER_PATH,
+				engine.getProperty(RuntimeConstants.FILE_RESOURCE_LOADER_PATH));
+		properties
+				.put(RuntimeConstants.FILE_RESOURCE_LOADER_CACHE,
+						engine.getProperty(RuntimeConstants.FILE_RESOURCE_LOADER_CACHE));
+		properties.put("file.resource.loader.modificationCheckInterval", engine
+				.getProperty("file.resource.loader.modificationCheckInterval"));
+		properties.put("file.resource.loader.class",
+				engine.getProperty("file.resource.loader.class"));
+		properties.put("eventhandler.referenceinsertion.class",
+				engine.getProperty("eventhandler.referenceinsertion.class"));
+		properties.put("eventhandler.escape.html.nomatch",
+				engine.getProperty("eventhandler.escape.html.nomatch"));
+		return properties;
+	}
+
+	public boolean isControlEnable() {
+		return controlEnable;
+	}
+
+	public void setControlEnable(boolean controlEnable) {
+		this.controlEnable = controlEnable;
+	}
+
+}

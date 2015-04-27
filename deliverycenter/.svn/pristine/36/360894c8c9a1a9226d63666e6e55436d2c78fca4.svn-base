@@ -1,0 +1,34 @@
+package com.ve.deliverycenter.core.service.action;
+
+public enum ActionEnum {
+	/************************************ 订单相关操作接口 ********************************************/
+	/**
+	 * 添加订单
+	 */
+	ADD_ORDER("addOrder"),
+
+	/************************************** 购物车相关接口 *******************************************/
+	/**
+	 * 购物车相关接口
+	 */
+	CLEAR_CART("clearCart");
+
+	private String actionName;
+
+	private ActionEnum(String actionName) {
+		this.actionName = actionName;
+	}
+
+	public static ActionEnum getActionEnum(String actionName) {
+		for (ActionEnum ae : ActionEnum.values()) {
+			if (ae.actionName.equals(actionName)) {
+				return ae;
+			}
+		}
+		return null;
+	}
+
+	public String getActionName() {
+		return actionName;
+	}
+}

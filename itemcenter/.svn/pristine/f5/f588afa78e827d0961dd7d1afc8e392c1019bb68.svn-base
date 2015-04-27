@@ -1,0 +1,44 @@
+package com.ve.itemcenter.core.dao.impl;
+
+import java.util.List;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.domain.SkuPropertyTmplQTO;
+import com.ve.itemcenter.core.dao.SkuPropertyTmplDAO;
+import com.ve.itemcenter.core.domain.SkuPropertyTmplDO;
+
+@Service
+public class SkuPropertyTmplDAOImpl extends SqlMapClientDaoSupport implements SkuPropertyTmplDAO {
+
+	public SkuPropertyTmplDAOImpl() {
+		super();
+	}
+
+	public Long addSkuPropertyTmpl(SkuPropertyTmplDO skuPropertyTmplDO) {
+		skuPropertyTmplDO.setIsDeleted(DBConst.UN_DELETED.getCode());
+		Long newInsertedId = (Long) getSqlMapClientTemplate()
+				.insert("SkuPropertyTmplDAO.addSkuPropertyTmpl", skuPropertyTmplDO);
+		return newInsertedId;
+	}
+
+	public SkuPropertyTmplDO getSkuPropertyTmpl(Long id) {
+		SkuPropertyTmplDO record = (SkuPropertyTmplDO) getSqlMapClientTemplate()
+				.queryForObject("SkuPropertyTmplDAO.getSkuPropertyTmpl", id);
+		return record;
+	}
+
+	public int updateSkuPropertyTmpl(SkuPropertyTmplDO skuPropertyTmplDO) {
+		int rows = getSqlMapClientTemplate().update("SkuPropertyTmplDAO.updateSkuPropertyTmpl", skuPropertyTmplDO);
+		return rows;
+	}
+
+	public List<SkuPropertyTmplDO> querySkuPropertyTmpl(SkuPropertyTmplQTO skuPropertyTmplQTO) {
+		List<SkuPropertyTmplDO> list = getSqlMapClientTemplate()
+				.queryForList("SkuPropertyTmplDAO.querySkuPropertyTmpl", skuPropertyTmplQTO);
+		return list;
+	}
+
+}

@@ -1,0 +1,75 @@
+package com.ve.usercenter.core.consignee;
+
+import javax.annotation.Resource;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.ve.usercenter.common.action.ActionEnum;
+import com.ve.usercenter.common.api.BaseRequest;
+import com.ve.usercenter.common.api.Request;
+import com.ve.usercenter.common.api.Response;
+import com.ve.usercenter.common.api.UserService;
+import com.ve.usercenter.common.dto.ConsigneeDTO;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:applicationContext.xml" })
+public class UpdateConsigneeTest {
+
+	@Resource
+	private UserService userService;
+
+	/**
+	 * 修改收货地址 测试结果：正确修改
+	 * */
+	@Test
+	public void test1() {
+		Request request = new BaseRequest();
+		ConsigneeDTO consigneeDto = new ConsigneeDTO();
+		consigneeDto.setId(9L);
+		consigneeDto.setUserId(12L);
+		consigneeDto.setCountry(1);
+		consigneeDto.setProvince(3);
+		consigneeDto.setCity(4);
+		consigneeDto.setArea(4);
+		consigneeDto.setIsDefault(true);
+		consigneeDto.setConsignee("老三");
+		consigneeDto.setAddress("文三路华星时代广场1206");
+		consigneeDto.setMobileNo("13569874562");
+		consigneeDto.setRemark("一个藤上7个瓜");
+		request.setParam("consigneeDTO", consigneeDto);
+		request.setCommand(ActionEnum.UPDATE_CONSIGNEE.getActionName());
+
+		Response response = userService.execute(request);
+	}
+
+	/**
+	 * 手机格式错误条件修改手机地址 测试结果：mobile format error
+	 * */
+	@Test
+	public void test2() {
+		Request request = new BaseRequest();
+		ConsigneeDTO consigneeDto = new ConsigneeDTO();
+		consigneeDto.setId(9L);
+		consigneeDto.setUserId(12L);
+		consigneeDto.setCountry(1);
+		consigneeDto.setProvince(3);
+		consigneeDto.setCity(4);
+		consigneeDto.setArea(4);
+		consigneeDto.setIsDefault(true);
+		consigneeDto.setConsignee("老三");
+		consigneeDto.setAddress("文三路华星时代广场1206");
+		consigneeDto.setMobileNo("1356987452");
+		consigneeDto.setRemark("一个藤上7个瓜");
+		request.setParam("consigneeDTO", consigneeDto);
+		request.setCommand(ActionEnum.UPDATE_CONSIGNEE.getActionName());
+
+		Response response = userService.execute(request);
+	}
+
+	/**
+	 * 
+	 */
+}

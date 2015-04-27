@@ -1,0 +1,251 @@
+package com.ve.usercenter.core.manager.impl;
+
+import java.util.Date;
+
+import javax.annotation.Resource;
+
+import org.springframework.beans.BeanUtils;
+
+import com.ve.usercenter.common.constant.ErrorCode;
+import com.ve.usercenter.common.constant.ResponseCode;
+import com.ve.usercenter.common.dto.UserDTO;
+import com.ve.usercenter.common.qto.UserQTO;
+import com.ve.usercenter.core.dao.UserDao;
+import com.ve.usercenter.core.domain.UserDO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserManager;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.util.UserUtil;
+
+
+
+public class UserManagerImpl implements UserManager{
+
+	@Resource
+	private UserDao userDao;
+	@Resource
+	private UserManager userManager;
+
+	public UserDO addUser(UserDTO userDto) throws UserException {
+		// TODO Auto-generated method stub
+		
+		UserDO userDo = null;
+		UserResponse response = null;
+		
+		userDto.setGmtModified(new Date());
+		userDto.setGmtCreated(new Date());
+		
+		//判断用户的数据是否合法
+		ResponseCode responseCode = UserUtil.userInfoIsLegal(userDto);
+		
+		if(null!=responseCode){
+			throw new UserException(responseCode);
+		}
+		
+		//判断用户名是否被注册
+		String name = userDto.getName();
+		if(name!=null){
+			userDo = userManager.getUserByName(name);
+			if(null!=userDo){
+				throw new UserException(ResponseCode.NAME_ALREADY_REG);
+			}
+		}
+			
+		//判断邮箱是否被注册
+		String email = userDto.getEmail();	
+		if(null!=email){
+			userDo = userManager.getUserByEmail(email);
+			if(null!=userDo){
+				throw new UserException(ResponseCode.EMAIL_ALREADY_REG); 
+			}
+		}	
+				
+		//判断手机是否被注册
+		String mobile = userDto.getmPhoneNo();
+		if(null!=mobile){
+			userDo = userManager.getUserByMobile(mobile);
+			if(null!=userDo){
+				throw new UserException(ResponseCode.MOBILE_ALREADY_REG);
+			}
+		}
+		
+		userDo = new UserDO();
+		BeanUtils.copyProperties(userDto, userDo);
+		Long userId = userDao.addUser(userDo);	
+		
+		userDo = userManager.getUserById(userId);
+		
+		return userDo;
+	}
+
+	@Override
+	public UserDO getUserByName(String name) throws UserException {
+		
+		if(null==name){
+			throw new UserException(ResponseCode.NAME_AND_PWD_IS_NULL);
+		}
+		UserDO userDo = userDao.getUserByName(name);
+		
+		if(userDo==null){
+			throw new UserException(ResponseCode.USER_NOT_EXIST);
+		}
+		
+		return userDo;
+	}
+
+	@Override
+	public UserDO getUserByEmail(String email) throws UserException {
+		// TODO Auto-generated method stub
+		if(null==email){
+			throw new UserException(ResponseCode.PARAM_E_PARAM_INVALID);
+		}
+		UserDO userDo = userDao.getUserByEmail(email);
+		return userDo;
+	}
+
+	@Override
+	public UserDO getUserByMobile(String mobile) throws UserException {
+		// TODO Auto-generated method stub
+		if(null==mobile){
+			throw new UserException(ResponseCode.PARAM_E_PARAM_INVALID);
+		}
+		UserDO userDo = userDao.getUserByMobile(mobile);
+		return userDo;
+	}
+
+	@Override
+	public UserDO getUserById(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+		UserDO userDo = userDao.getUserById(userId);
+		if(userDo==null){
+			throw new UserException(ResponseCode.USER_NOT_EXIST);
+		}
+		return userDo;
+	}
+
+	@Override
+	public int updatePwd(Long userId,String oldPwd,String newPwd) throws UserException{
+		
+		if(null==userId||null==newPwd){
+			throw new UserException(ResponseCode.PARAM_E_PARAM_INVALID);
+		}	
+		
+		if(oldPwd.equals(newPwd)){
+			throw new UserException(ResponseCode.B_OLDPWD_NEWPWD_IS_SAME);
+		}
+		
+		if(!newPwd.matches("^[a-zA-Z0-9_]{8,20}$")){
+			throw new UserException(ResponseCode.PWD_FORMAT_ERROR);
+		}
+		
+		UserDO userDo = userManager.getUserById(userId);
+		
+		
+		if(!userDo.getPassword().equals(oldPwd)){
+			throw new UserException(ResponseCode.B_PWD_IS_ERROR);
+		}
+		
+		
+		return userDao.updatePwd(userId,newPwd);
+	}
+
+	@Override
+	public int updateEmail(Long userId, String email) throws UserException{
+		// TODO Auto-generated method stub
+		if(null==userId||null==email){
+			throw new UserException(ResponseCode.PARAM_E_PARAM_INVALID);
+		}
+		
+		if(!email.matches("^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$")){
+			throw new UserException(ResponseCode.EMAIL_FORMAT_ERROR);
+		}	
+		
+		UserDO userDo = userManager.getUserById(userId);
+		
+		return userDao.updateEmail(userId, email);
+	}
+
+	@Override
+	public int updateMobile(Long userId, String mobile) throws UserException{
+		// TODO Auto-generated method stub
+		
+		if(null==userId||null==mobile){
+			throw new UserException(ResponseCode.PARAM_E_PARAM_INVALID);
+		}
+		
+		if(mobile.length()!=11){
+			throw new UserException(ResponseCode.MOBILE_FORMAT_ERROR);
+		}
+		
+		UserDO userDo = userManager.getUserById(userId);
+		
+		return userDao.updateMobile(userId, mobile);
+	}
+
+	@Override
+	public int activeUser(Long userId) throws UserException{
+		// TODO Auto-generated method stub
+		if(userId==null){
+			throw new UserException(ResponseCode.USRE_ID_IS_NULL);
+		}
+		UserDO userDo = userManager.getUserById(userId);
+		
+		
+		return userDao.activeUser(userId);
+	}
+
+	@Override
+	public int freezeUser(Long userId) throws UserException{
+		
+		if(userId==null){
+			throw new UserException(ResponseCode.USRE_ID_IS_NULL);
+		}
+		
+		UserDO userDo = userManager.getUserById(userId);
+			
+		return userDao.freezeUser(userId);
+	}
+
+	@Override
+	public int moveUser(Long userId) throws UserException{
+		
+		if(userId==null){
+			throw new UserException(ResponseCode.USRE_ID_IS_NULL);
+		}
+		
+		UserDO userDo = userManager.getUserById(userId);
+		
+		if(null==userDo){
+			throw new UserException(ResponseCode.USER_NOT_EXIST);
+		}
+		
+		return userDao.moveUser(userId);
+	}
+
+	@Override
+	public int deleteUser(Long userId) throws UserException{
+		// TODO Auto-generated method stub
+		
+		if(userId==null){
+			throw new UserException(ResponseCode.USRE_ID_IS_NULL);
+		}
+		
+		UserDO userDo = userManager.getUserById(userId);
+		if(null==userDo){
+			throw new UserException(ResponseCode.USER_NOT_EXIST);
+		}
+		
+		return userDao.deleteUser(userId);
+	}
+
+	@Override
+	public void queryUser(UserQTO userQto) {
+		
+		userDao.queryUser(userQto);
+		
+		
+	}
+	
+
+
+}

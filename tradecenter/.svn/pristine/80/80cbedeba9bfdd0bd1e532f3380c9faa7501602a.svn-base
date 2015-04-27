@@ -1,0 +1,15 @@
+package com.ve.tradecenter.common.api;
+
+import java.io.Serializable;
+
+import com.ve.tradecenter.common.constant.ErrorCode;
+
+
+public interface Response<T> extends Serializable {
+	public T getModule();
+	public boolean isSuccess();
+	public ErrorCode getErrorCode();
+	public String getMessage();
+	public Exception getException();
+	public long getTotalCount();
+}

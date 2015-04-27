@@ -1,0 +1,16 @@
+package com.ve.deliverycenter.core.manager.fee.intef;
+
+import java.util.List;
+
+import com.ve.deliverycenter.common.dto.fee.RegionFeeDTO;
+
+public interface RegionFeeManager {
+	public List<RegionFeeDTO> addRegionFee(List<RegionFeeDTO> regionFeeDTOList);
+
+	public int deleteRegionFee(List<Integer> regionFeeIdList);
+
+	public List<RegionFeeDTO> queryByFeeCode(String feeCode);
+
+	public int batchDeleteRegionFee(String feeCode);
+
+}

@@ -1,0 +1,41 @@
+package com.ve.itemcenter.core.dao.impl;
+
+import java.util.List;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.domain.ItemSkuQTO;
+import com.ve.itemcenter.core.dao.ItemSkuDAO;
+import com.ve.itemcenter.core.domain.ItemSkuDO;
+
+@Service
+public class ItemSkuDAOImpl extends SqlMapClientDaoSupport implements ItemSkuDAO {
+
+	public ItemSkuDAOImpl() {
+		super();
+	}
+
+	public Long addItemSku(ItemSkuDO itemSkuDO) {
+		itemSkuDO.setIsDeleted(DBConst.UN_DELETED.getCode());
+		Long newInsertedId = (Long) getSqlMapClientTemplate().insert("ItemSkuDAO.addItemSku", itemSkuDO);
+		return newInsertedId;
+	}
+
+	public ItemSkuDO getItemSku(Long id) {
+		ItemSkuDO record = (ItemSkuDO) getSqlMapClientTemplate().queryForObject("ItemSkuDAO.getItemSku", id);
+		return record;
+	}
+
+	public int updateItemSku(ItemSkuDO itemSkuDO) {
+		int rows = getSqlMapClientTemplate().update("ItemSkuDAO.updateItemSku", itemSkuDO);
+		return rows;
+	}
+
+	public List<ItemSkuDO> queryItemSku(ItemSkuQTO ItemSkuQTO) {
+		List<ItemSkuDO> list = getSqlMapClientTemplate().queryForList("ItemSkuDAO.queryItemSku", ItemSkuQTO);
+		return list;
+	}
+
+}

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="item">
+	<typeAlias alias="itemDO" type="com.ve.itemcenter.core.domain.ItemDO" />
+	<typeAlias alias="itemQTO"	type="com.ve.itemcenter.common.domain.ItemQTO" />
+
+	<resultMap class="itemDO" id="itemDOResult">
+	    <result column="id" property="id"  />
+	    <result column="item_name" property="itemName"  />
+	    <result column="item_brief_name" property="itemBriefName"  />
+	    <result column="supplier_id" property="supplierId"  />
+	    <result column="item_brand_id" property="itemBrandId"  />
+	    <result column="brief_introduction" property="briefIntroduction"  />
+	    <result column="item_type" property="itemType"  />
+	    <result column="icon_url" property="iconUrl"  />
+	    <result column="category_id" property="categoryId"  />
+	    <result column="spu_id" property="spuId"  />
+	    <result column="market_price" property="marketPrice"  />
+	    <result column="promotion_price" property="promotionPrice"  />
+	    <result column="wireless_price" property="wirelessPrice"  />
+	    <result column="sale_begin" property="saleBegin"  />
+	    <result column="sale_end" property="saleEnd"  />
+	    <result column="sale_min_num" property="saleMinNum"  />
+	    <result column="sale_max_num" property="saleMaxNum"  />
+	    <result column="item_status" property="itemStatus"  />
+	    <result column="audit_msg" property="auditMsg"  />
+	    <result column="audit_time" property="auditTime"  />
+	    <result column="audit_admin_id" property="auditAdminId"  />
+	    <result column="is_seller_post" property="isSellerPost"  />
+	    <result column="is_deleted" property="isDeleted"  />
+	    <result column="gmt_created" property="gmtCreated"  />
+	    <result column="gmt_modified" property="gmtModified"  />
+	</resultMap>
+
+
+	<sql id="itemFields">
+		 id, item_name, item_brief_name, supplier_id, item_brand_id,brief_introduction, item_type, icon_url, 
+    category_id, spu_id, market_price, promotion_price, wireless_price, sale_begin, sale_end, 
+    sale_min_num, sale_max_num, item_status, audit_msg, audit_time, audit_admin_id, is_seller_post, 
+    is_deleted, gmt_created, gmt_modified
+	</sql>
+
+	<insert id="ItemDAO.addItem" parameterClass="itemDO">
+		insert into item(
+		<include refid="itemFields" />
+		)values(
+		#id#,
+		#itemName#,
+		#itemBriefName#,
+		#supplierId#,
+		#itemBrandId#,
+		#briefIntroduction#,
+		#itemType#,
+		#iconUrl#,
+		#categoryId#,
+		#spuId#,
+		#marketPrice#,
+		#promotionPrice#,
+		#wirelessPrice#,
+		#saleBegin#,
+		#saleEnd#,
+		#saleMinNum#,
+		#saleMaxNum#,
+		#itemStatus#,
+		#auditMsg#,
+		#auditTime#,
+		#auditAdminId#,
+		#isSellerPost#,
+		#isDeleted#,
+		now(),
+		now()
+		)
+		<selectKey keyProperty="id" resultClass="Long">
+			SELECT
+			LAST_INSERT_ID();
+		</selectKey>
+	</insert>
+
+	<sql id="item_Base_Column_List">
+		 id, item_name, item_brief_name, supplier_id, item_brand_id,brief_introduction, item_type, icon_url, 
+    category_id, spu_id, market_price, promotion_price, wireless_price, sale_begin, sale_end, 
+    sale_min_num, sale_max_num, item_status, audit_msg, audit_time, audit_admin_id, is_seller_post, 
+    is_deleted, gmt_created, gmt_modified
+	</sql>
+
+	<select id="ItemDAO.getItem" resultMap="itemDOResult"
+		parameterClass="Long">
+		select
+		<include refid="item_Base_Column_List" />
+		from item
+		where id = #id# and is_deleted=0
+	</select>
+
+	<update id="ItemDAO.updateItem" parameterClass="itemDO">
+		update item
+		set gmt_modified=now()
+			<dynamic prepend="">
+	      <isNotNull prepend="," property="itemName" >
+	        item_name = #itemName#
+	      </isNotNull>
+	      <isNotNull prepend="," property="itemBriefName" >
+	        item_brief_name = #itemBriefName#
+	      </isNotNull>
+	      <isNotNull prepend="," property="supplierId" >
+	        supplier_id = #supplierId#
+	      </isNotNull>
+	      <isNotNull prepend="," property="itemBrandId" >
+	        item_brand_id = #itemBrandId#
+	      </isNotNull>
+	      <isNotNull prepend="," property="itemType" >
+	        item_type = #itemType#
+	      </isNotNull>
+	      <isNotNull prepend="," property="iconUrl" >
+	        icon_url = #iconUrl#
+	      </isNotNull>
+	      <isNotNull prepend="," property="categoryId" >
+	        category_id = #categoryId#
+	      </isNotNull>
+	      <isNotNull prepend="," property="spuId" >
+	        spu_id = #spuId#
+	      </isNotNull>
+	      <isNotNull prepend="," property="marketPrice" >
+	        market_price = #marketPrice#
+	      </isNotNull>
+	      <isNotNull prepend="," property="promotionPrice" >
+	        promotion_price = #promotionPrice#
+	      </isNotNull>
+	      <isNotNull prepend="," property="wirelessPrice" >
+	        wireless_price = #wirelessPrice#
+	      </isNotNull>
+	      <isNotNull prepend="," property="saleBegin" >
+	        sale_begin = #saleBegin#
+	      </isNotNull>
+	      <isNotNull prepend="," property="saleEnd" >
+	        sale_end = #saleEnd#
+	      </isNotNull>
+	      <isNotNull prepend="," property="saleMinNum" >
+	        sale_min_num = #saleMinNum#
+	      </isNotNull>
+	      <isNotNull prepend="," property="saleMaxNum" >
+	        sale_max_num = #saleMaxNum#
+	      </isNotNull>
+	      <isNotNull prepend="," property="itemStatus" >
+	        item_status = #itemStatus#
+	      </isNotNull>
+	      <isNotNull prepend="," property="auditMsg" >
+	        audit_msg = #auditMsg#
+	      </isNotNull>
+	      <isNotNull prepend="," property="auditTime" >
+	        audit_time = #auditTime#
+	      </isNotNull>
+	      <isNotNull prepend="," property="auditAdminId" >
+	        audit_admin_id = #auditAdminId#
+	      </isNotNull>
+	      <isNotNull prepend="," property="isSellerPost" >
+	        is_seller_post = #isSellerPost#
+	      </isNotNull>
+	      <isNotNull prepend="," property="isDeleted" >
+	        is_deleted = #isDeleted#
+	      </isNotNull>
+	      <isNotNull prepend="," property="briefIntroduction" >
+	        brief_introduction = #briefIntroduction#
+	      </isNotNull>
+		</dynamic>
+		where id = #id# and is_deleted=0
+	</update>
+	
+	<select id="ItemDAO.queryItemList" resultMap="itemDOResult"
+		parameterClass="itemQTO">
+		select
+		<include refid="item_Base_Column_List" />
+		from item
+		 limit #currentPage#,#pageSize#
+	</select>
+	
+	
+</sqlMap>

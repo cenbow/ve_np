@@ -1,0 +1,268 @@
+package com.ve.usercenter.core.manager.impl;
+
+import javax.annotation.Resource;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.constant.ResponseCode;
+import com.ve.usercenter.common.dto.SupplierExtraInfoDTO;
+import com.ve.usercenter.common.dto.SupplierInfoDTO;
+import com.ve.usercenter.common.dto.UserAuthInfoDTO;
+import com.ve.usercenter.common.dto.UserDTO;
+import com.ve.usercenter.core.dao.SupplierExtraInfoDao;
+import com.ve.usercenter.core.domain.SupplierExtraInfoDO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.SupplierExtraInfoManager;
+import com.ve.usercenter.core.manager.UserManager;
+import com.ve.usercenter.core.util.IdCardCheckUtil;
+import com.ve.usercenter.core.util.UserUtil;
+
+@Service
+public class SupplierExtraInfoManagerImpl implements SupplierExtraInfoManager {
+
+	@Resource
+	private UserManager userManager;
+	@Resource
+	private SupplierExtraInfoDao supplierExtraDao;
+
+	@Override
+	public SupplierExtraInfoDTO addSupplierExtraInfo(
+			SupplierExtraInfoDTO supplierExtraDto) throws UserException {
+
+		if (null == supplierExtraDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"supplierExtraDto is null");
+		}
+
+		// 检查手机号是否满足格式
+		UserUtil.checkMobile(supplierExtraDto.getTel());
+
+		// 检查联系人身份证格式
+		String errorCode = null;
+		try {
+			errorCode = IdCardCheckUtil.IDCardValidate(supplierExtraDto
+					.getContactIdcard());
+		} catch (UserException e) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR, errorCode);
+		}
+
+		// 检查联系人qq
+		UserUtil.checkQQ(supplierExtraDto.getContactQq());
+
+		// 检查联系人电话
+		UserUtil.checkMobile(supplierExtraDto.getContactMobile());
+
+		// 检查联系人邮箱
+		UserUtil.checkEamil(supplierExtraDto.getContactEmail());
+
+		UserDTO userDto = userManager.getUserById(supplierExtraDto.getUserId());
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user is not exist");
+		}
+
+		SupplierExtraInfoDO supplierExtraDo = new SupplierExtraInfoDO();
+
+		BeanUtils.copyProperties(supplierExtraDto, supplierExtraDo);
+
+		Long id = supplierExtraDao.addSupplierExtraInfo(supplierExtraDo);
+
+		supplierExtraDto = getSupplierExtraInfoById(id);
+
+		return supplierExtraDto;
+	}
+
+	@Override
+	public SupplierExtraInfoDTO getSupplierExtraInfoById(Long id)
+			throws UserException {
+
+		if (null == id) {
+			throw new UserException(ResponseCode.P_PARAM_NULL, "id is null");
+		}
+
+		if (id < 0) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"id must greater than zero");
+		}
+
+		SupplierExtraInfoDO supplierExtraDo = supplierExtraDao
+				.getSupplierExtraInfoById(id);
+
+		SupplierExtraInfoDTO supplierExtroDto = new SupplierExtraInfoDTO();
+		BeanUtils.copyProperties(supplierExtraDo, supplierExtroDto);
+
+		return supplierExtroDto;
+	}
+
+	@Override
+	public SupplierExtraInfoDTO getSupplierExtraInfoByUserId(Long userId)
+			throws UserException {
+		if (null == userId) {
+			throw new UserException(ResponseCode.P_PARAM_NULL, "userId is null");
+		}
+
+		if (userId < 0) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"userId must greater than zero");
+		}
+
+		SupplierExtraInfoDO supplierExtraDo = supplierExtraDao
+				.getSupplierExtraInfoByUserId(userId);
+		SupplierExtraInfoDTO supplierExtroDto = null;
+		if (supplierExtraDo != null) {
+			supplierExtroDto = new SupplierExtraInfoDTO();
+			BeanUtils.copyProperties(supplierExtraDo, supplierExtroDto);
+		}
+
+		return supplierExtroDto;
+	}
+
+	@Override
+	public int updateSupplierExtraInfo(SupplierExtraInfoDTO supplierExtraDto)
+			throws UserException {
+		// TODO Auto-generated method stub
+		if (null == supplierExtraDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"supplierExtraDto is null");
+		}
+
+		if (null == supplierExtraDto.getId()) {
+			throw new UserException(ResponseCode.P_PARAM_NULL, "id is null");
+		}
+
+		if (supplierExtraDto.getId() < 0) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"id must greater than zero");
+		}
+
+		SupplierExtraInfoDTO supplierExtraDto1 = getSupplierExtraInfoById(supplierExtraDto
+				.getId());
+
+		if (null == supplierExtraDto1) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"select record is not exist");
+		}
+		SupplierExtraInfoDO supplierExtraDo = new SupplierExtraInfoDO();
+		BeanUtils.copyProperties(supplierExtraDto, supplierExtraDo);
+		int result = supplierExtraDao.updateSupplierExtraInfo(supplierExtraDo);
+
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public int supplierIdentified(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+		UserAuthInfoDTO userAuthInfoDto = null;
+
+		UserDTO userDto = userManager.getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"user is not exist");
+		}
+
+		int result = supplierExtraDao.supplierIdentified(userId);
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+		return result;
+	}
+
+	@Override
+	public int supplierFailIdentified(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+		UserAuthInfoDTO userAuthInfoDto = null;
+
+		UserDTO userDto = userManager.getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"user is not exist");
+		}
+
+		int result = supplierExtraDao.supplierFailIdentified(userId);
+
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+		return result;
+	}
+
+	@Override
+	public int ignoreSupplierIdentity(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+		UserAuthInfoDTO userAuthInfoDto = null;
+
+		UserDTO userDto = userManager.getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"user is not exist");
+		}
+
+		int result = supplierExtraDao.ignoreSupplierIdentity(userId);
+
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+		return result;
+	}
+
+	@Override
+	public SupplierInfoDTO supplierResident(SupplierInfoDTO supplierInfoDto)
+			throws UserException {
+		// TODO Auto-generated method stub
+
+		if (null == supplierInfoDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"supplierExtraDto is null");
+		}
+
+		UserDTO userDto = new UserDTO();
+		BeanUtils.copyProperties(supplierInfoDto, userDto);
+
+		// 先存入用户的的基本信息，走这个接口的用户，默认都是卖家
+		userDto.setRole((byte) 1);
+		userDto = userManager.addUser(userDto);
+		if (userDto == null) {
+			throw new UserException(ResponseCode.B_ADD_ERROR, "add user error");
+		}
+
+		// 新增成功后，将卖家的扩展信息保存
+		supplierInfoDto.setUserId(userDto.getId());
+		SupplierExtraInfoDTO supplierDto = new SupplierExtraInfoDTO();
+		BeanUtils.copyProperties(supplierInfoDto, supplierDto);
+
+		supplierDto = addSupplierExtraInfo(supplierDto);
+		supplierInfoDto.setSupplierId(supplierDto.getId());
+
+		return supplierInfoDto;
+	}
+
+	@Override
+	public int delSupplierExtraInfoByUserId(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+		UserDTO userDto = userManager.getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user is not exist");
+		}
+
+		int result = supplierExtraDao.delSupplierExtraInfoByUserId(userId);
+
+		return result;
+	}
+
+	@Override
+	public int restoreSupplierExtraInfoByUserId(Long userId)
+			throws UserException {
+		// TODO Auto-generated method stub
+
+		int result = supplierExtraDao.restoreSupplierExtraInfoByUserId(userId);
+
+		return result;
+	}
+
+}

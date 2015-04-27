@@ -1,0 +1,37 @@
+package com.ve.usercenter.core.service.action.user;
+
+import javax.annotation.Resource;
+
+import com.ve.usercenter.common.qto.UserQTO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserManager;
+import com.ve.usercenter.core.service.RequestContext;
+import com.ve.usercenter.core.service.UserRequest;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.service.action.Action;
+
+public class QueryUserAction implements Action{
+
+	@Resource
+	private UserManager userManager;
+	
+	@Override
+	public UserResponse execute(RequestContext context) throws UserException {
+		// TODO Auto-generated method stub
+		UserResponse response = null;
+		UserRequest request = context.getRequest();
+		UserQTO userQto = (UserQTO)request.getParam("userQto");
+		
+		userManager.queryUser(userQto);
+		
+		
+		return null;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

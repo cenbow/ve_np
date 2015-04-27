@@ -1,0 +1,68 @@
+package com.ve.marketingcenter.common.domain.dto;
+
+import java.io.Serializable;
+import java.util.List;
+
+import com.ve.marketingcenter.common.domain.dto.coupon.ActivityCouponDTO;
+
+public class FavorableInfo implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4336574627439107164L;
+	private MarketingActivityDTO activity;// 活动对象
+	private List<MarketingItemDTO> itemList;// 该活动对应的商品列表
+	private ActivityCouponDTO coupon;//活动使用的优惠券
+
+	private boolean noPostage;// 是否免邮
+	private Long offerAmount;// 优惠额
+	private List<MarketingItemDTO> giftList;// 活动的赠品列表
+
+	public MarketingActivityDTO getActivity() {
+		return activity;
+	}
+
+	public void setActivity(MarketingActivityDTO activity) {
+		this.activity = activity;
+	}
+
+	public List<MarketingItemDTO> getItemList() {
+		return itemList;
+	}
+
+	public void setItemList(List<MarketingItemDTO> itemList) {
+		this.itemList = itemList;
+	}
+
+	public List<MarketingItemDTO> getGiftList() {
+		return giftList;
+	}
+
+	public void setGiftList(List<MarketingItemDTO> giftList) {
+		this.giftList = giftList;
+	}
+
+	public boolean isNoPostage() {
+		return noPostage;
+	}
+
+	public void setNoPostage(boolean noPostage) {
+		this.noPostage = noPostage;
+	}
+
+	public Long getOfferAmount() {
+		return offerAmount;
+	}
+
+	public void setOfferAmount(Long offerAmount) {
+		this.offerAmount = offerAmount;
+	}
+
+	public ActivityCouponDTO getCoupon() {
+		return coupon;
+	}
+
+	public void setCoupon(ActivityCouponDTO coupon) {
+		this.coupon = coupon;
+	}
+}

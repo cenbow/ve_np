@@ -1,0 +1,7 @@
+package com.ve.deliverycenter.core.domain;
+
+import com.ve.deliverycenter.core.crud.pojo.BaseObject;
+
+public class BaseDo extends BaseObject {
+
+}

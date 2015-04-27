@@ -1,0 +1,71 @@
+package com.ve.usercenter.core;
+
+import javax.annotation.Resource;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.ve.usercenter.common.api.BaseRequest;
+import com.ve.usercenter.common.api.Request;
+import com.ve.usercenter.common.api.Response;
+import com.ve.usercenter.common.api.UserService;
+import com.ve.usercenter.common.dto.UserDTO;
+import com.ve.usercenter.core.service.action.ActionEnum;
+import com.ve.usercenter.core.service.action.user.AddUserAction;
+
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:applicationContext.xml" })
+public class ATest {
+	
+	@Resource
+	private UserService userService;
+	
+	@Test
+	public void test() {
+		System.out.println(1);
+		Request request = new BaseRequest();
+		
+	/*	UserDTO userDto = new UserDTO();
+		userDto.setName("13429697712");
+		userDto.setPassword("dfsd1d23456fdd");
+	//	userDto.setEmail("1233fddsfdd@qq.com");
+		userDto.setmPhoneNo("13429697712");
+	
+		request.setCommand(ActionEnum.ADD_USER.getActionName());
+		request.setParam("userDto", userDto);*/
+		
+	//	request.setParam("userId", 6L);
+		
+		request.setParam("username", "yezhenglei1");
+		request.setCommand(ActionEnum.GET_USER_BY_ID.getActionName());
+		
+	//	request.setCommand(ActionEnum.UPDATE_EMAIL.getActionName());
+	//	request.setParam("email", "742001928@qq.com");
+	//	request.setCommand(ActionEnum.UPDATE_MOBILE.getActionName());
+	//	request.setParam("mobile", "13456897456");
+		
+	//	request.setCommand(ActionEnum.DELETE_USER.getActionName());
+	//	request.setParam("userId", new Long(1));
+	//	request.setParam("oldPwd", "123456");
+	//	request.setParam("newPwd", "ye123456");
+		
+		Response response = userService.execute(request);
+		
+		System.out.println(2);
+	}
+	
+	
+}	
+
+
+
+
+
+
+
+
+
+

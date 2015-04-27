@@ -1,0 +1,69 @@
+package com.ve.deliverycenter.core.service.action.fee;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.ve.deliverycenter.common.constant.ActionEnum;
+import com.ve.deliverycenter.common.constant.RetCodeEnum;
+import com.ve.deliverycenter.core.domain.fee.StdFee;
+import com.ve.deliverycenter.core.exception.DeliveryException;
+import com.ve.deliverycenter.core.manager.fee.intef.RegionFeeManager;
+import com.ve.deliverycenter.core.manager.fee.intef.StdFeeManager;
+import com.ve.deliverycenter.core.service.DeliveryResponse;
+import com.ve.deliverycenter.core.service.RequestContext;
+import com.ve.deliverycenter.core.service.action.Action;
+import com.ve.deliverycenter.core.util.ResponseUtil;
+
+@Service
+public class DeleteStdFee implements Action {
+	@Resource
+	StdFeeManager stdFeeManager;
+	@Resource
+	RegionFeeManager regionFeeManager;
+	@Resource
+	TransactionTemplate transactionTemplate;
+
+	/**
+	 * 删除运费标准接口
+	 */
+	@Override
+	public DeliveryResponse execute(final RequestContext context)
+			throws DeliveryException {
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		DeliveryResponse response = transactionTemplate
+				.execute(new TransactionCallback() {
+					@Override
+					public Object doInTransaction(TransactionStatus status) {
+						// 获取参数
+						int id = (Integer) context.getRequest().getAttribute(
+								"id");
+						// 根据ID查询运费标准代码
+						StdFee stdFee = stdFeeManager.getStdFee(id);
+						// 根据标准代码批量删除区域运费
+						regionFeeManager.batchDeleteRegionFee(stdFee.getCode());
+						// 删除运费标准
+						int row = stdFeeManager.deleteStdFee(id);
+						// 返回response对象,如果行数为1返回true,不为1返回false
+						if (row == 1) {
+							return ResponseUtil.getResponse(true);
+						} else {
+							return ResponseUtil
+									.getResponse(RetCodeEnum.DELETE_ERROR);
+						}
+
+					}
+				});
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return ActionEnum.DELETE_STDFEE.getActionName();
+	}
+}

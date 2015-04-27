@@ -1,0 +1,77 @@
+package com.ve.deliverycenter.core.service.action.fee;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.ve.deliverycenter.common.constant.ActionEnum;
+import com.ve.deliverycenter.common.dto.fee.RegionFeeDTO;
+import com.ve.deliverycenter.common.dto.fee.StdFeeDTO;
+import com.ve.deliverycenter.core.exception.DeliveryException;
+import com.ve.deliverycenter.core.manager.fee.RegionFeeManager;
+import com.ve.deliverycenter.core.manager.fee.StdFeeManager;
+import com.ve.deliverycenter.core.service.DeliveryResponse;
+import com.ve.deliverycenter.core.service.RequestContext;
+import com.ve.deliverycenter.core.service.action.Action;
+import com.ve.deliverycenter.core.util.ResponseUtil;
+
+@Service
+public class AddStdFee implements Action {
+	@Resource
+	StdFeeManager stdFeeManager;
+	@Resource
+	RegionFeeManager regionFeeManager;
+	@Resource
+	TransactionTemplate transactionTemplate;
+
+	/**
+	 * 新增运费标准接口
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public DeliveryResponse execute(final RequestContext context)
+			throws DeliveryException {
+		@SuppressWarnings("rawtypes")
+		DeliveryResponse response = transactionTemplate
+				.execute(new TransactionCallback() {
+					@Override
+					public Object doInTransaction(TransactionStatus status) {
+						try {
+							// 获取参数
+							StdFeeDTO stdFeeDTO = (StdFeeDTO) context
+									.getRequest().getParam("stdFeeDTO");
+							// 新增运费标准
+							stdFeeManager.addStdFee(stdFeeDTO);
+							for (RegionFeeDTO regionFeeDTO : stdFeeDTO
+									.getRegionFeeDTOList()) {
+								regionFeeDTO.setFeeId(stdFeeDTO.getId());
+							}
+							// 新增运费标准属性
+							List<RegionFeeDTO> regionFeeDTOList = regionFeeManager
+									.addRegionFee(stdFeeDTO
+											.getRegionFeeDTOList());
+							// 属性设置到运费标准DTO中
+							stdFeeDTO.setRegionFeeDTOList(regionFeeDTOList);
+							// 返回response对象
+							return ResponseUtil.getResponse(stdFeeDTO);
+						} catch (DeliveryException e) {
+							status.setRollbackOnly();
+							return ResponseUtil.getResponse(e.getCode(),
+									e.getMessage());
+						}
+					}
+				});
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return ActionEnum.ADD_STDFEE.getActionName();
+	}
+}

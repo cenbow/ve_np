@@ -1,0 +1,67 @@
+package com.ve.usercenter.client.impl;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import com.ve.usercenter.client.UserGroupClient;
+import com.ve.usercenter.common.action.ActionEnum;
+import com.ve.usercenter.common.api.BaseRequest;
+import com.ve.usercenter.common.api.Request;
+import com.ve.usercenter.common.api.Response;
+import com.ve.usercenter.common.api.UserService;
+import com.ve.usercenter.common.dto.UserGroupDTO;
+
+public class UserGroupClientImpl implements UserGroupClient {
+
+	@Resource
+	private UserService userService;
+
+	public Response<UserGroupDTO> addUserGroup(UserGroupDTO userGroupDTO) {
+		Request request = new BaseRequest();
+
+		request.setParam("userGroupDTO", userGroupDTO);
+		request.setCommand(ActionEnum.ADD_USER_GROUP.getActionName());
+
+		Response<UserGroupDTO> response = userService.execute(request);
+		return response;
+	}
+
+	public Response<Boolean> delUserGroup(Integer groupId) {
+		Request request = new BaseRequest();
+
+		request.setParam("groupId", groupId);
+		request.setCommand(ActionEnum.DEL_USER_GROUP.getActionName());
+
+		Response<Boolean> response = userService.execute(request);
+		return response;
+	}
+
+	public Response<List> queryUserGroup() {
+		Request request = new BaseRequest();
+		request.setCommand(ActionEnum.QUERY_USER_GROUP.getActionName());
+
+		Response<List> response = userService.execute(request);
+		return response;
+	}
+
+	public Response<UserGroupDTO> getUserGroupByUserId(Long userId) {
+
+		Request request = new BaseRequest();
+		request.setParam("userId", userId);
+		request.setCommand(ActionEnum.GET_USER_GROUP.getActionName());
+
+		Response<UserGroupDTO> response = userService.execute(request);
+		return response;
+	}
+
+	public Response<Boolean> updateUserGroup(UserGroupDTO userGroupDTO) {
+		Request request = new BaseRequest();
+		request.setParam("userGroupDTO", userGroupDTO);
+		request.setCommand(ActionEnum.UPDATE_USER_GROUP.getActionName());
+
+		Response<Boolean> response = userService.execute(request);
+		return response;
+	}
+
+}

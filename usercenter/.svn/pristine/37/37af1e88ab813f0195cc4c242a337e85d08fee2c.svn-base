@@ -1,0 +1,50 @@
+package com.ve.usercenter.core.service.action.usergroup;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.dto.UserGroupDTO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserGroupManager;
+import com.ve.usercenter.core.service.RequestContext;
+import com.ve.usercenter.core.service.UserRequest;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.service.action.Action;
+import com.ve.usercenter.core.service.action.ActionEnum;
+
+@Service
+public class QueryUserGroupAction implements Action {
+
+	@Resource
+	private UserGroupManager userGroupManager;
+
+	@Override
+	public UserResponse execute(RequestContext context) throws UserException {
+		// TODO Auto-generated method stub
+
+		UserResponse response = null;
+		UserGroupDTO userGroupDto = null;
+
+		UserRequest userRequest = context.getRequest();
+
+		List<UserGroupDTO> userGroups = null;
+		try {
+			userGroups = userGroupManager.queryUserGroup();
+		} catch (UserException e) {
+			return new UserResponse(e.getResponseCode().getCode(),
+					e.getMessage());
+		}
+		response = new UserResponse(userGroups);
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return ActionEnum.QUERY_USER_GROUP.getActionName();
+	}
+
+}

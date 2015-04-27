@@ -1,0 +1,47 @@
+package com.ve.usercenter.core.service.action.suppliercompany;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.dto.SupplierCompanyDTO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.CompanyManager;
+import com.ve.usercenter.core.service.RequestContext;
+import com.ve.usercenter.core.service.UserRequest;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.service.action.Action;
+import com.ve.usercenter.core.service.action.ActionEnum;
+
+@Service
+public class AddCompanyAction implements Action {
+
+	@Resource
+	private CompanyManager companyManager;
+
+	@Override
+	public UserResponse execute(RequestContext context) throws UserException {
+
+		SupplierCompanyDTO supplierCompanyDto = null;
+
+		UserRequest userRequest = context.getRequest();
+		String name = (String) userRequest.getParam("name");
+		int sort = (Integer) userRequest.getParam("sort");
+		try {
+			supplierCompanyDto = companyManager.addCompany(name, sort);
+		} catch (UserException e) {
+			log.error(e.getMessage());
+			return new UserResponse(e.getResponseCode().getCode(),
+					e.getMessage());
+		}
+
+		return new UserResponse(supplierCompanyDto);
+	}
+
+	@Override
+	public String getName() {
+
+		return ActionEnum.ADD_SUPPLIER_COMPANY.getActionName();
+	}
+
+}

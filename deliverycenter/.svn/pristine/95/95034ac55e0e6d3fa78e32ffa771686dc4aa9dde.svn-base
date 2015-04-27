@@ -1,0 +1,15 @@
+package com.ve.deliverycenter.client.express.intef;
+
+import com.ve.deliverycenter.common.api.Response;
+import com.ve.deliverycenter.common.dto.express.ExpressDTO;
+
+public interface ExpressClient {
+	/**
+	 * 新增快递
+	 * 
+	 * @param orderDTO
+	 * @return
+	 */
+	Response<ExpressDTO> addExpress(ExpressDTO expressDTO);
+
+}

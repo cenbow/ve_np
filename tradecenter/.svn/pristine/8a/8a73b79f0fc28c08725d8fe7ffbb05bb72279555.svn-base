@@ -1,0 +1,61 @@
+package com.ve.tradecenter.common.domain;
+
+import java.util.List;
+
+/**
+ * 购物车数据传输类
+ * @author Administrator
+ */
+public class CartDTO {
+	/*
+	 * 购物车商品列表 
+	 */
+	private List<CartItemDTO> cartItems;
+	public Long getTotal() {
+		return total;
+	}
+	public void setTotal(Long total) {
+		this.total = total;
+	}
+	public Long getToPayMoney() {
+		return toPayMoney;
+	}
+	public void setToPayMoney(Long toPayMoney) {
+		this.toPayMoney = toPayMoney;
+	}
+	/*
+	 * 商品总价
+	 */
+	private Long total;
+	/*
+	 * 运费
+	 */
+	private Long deliveryFee;
+	/*
+	 * 优惠
+	 */
+	private Long coupon;
+	/*
+	 * 应付总额 
+	 */
+	private Long toPayMoney;
+	
+	public List<CartItemDTO> getCartItems() {
+		return cartItems;
+	}
+	public void setCartItems(List<CartItemDTO> cartItems) {
+		this.cartItems = cartItems;
+	}
+	public Long getDeliveryFee() {
+		return deliveryFee;
+	}
+	public void setDeliveryFee(Long deliveryFee) {
+		this.deliveryFee = deliveryFee;
+	}
+	public Long getCoupon() {
+		return coupon;
+	}
+	public void setCoupon(Long coupon) {
+		this.coupon = coupon;
+	}
+}

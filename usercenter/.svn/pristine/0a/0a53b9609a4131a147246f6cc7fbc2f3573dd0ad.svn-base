@@ -1,0 +1,61 @@
+package com.ve.usercenter.common.constant;
+
+public enum ResponseCode{
+	REQUEST_SUCCESS("200","请求成功"),
+	
+	/***********参数错误************/
+	NAME_LENGTH_ERROR("P001","用户名长度错误"),
+	PWD_FORMAT_ERROR("P002","密码的长度必须为8-20,并且由字母，数字和下划线组成"),
+	EMAIL_FORMAT_ERROR("P003","邮箱格式错误"),
+	MOBILE_FORMAT_ERROR("P004","手机格式错误"),
+	NAME_AND_PWD_IS_NULL("P005","用户名或密码为空"),
+	NAME_ALREADY_REG("P006","用户名已经被注册"),
+	EMAIL_ALREADY_REG("P007","邮箱已经被注册"),
+	MOBILE_ALREADY_REG("P008","号码已经被注册"),
+	USER_NOT_EXIST("P009","用户不存在"),
+	PARAM_E_PARAM_INVALID("P010","参数错误"),
+	USRE_ID_IS_NULL("P010","用户id为空"),
+	
+	
+	/*********业务错误***********/
+	B_OLDPWD_NEWPWD_IS_SAME("B001","新老密码相同"),
+	B_PWD_IS_ERROR("B002","密码错误");
+	
+	
+	private String code;
+	private String message;
+	
+	private ResponseCode(String code,String message){
+		this.code = code;
+		this.message = message;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+

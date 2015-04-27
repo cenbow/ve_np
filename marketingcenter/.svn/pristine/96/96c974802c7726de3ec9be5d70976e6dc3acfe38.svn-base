@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="market_param_template" >
+<typeAlias alias="formalParamDo" type="com.ve.marketingcenter.core.domain.FormalParamDO"/>
+<typeAlias alias="formalParamQto" type="com.ve.marketingcenter.common.domain.qto.MarketingFormalParamQTO"/>
+
+  <resultMap id="BaseResultMap" class="formalParamDo" >
+    <result column="id" property="id" jdbcType="BIGINT" />
+    <result column="owner_type" property="ownerType" jdbcType="TINYINT" />
+    <result column="owner_id" property="ownerId" jdbcType="BIGINT" />
+    <result column="param_name" property="paramName" jdbcType="VARCHAR" />
+    <result column="disp_name" property="dispName" jdbcType="VARCHAR" />
+    <result column="value_type" property="valueType" jdbcType="TINYINT" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="gmt_created" property="gmtCreated" jdbcType="TIMESTAMP" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+   <sql id="Base_Column_List" >
+    id, owner_type, owner_id, param_name, disp_name, value_type, description, gmt_created, 
+    gmt_modified
+   </sql>
+   
+    <select id="queryFormalParam" resultMap="BaseResultMap" parameterClass="formalParamQto" >
+    select
+    <include refid="market_param_template.Base_Column_List" />
+    from market_param_template where 1=1
+    <isNotNull prepend="and" property="id" >
+      id = #id:BIGINT#
+    </isNotNull>
+    <isNotNull prepend="and" property="ownerId" >
+      owner_id = #ownerId:BIGINT#
+    </isNotNull>
+     <isNotNull prepend="and" property="ownerType" >
+      owner_type = #ownerType:TINYINT#
+    </isNotNull>
+    <isNotNull prepend="and" property="paramName" >
+      param_name = #paramName:VARCHAR#
+    </isNotNull>
+    <isNotNull prepend="and" property="dispName" >
+      disp_name = #dispName:VARCHAR#
+    </isNotNull>
+    <isNotNull prepend="and" property="valueType" >
+      value_type = #valueType:TINYINT#
+    </isNotNull>
+    <isNotNull prepend="limit" property="start" >
+      #start:INTEGER#,#offset:INTEGER#
+    </isNotNull>
+  </select>
+  
+  
+  
+  <!-- 
+  <sql id="Example_Where_Clause" >      
+    <iterate property="oredCriteria" conjunction="or" prepend="where" removeFirstPrepend="iterate" >
+      <isEqual property="oredCriteria[].valid" compareValue="true" >
+        (
+        <iterate prepend="and" property="oredCriteria[].criteriaWithoutValue" conjunction="and" >
+          $oredCriteria[].criteriaWithoutValue[]$
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithSingleValue" conjunction="and" >
+          $oredCriteria[].criteriaWithSingleValue[].condition$ #oredCriteria[].criteriaWithSingleValue[].value#
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithListValue" conjunction="and" >
+          $oredCriteria[].criteriaWithListValue[].condition$
+          <iterate property="oredCriteria[].criteriaWithListValue[].values" open="(" close=")" conjunction="," >
+            #oredCriteria[].criteriaWithListValue[].values[]#
+          </iterate>
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithBetweenValue" conjunction="and" >
+          $oredCriteria[].criteriaWithBetweenValue[].condition$
+          #oredCriteria[].criteriaWithBetweenValue[].values[0]# and
+          #oredCriteria[].criteriaWithBetweenValue[].values[1]#
+        </iterate>
+        )
+      </isEqual>
+    </iterate>
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterClass="formalParamDo" >
+    select
+    <isParameterPresent >
+      <isEqual property="distinct" compareValue="true" >
+        distinct
+      </isEqual>
+    </isParameterPresent>
+    <include refid="market_param_template.Base_Column_List" />
+    from market_param_template
+    <isParameterPresent >
+      <include refid="market_param_template.Example_Where_Clause" />
+      <isNotNull property="orderByClause" >
+        order by $orderByClause$
+      </isNotNull>
+    </isParameterPresent>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterClass="formalParamDo" >
+    select 
+    <include refid="market_param_template.Base_Column_List" />
+    from market_param_template
+    where id = #id:BIGINT#
+  </select>
+  <delete id="deleteByPrimaryKey" parameterClass="formalParamDo" >
+    delete from market_param_template
+    where id = #id:BIGINT#
+  </delete>
+  <delete id="deleteByExample" parameterClass="formalParamDo" >
+    delete from market_param_template
+    <include refid="market_param_template.Example_Where_Clause" />
+  </delete>
+  <insert id="insert" parameterClass="formalParamDo" >
+    insert into market_param_template (id, owner_type, owner_id, param_name, 
+      disp_name, value_type, description, gmt_created, 
+      gmt_modified)
+    values (#id:BIGINT#, #ownerType:TINYINT#, #ownerId:BIGINT#, #paramName:VARCHAR#, 
+      #dispName:VARCHAR#, #valueType:TINYINT#, #description:VARCHAR#, #gmtCreated:TIMESTAMP#, 
+      #gmtModified:TIMESTAMP#)
+  </insert>
+  <insert id="insertSelective" parameterClass="formalParamDo" >
+    insert into market_param_template
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        id
+      </isNotNull>
+      <isNotNull prepend="," property="ownerType" >
+        owner_type
+      </isNotNull>
+      <isNotNull prepend="," property="ownerId" >
+        owner_id
+      </isNotNull>
+      <isNotNull prepend="," property="paramName" >
+        param_name
+      </isNotNull>
+      <isNotNull prepend="," property="dispName" >
+        disp_name
+      </isNotNull>
+      <isNotNull prepend="," property="valueType" >
+        value_type
+      </isNotNull>
+      <isNotNull prepend="," property="description" >
+        description
+      </isNotNull>
+      <isNotNull prepend="," property="gmtCreated" >
+        gmt_created
+      </isNotNull>
+      <isNotNull prepend="," property="gmtModified" >
+        gmt_modified
+      </isNotNull>
+      )
+    </dynamic>
+    values
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        #id:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="ownerType" >
+        #ownerType:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="ownerId" >
+        #ownerId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="paramName" >
+        #paramName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="dispName" >
+        #dispName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="valueType" >
+        #valueType:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="description" >
+        #description:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="gmtCreated" >
+        #gmtCreated:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="gmtModified" >
+        #gmtModified:TIMESTAMP#
+      </isNotNull>
+      )
+    </dynamic>
+  </insert>
+  
+
+  <update id="updateByPrimaryKeySelective" parameterClass="formalParamDo" >
+    update market_param_template
+    <dynamic prepend="set" >
+      <isNotNull prepend="," property="ownerType" >
+        owner_type = #ownerType:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="ownerId" >
+        owner_id = #ownerId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="paramName" >
+        param_name = #paramName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="dispName" >
+        disp_name = #dispName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="valueType" >
+        value_type = #valueType:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="description" >
+        description = #description:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="gmtCreated" >
+        gmt_created = #gmtCreated:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="gmtModified" >
+        gmt_modified = #gmtModified:TIMESTAMP#
+      </isNotNull>
+    </dynamic>
+    where id = #id:BIGINT#
+  </update> -->
+</sqlMap>

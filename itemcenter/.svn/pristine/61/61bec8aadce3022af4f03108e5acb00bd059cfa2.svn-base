@@ -1,0 +1,22 @@
+package com.ve.itemcenter.common.domain;
+
+import com.ve.itemcenter.common.page.PageInfo;
+
+/**
+ * ItemSKU QTO
+ * 
+ * @author chen.huang
+ * @date 2015年1月21日
+ */
+public class ItemSkuQTO extends PageInfo {
+	private Long itemId; // 商品ID
+
+	public Long getItemId() {
+		return itemId;
+	}
+
+	public void setItemId(Long itemId) {
+		this.itemId = itemId;
+	}
+
+}

@@ -1,0 +1,48 @@
+package com.ve.itemcenter.common.domain;
+
+import com.ve.itemcenter.common.page.PageInfo;
+
+public class ItemBrandQTO extends PageInfo {
+//	private String cname;// 品牌中文名
+//
+//	private String ename;// 品牌英文名
+//
+//	private Integer brandStatus; // 品牌状态
+//
+//	private String country; // 品牌所属国家
+//	
+//	
+//
+//	public String getCname() {
+//		return cname;
+//	}
+//
+//	public void setCname(String cname) {
+//		this.cname = cname;
+//	}
+//
+//	public String getEname() {
+//		return ename;
+//	}
+//
+//	public void setEname(String ename) {
+//		this.ename = ename;
+//	}
+//
+//	public Integer getBrandStatus() {
+//		return brandStatus;
+//	}
+//
+//	public void setBrandStatus(Integer brandStatus) {
+//		this.brandStatus = brandStatus;
+//	}
+//
+//	public String getCountry() {
+//		return country;
+//	}
+//
+//	public void setCountry(String country) {
+//		this.country = country;
+//	}
+
+}

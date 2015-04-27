@@ -1,0 +1,105 @@
+package com.ve.itemcenter.core.manager.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.constant.ResCodeNum;
+import com.ve.itemcenter.common.domain.ItemImageDTO;
+import com.ve.itemcenter.common.domain.ItemImageQTO;
+import com.ve.itemcenter.core.dao.ItemImageDAO;
+import com.ve.itemcenter.core.domain.ItemImageDO;
+import com.ve.itemcenter.core.exception.ItemException;
+import com.ve.itemcenter.core.manager.ItemImageManager;
+import com.ve.itemcenter.core.util.ExceptionUtil;
+import com.ve.itemcenter.core.util.ItemUtil;
+
+@Service
+public class ItemImageManagerImpl implements ItemImageManager {
+	@Resource
+	private ItemImageDAO itemImageDAO;
+
+	@Override
+	public ArrayList<ItemImageDTO> addItemImage(ArrayList<ItemImageDTO> itemImageDTOList) throws ItemException {
+		ArrayList<ItemImageDTO> returnArrayList = new ArrayList<ItemImageDTO>();
+
+		try {
+			for (ItemImageDTO itemImageDTO : itemImageDTOList) {
+				// 验证itemImageDTO内的属性
+				if (!verifyItemImageDTOProperty(itemImageDTO)) {
+					throw ExceptionUtil.getException(ResCodeNum.PARAM_E_INVALID, "itemImageDTO property incorrect");
+				}
+				ItemImageDO itemImageDO = new ItemImageDO();
+				ItemUtil.copyProperties(itemImageDTO, itemImageDO);// DTO转DO
+				long newInsertedId = itemImageDAO.addItemImage(itemImageDO);// 新增的记录返回的ID
+				itemImageDTO = getItemImage(newInsertedId);// 新增加的记录对应的itemImageDO
+				returnArrayList.add(itemImageDTO);
+			}
+			return returnArrayList;
+		} catch (Exception e) {
+			throw new ItemException(ResCodeNum.SYS_E_DEFAULT_ERROR, e);
+		}
+	}
+
+	@Override
+	public boolean updateItemImage(ItemImageDTO itemImageDTO) throws ItemException {
+		// 验证参数
+		if (itemImageDTO.getId() == null) {
+			throw ExceptionUtil.getException(ResCodeNum.PARAM_E_MISSING, "itemImageDTO is null");
+		}
+		if (!verifyItemImageDTOProperty(itemImageDTO)) {
+			throw ExceptionUtil.getException(ResCodeNum.PARAM_E_INVALID, "itemImageDTO property incorrect");
+		}
+		ItemImageDO itemImageDO = new ItemImageDO();
+		ItemUtil.copyProperties(itemImageDTO, itemImageDO);
+		int num = itemImageDAO.updateItemImage(itemImageDO);
+		return num > 0 ? true : false;
+	}
+
+	@Override
+	public ItemImageDTO getItemImage(long id) throws ItemException {
+		ItemImageDO itemImageDO = itemImageDAO.getItemImage(id);
+		if (itemImageDO == null) {
+			throw ExceptionUtil.getException(ResCodeNum.BASE_PARAM_E_RECORD_NOT_EXIST, "Cannot find requested record");
+		}
+		ItemImageDTO itemImageDTO = new ItemImageDTO();
+		ItemUtil.copyProperties(itemImageDO, itemImageDTO);
+		return itemImageDTO;
+	}
+
+	@Override
+	public boolean deleteItemImage(ArrayList<Long> deletedImageDTOList) throws ItemException {
+		// TODO 验证id
+		// 总共删除的条数
+		int totalCount = 0;
+		for (Long id : deletedImageDTOList) {
+			ItemImageDO itemImageDO = new ItemImageDO();
+			itemImageDO.setId(id);
+			itemImageDO.setIsDeleted(DBConst.DELETED.getCode());
+			int num = itemImageDAO.updateItemImage(itemImageDO);
+			totalCount += num;
+		}
+		return totalCount == deletedImageDTOList.size() ? true : false;
+	}
+
+	@Override
+	public boolean verifyItemImageDTOProperty(ItemImageDTO itemImageDTO) throws ItemException {
+		// TODO 验证ItemImageDTO字段属性
+		return true;
+	}
+
+	public List<ItemImageDTO> queryItemImage(ItemImageQTO itemImageQTO) throws ItemException {
+		List<ItemImageDO> list = itemImageDAO.queryItemImage(itemImageQTO);
+		List<ItemImageDTO> itemImageDTOList = new ArrayList<ItemImageDTO>();// 需要返回的DTO列表
+		for (ItemImageDO itemImageDO : list) {
+			ItemImageDTO dto = new ItemImageDTO();
+			ItemUtil.copyProperties(itemImageDO, dto);
+			itemImageDTOList.add(dto);
+		}
+		return itemImageDTOList;
+	}
+}

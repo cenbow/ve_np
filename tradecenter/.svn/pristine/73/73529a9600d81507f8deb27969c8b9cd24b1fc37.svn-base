@@ -1,0 +1,20 @@
+package com.ve.tradecenter.core.dao;
+
+
+import java.sql.Date;
+
+import com.ve.tradecenter.core.domain.OrderSeqDO;
+
+/**
+ * 定义订单流水表DAO接口
+ * @author cwr
+ */
+public interface OrderSeqDao {
+	
+	public Integer updateOrderDaySeq(Date date); 
+	
+	public Integer getOrderDaySeq(Date date);
+	
+	public Integer AddOrderDaySeq(OrderSeqDO orderSeqDO);
+	
+}

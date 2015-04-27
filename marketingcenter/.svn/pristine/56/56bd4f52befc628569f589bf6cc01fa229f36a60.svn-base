@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans default-autowire="byName">
+	<bean id="activityDao" class="com.ve.marketingcenter.core.dao.activity.impl.ActivityDODAOImpl"/>
+	<bean id="formalParamDao" class="com.ve.marketingcenter.core.dao.formalParam.impl.FormalParamDODAOImpl"/>
+	<bean id="auditTrackDao" class="com.ve.marketingcenter.core.dao.track.impl.AuditTrackDODAOImpl"/>
+	<bean id="toolDao" class="com.ve.marketingcenter.core.dao.tool.impl.ToolDODAOImpl"/>
+	<bean id="scopeDao" class="com.ve.marketingcenter.core.dao.scope.impl.ScopeDODAOImpl"/>
+	<bean id="actualParamDao" class="com.ve.marketingcenter.core.dao.actualParam.impl.ActualParamDODAOImpl"/>
+	<!-- 
+	<bean id="marketingComponentDao" class="com.ve.marketingcenter.core.dao.ComponentDoDAOImpl"/>
+	 -->
+</beans>

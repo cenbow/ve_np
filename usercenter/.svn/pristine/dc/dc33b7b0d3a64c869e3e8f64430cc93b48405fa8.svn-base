@@ -1,0 +1,127 @@
+package com.ve.usercenter.core.dao.impl;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+
+import com.ve.usercenter.common.qto.UserQTO;
+import com.ve.usercenter.core.dao.UserDao;
+import com.ve.usercenter.core.domain.UserDO;
+
+
+
+public class UserDaoImpl extends SqlMapClientDaoSupport implements UserDao{
+	public Long addUser(UserDO userDo) {
+		// TODO Auto-generated method stub
+		Long userId = (Long)getSqlMapClientTemplate().insert("user.insert", userDo);
+		return userId;
+	}
+
+	public int updatePwd(Long userId, String newPwd) {
+		// TODO Auto-generated method stub
+		UserDO key = new UserDO();
+		key.setId(userId);
+		key.setPassword(newPwd);
+		int result = getSqlMapClientTemplate().update("user.updatePwd", key);
+		return result;
+	}
+
+	public int updateEmail(Long userId, String email) {
+		// TODO Auto-generated method stub
+		UserDO key = new UserDO();
+		key.setId(userId);
+		key.setEmail(email);
+		int result = getSqlMapClientTemplate().update("user.updateEmail", key);
+		return result;
+	}
+
+	public int updateMobile(Long userId, String mobile) {
+		// TODO Auto-generated method stub
+		UserDO key = new UserDO();
+		key.setId(userId);
+		key.setmPhoneNo(mobile);
+		int result = getSqlMapClientTemplate().update("user.updateMobile", key);
+		return result;
+	}
+
+	public int activeUser(Long userId) {
+		// TODO Auto-generated method stub
+		UserDO key = new UserDO();
+		key.setId(userId);
+		key.setStatus((byte)0);
+		int result = getSqlMapClientTemplate().update("user.activeUser", key);
+		return result;
+	}
+
+	@Override
+	public UserDO getUserByName(String name) {
+		// TODO Auto-generated method stub
+		UserDO key = new UserDO();
+		key.setName(name);
+		UserDO userDo = (UserDO) getSqlMapClientTemplate().queryForObject("user.selectByName", key);
+		return userDo;
+	}
+
+	@Override
+	public UserDO getUserByEmail(String email) {
+		// TODO Auto-generated method stub
+		UserDO key = new UserDO();
+		key.setEmail(email);
+		UserDO userDo = (UserDO) getSqlMapClientTemplate().queryForObject("user.selectByEmail", key);
+		return userDo;
+	}
+
+	@Override
+	public UserDO getUserByMobile(String mobile) {
+		// TODO Auto-generated method stub
+		UserDO key = new UserDO();
+		key.setmPhoneNo(mobile);
+		UserDO userDo = (UserDO) getSqlMapClientTemplate().queryForObject("user.selectByMobile", key);
+		return userDo;
+	}
+
+	@Override
+	public UserDO getUserById(Long userId) {
+		// TODO Auto-generated method stub
+		UserDO key = new UserDO();
+		key.setId(userId);
+		UserDO userDo = (UserDO) getSqlMapClientTemplate().queryForObject("user.selectById", key);
+		return userDo;
+	}
+
+	@Override
+	public int freezeUser(Long userId) {
+		// TODO Auto-generated method stub
+		UserDO key = new UserDO();
+		key.setId(userId);
+		key.setStatus((byte)1);
+		int result = getSqlMapClientTemplate().update("user.activeUser", key);
+		return result;
+	}
+
+	@Override
+	public int moveUser(Long userId) {
+		
+		UserDO key = new UserDO();
+		key.setId(userId);
+		key.setStatus((byte)2);
+		int result = getSqlMapClientTemplate().update("user.activeUser", key);
+		return result;
+	}
+
+	@Override
+	public int deleteUser(Long userId) {
+		
+		UserDO key = new UserDO();
+		key.setId(userId);
+		key.setDeleted((byte)1);
+		int result = getSqlMapClientTemplate().update("user.activeUser", key);
+		return result;
+	}
+
+	@Override
+	public void queryUser(UserQTO userQto) {
+		
+		
+		
+	}
+	
+}

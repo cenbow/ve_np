@@ -1,0 +1,70 @@
+package com.ve.deliverycenter.common.constant;
+
+/**
+ * 类RetCodeEnum.java的实现描述：返回结果代码
+ * 
+ * @author dong.dong
+ */
+public enum RetCodeEnum {
+	/**
+	 * 成功
+	 */
+	SUCCESS("200", "success"),
+	/************************************ 业务逻辑错误 ********************************************/
+	/**
+	 * 新增出错
+	 */
+	ADD_ERROR("B001", "add error"),
+	/**
+	 * 修改出错
+	 */
+	UPDATE_ERROR("B002", "update error"),
+	/**
+	 * 删除出错
+	 */
+	DELETE_ERROR("B003", "delete error"),
+	/************************************ 系统级别错误 ********************************************/
+	/**
+	 * 系统错误
+	 */
+	SYSTEM_ERROR("S001", "system error"),
+	/**
+	 * 服务端发生异常
+	 */
+	SERVICE_EXCEPTION("S002", "server exception,please view log"),
+	/**
+	 * 没有权限，请求被禁止
+	 */
+	REQUEST_FORBBIDEN("S003", "request forbidden"),
+	/**
+	 * 访问的接口不存在
+	 */
+	ACTION_NO_EXIST("S004", "action not exist"),
+	/************************************ 参数级别错误 ********************************************/
+	/**
+	 * 参数为空
+	 */
+	PARAMERTER_NULL("P001", "parameter is null"),
+	/**
+	 * 参数传值错误
+	 */
+	PARAMERTER_ERROR("P002", "parameter is error");
+	;
+
+	private String code;
+
+	private String message;
+
+	private RetCodeEnum(String code, String message) {
+		this.code = code;
+		this.message = message;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public String getCode() {
+		return code;
+	}
+}

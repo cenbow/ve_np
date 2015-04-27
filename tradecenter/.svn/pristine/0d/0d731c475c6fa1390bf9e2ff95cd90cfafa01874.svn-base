@@ -1,0 +1,24 @@
+package com.ve.tradecenter.core.service.action.cart;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.tradecenter.core.exception.TradeException;
+import com.ve.tradecenter.core.service.RequestContext;
+import com.ve.tradecenter.core.service.TradeResponse;
+import com.ve.tradecenter.core.service.action.Action;
+import com.ve.tradecenter.core.service.action.ActionEnum;
+
+@Service
+public class ClearCart implements Action{
+
+	@Override
+	public TradeResponse execute(RequestContext context) throws TradeException {
+		// TODO biz code
+		return null;
+	}
+
+	@Override
+	public String getName() {
+		return ActionEnum.CLEAR_CART.getActionName();
+	}
+}

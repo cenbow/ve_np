@@ -1,0 +1,69 @@
+package com.ve.usercenter.core.service.action.user;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserManager;
+import com.ve.usercenter.core.service.RequestContext;
+import com.ve.usercenter.core.service.UserRequest;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.service.action.Action;
+import com.ve.usercenter.core.service.action.ActionEnum;
+
+/**
+ * 逻辑删除用户:改删除不用户不能恢复，因此要删除该用户相关联的其他表内的所有记录， 要慎重操作
+ * */
+@Service
+public class DeleteUserAction implements Action {
+
+	@Resource
+	private UserManager userManager;
+
+	@Resource
+	TransactionTemplate transactionTemplate;
+
+	@Override
+	public UserResponse execute(final RequestContext context)
+			throws UserException {
+
+		@SuppressWarnings("unchecked")
+		UserResponse response = transactionTemplate
+				.execute(new TransactionCallback() {
+
+					@Override
+					public Object doInTransaction(TransactionStatus status) {
+						// TODO Auto-generated method stub
+
+						UserRequest request = context.getRequest();
+						Long userId = (Long) request.getParam("userId");
+
+						try {
+							userManager.deleteUser(userId);
+						} catch (UserException e) {
+							log.error(e.getMessage());
+							status.setRollbackOnly();
+							return new UserResponse(e.getResponseCode()
+									.getCode(), e.getMessage());
+						}
+
+						return new UserResponse(true);
+					}
+				});
+
+		// TODO Auto-generated method stub
+
+		return response;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return ActionEnum.DELETE_USER.getActionName();
+	}
+
+}

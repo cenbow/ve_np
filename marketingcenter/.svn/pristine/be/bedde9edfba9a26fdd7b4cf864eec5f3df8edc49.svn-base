@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="GRANTEDCOUPON">
+	<typeAlias alias="GrantedCoupon" type="com.ve.marketingcenter.core.domain.coupon.GrantedCoupon" />
+	
+	<sql id="columList">
+		   id as id,
+		   coupon_id as couponId,
+		   activity_id as activityId,
+		   start_time as startTime,
+		   end_time as endTime,
+		   order_id as orderId,
+		   grantor_user_id as grantorUserId,
+		   receiver_user_id as receiverUserId,
+		   status as status,
+		   gmt_created as gmtCreated,
+		   gmt_modified as gmtModified
+	</sql>
+
+	<insert id="addGrantedCoupon" parameterClass="GrantedCoupon">
+		insert into activity_granted_coupon
+		<dynamic prepend="(">
+			<isNotNull prepend="," property="id">id </isNotNull>
+			<isNotNull prepend="," property="couponId">coupon_id </isNotNull>
+			<isNotNull prepend="," property="activityId">activity_id </isNotNull>
+			<isNotNull prepend="," property="startTime">start_time </isNotNull>
+			<isNotNull prepend="," property="endTime">end_time </isNotNull>
+			<isNotNull prepend="," property="orderId">order_id </isNotNull>
+			<isNotNull prepend="," property="grantorUserId">grantor_user_id </isNotNull>
+			<isNotNull prepend="," property="receiverUserId">receiver_user_id </isNotNull>			<isNotNull prepend="," property="status">status </isNotNull>
+
+			,deleted,gmt_created,gmt_modified
+			)
+		</dynamic>
+		values
+		<dynamic prepend="(">
+			<isNotNull prepend="," property="id">#id:VARCHAR#</isNotNull>
+			<isNotNull prepend="," property="couponId">#couponId:VARCHAR#</isNotNull>
+			<isNotNull prepend="," property="activityId">#activityId:VARCHAR#</isNotNull>
+			<isNotNull prepend="," property="startTime">#startTime:VARCHAR#</isNotNull>
+			<isNotNull prepend="," property="endTime">#endTime:VARCHAR#</isNotNull>
+			<isNotNull prepend="," property="orderId">#orderId:VARCHAR#</isNotNull>
+			<isNotNull prepend="," property="grantorUserId">#grantorUserId:VARCHAR#</isNotNull>
+			<isNotNull prepend="," property="receiverUserId">#receiverUserId:VARCHAR#</isNotNull>			
+			<isNotNull prepend="," property="status">#status:VARCHAR#</isNotNull>
+			,0,now(),now()
+			)
+		</dynamic>
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	<insert id="batchAddGrantedCoupon" parameterClass="java.util.List">  
+		<![CDATA[ 
+	        insert into activity_granted_coupon(coupon_id,activity_id,start_time,end_time,grantor_user_id,receiver_user_id,status,deleted,gmt_created,gmt_modified) values 
+	    ]]>  
+	    <iterate conjunction=",">  
+	        <![CDATA[ 
+	            (#coupon[].couponId#,#coupon[].activityId#,#coupon[].startTime#,#coupon[].endTime#,#coupon[].grantorUserId#,#coupon[].receiverUserId#, #coupon[].status#,0,now(),now() ) 
+	        ]]>  
+	    </iterate> 
+	</insert>  
+
+	<update id="freezeCoupon" parameterClass="GrantedCoupon">
+		update activity_granted_coupon
+		set 
+		gmt_modified = now(),
+		order_id=#orderId:BIGINT#,
+		status=1
+		where coupon_id = #couponId:BIGINT# and status=0 and deleted=0
+	</update>
+	
+	<update id="updateCouponStatus" parameterClass="GrantedCoupon">
+		update activity_granted_coupon
+		set gmt_modified = now()
+		<isNotNull prepend="," property="status"> 
+			status = #status:VARCHAR#
+		</isNotNull>
+		where order_id = #orderId:BIGINT# and status=1 and deleted=0
+	</update>
+	
+	<select id="getGrantedCoupon"  parameterClass="GrantedCoupon" resultClass="GrantedCoupon">
+		select
+		<include refid="GRANTEDCOUPON.columList" />
+		from activity_granted_coupon
+		where id = #id:BIGINT# and deleted=0
+	</select>
+	
+	<sql id="queryWhere">
+		where deleted=0
+		<isNotNull prepend="AND" property="id"> 
+			id = #id:VARCHAR#
+		</isNotNull>
+		<isNotNull prepend="AND" property="couponId"> 
+			coupon_id = #couponId:VARCHAR#
+		</isNotNull>
+		<isNotNull prepend="AND" property="activityId"> 
+			activity_id = #activityId:VARCHAR#
+		</isNotNull>
+		<isNotNull prepend="AND" property="startTime"> 
+			start_time = #startTime:VARCHAR#
+		</isNotNull>
+		<isNotNull prepend="AND" property="endTime"> 
+			end_time = #endTime:VARCHAR#
+		</isNotNull>
+		<isNotNull prepend="AND" property="orderId"> 
+			order_id = #orderId:VARCHAR#
+		</isNotNull>
+		<isNotNull prepend="AND" property="grantorUserId"> 
+			grantor_user_id = #grantorUserId:VARCHAR#
+		</isNotNull>
+		<isNotNull prepend="AND" property="receiverUserId"> 
+			receiver_user_id = #receiverUserId:VARCHAR#
+		</isNotNull>
+		<isNotNull prepend="AND" property="status"> 
+			status = #status:VARCHAR#
+		</isNotNull>
+
+	</sql>
+	
+	<select id="queryGrantedCoupon" parameterClass="com.ve.marketingcenter.common.domain.qto.coupon.GrantedCouponQTO" resultClass="GrantedCoupon">
+		select
+		<include refid="GRANTEDCOUPON.columList" />
+		from activity_granted_coupon
+		<include refid="GRANTEDCOUPON.queryWhere" />
+			order by id desc 
+		<isNotNull property="startRow">
+			<![CDATA[limit #startRow#,#pageSize#]]>
+		</isNotNull>
+	</select>
+	
+	<select id="queryCount" parameterClass="com.ve.marketingcenter.common.domain.qto.coupon.GrantedCouponQTO" resultClass="java.lang.Long">
+		select count(1) from activity_granted_coupon
+		<include refid="GRANTEDCOUPON.queryWhere" />
+	</select>
+</sqlMap>

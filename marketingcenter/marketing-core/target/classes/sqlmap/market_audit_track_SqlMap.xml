@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="market_audit_track" >
+  <typeAlias alias="marketAuditTrackDo" type="com.ve.marketingcenter.core.domain.AuditTrackDO" />
+  
+  <resultMap id="BaseResultMap" class="marketAuditTrackDo" >
+    <result column="id" property="id" jdbcType="BIGINT" />
+    <result column="recorded_id" property="recordedId" jdbcType="BIGINT" />
+    <result column="recorded_type" property="recordedType" jdbcType="TINYINT" />
+    <result column="audit_type" property="auditType" jdbcType="TINYINT" />
+    <result column="operator_id" property="operatorId" jdbcType="BIGINT" />
+    <result column="gmt_created" property="gmtCreated" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, recorded_id, recorded_type, audit_type, operator_id, gmt_created
+  </sql>
+  <insert id="addTrack" parameterClass="marketAuditTrackDo" >
+    insert into market_audit_track
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        id
+      </isNotNull>
+      <isNotNull prepend="," property="recordedId" >
+        recorded_id
+      </isNotNull>
+      <isNotNull prepend="," property="recordedType" >
+        recorded_type
+      </isNotNull>
+      <isNotNull prepend="," property="auditType" >
+        audit_type
+      </isNotNull>
+      <isNotNull prepend="," property="operatorId" >
+        operator_id
+      </isNotNull>
+      <isNotNull prepend="," property="gmtCreated" >
+        gmt_created
+      </isNotNull>
+      )
+    </dynamic>
+    values
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        #id:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="recordedId" >
+        #recordedId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="recordedType" >
+        #recordedType:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="auditType" >
+        #auditType:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="operatorId" >
+        #operatorId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="gmtCreated" >
+        #gmtCreated:TIMESTAMP#
+      </isNotNull>
+      )
+    </dynamic>
+  </insert>
+</sqlMap>

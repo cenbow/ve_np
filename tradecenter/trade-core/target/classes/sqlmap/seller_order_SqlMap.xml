@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="seller_order" >
+
+	<typeAlias alias="orderQTO"	type="com.ve.tradecenter.common.domain.OrderQTO" />
+
+  <resultMap id="BaseResultMap" class="com.ve.tradecenter.core.domain.OrderDO" >
+    <result column="id" property="id" jdbcType="BIGINT" />
+    <result column="order_sn" property="orderSn" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="TINYINT" />
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="supplier_id" property="supplierId" jdbcType="BIGINT" />
+    <result column="pay_status" property="payStatus" jdbcType="TINYINT" />
+    <result column="total_to_pay" property="totalToPay" jdbcType="BIGINT" />
+    <result column="paid_amount" property="paidAmount" jdbcType="BIGINT" />
+    <result column="delivery_status" property="deliveryStatus" jdbcType="TINYINT" />
+    <result column="order_status" property="orderStatus" jdbcType="TINYINT" />
+    <result column="refund_amount" property="refundAmount" jdbcType="BIGINT" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="address_id" property="addressId" jdbcType="BIGINT" />
+    <result column="tel" property="tel" jdbcType="VARCHAR" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="consignee" property="consignee" jdbcType="VARCHAR" />
+    <result column="item_total_price" property="itemTotalPrice" jdbcType="BIGINT" />
+    <result column="discount_price" property="discountPrice" jdbcType="BIGINT" />
+    <result column="delivery_fee" property="deliveryFee" jdbcType="BIGINT" />
+    <result column="delivery_id" property="deliveryId" jdbcType="INTEGER" />
+    <result column="payment_id" property="paymentId" jdbcType="TINYINT" />
+    <result column="payment_fee" property="paymentFee" jdbcType="BIGINT" />
+    <result column="return_total_money" property="returnTotalMoney" jdbcType="BIGINT" />
+    <result column="after_sale" property="afterSale" jdbcType="TINYINT" />
+    <result column="refund_money" property="refundMoney" jdbcType="BIGINT" />
+    <result column="bank_code" property="bankCode" jdbcType="VARCHAR" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="refund_status" property="refundStatus" jdbcType="TINYINT" />
+    <result column="retake_status" property="retakeStatus" jdbcType="TINYINT" />
+    <result column="coupon_mobile" property="couponMobile" jdbcType="VARCHAR" />
+    <result column="is_cod" property="isCod" jdbcType="TINYINT" />
+    <result column="invoice_status" property="invoiceStatus" jdbcType="TINYINT" />
+    <result column="invoice_class" property="invoiceClass" jdbcType="TINYINT" />
+    <result column="invoice_type" property="invoiceType" jdbcType="TINYINT" />
+    <result column="invoice_title" property="invoiceTitle" jdbcType="VARCHAR" />
+    <result column="coupon_discount" property="couponDiscount" jdbcType="BIGINT" />
+    <result column="promotion_discount" property="promotionDiscount" jdbcType="BIGINT" />
+    <result column="gmt_created" property="gmtCreated" jdbcType="DATETIME" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="DATETIME" />
+    <result column="is_active" property="isActive" jdbcType="TINYINT" />
+    <result column="is_delete" property="isDelete" jdbcType="TINYINT" />
+    <result column="user_memo" property="userMemo" jdbcType="VARCHAR" />
+    <result column="seller_memo" property="sellerMemo" jdbcType="VARCHAR" />
+    <result column="admin_memo" property="adminMemo" jdbcType="VARCHAR" />
+    <result column="extra_status" property="extraStatus" jdbcType="TINYINT" />
+    <result column="source" property="source" jdbcType="TINYINT" />
+    <result column="need_invoice" property="needInvoice" jdbcType="BIT" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+	id, order_sn, type, user_id, supplier_id, pay_status, total_to_pay,
+	paid_amount,
+	delivery_status, order_status, refund_amount, address, address_id, tel, mobile,
+	consignee,
+	item_total_price, discount_price, delivery_fee, delivery_id, payment_id, payment_fee,
+	return_total_money, after_sale, refund_money, bank_code, user_name,
+	refund_status,
+	retake_status, coupon_mobile, is_cod, invoice_status, invoice_class, invoice_type,
+	invoice_title, coupon_discount, promotion_discount, gmt_created,
+	gmt_modified, is_active,
+	is_delete, user_memo, seller_memo, admin_memo, extra_status, source, need_invoice
+</sql>
+
+	<select id="querySellerOrders" resultMap="BaseResultMap"
+		parameterClass="orderQTO">
+		select
+		<include refid="Base_Column_List" />
+		from seller_order
+		<dynamic prepend="where">
+			<isNotNull property="supplierId" prepend="and">
+				supplier_id =
+				#supplierId#
+			</isNotNull>
+			<isNotNull property="orderSn" prepend="and">
+				order_sn = #orderSn#
+			</isNotNull>
+			<isNotNull property="orderStatus" prepend="and">
+				order_status =
+				#orderStatus#
+			</isNotNull>
+			<isNotNull property="timeBegin" prepend="and">
+				gmt_created >=
+				#timeBegin#
+			</isNotNull>
+			<isNotNull property="timeEnd" prepend="and">
+				#timeEnd# >= gmt_created
+			</isNotNull>
+			<isNotNull property="payStatus" prepend="and">
+				pay_status = #payStatus#
+			</isNotNull>
+			<isNotNull property="deliveryStatus" prepend="and">
+				#deliveryStatus# = delivery_status
+			</isNotNull>
+			<isNotNull property="payTimeBegin" prepend="and">
+				pay_time >=
+				#payTimeBegin#
+			</isNotNull>
+			<isNotNull property="payTimeEnd" prepend="and">
+				#payTimeEnd# >= pay_time
+			</isNotNull>
+			<isNotNull property="afterSale" prepend="and">
+				after_sale =
+				#afterSale#
+			</isNotNull>
+		</dynamic>
+		and is_delete=0 limit #start#,#offset#
+	</select>
+
+	<select id="getTotalCount" resultClass="Integer"
+		parameterClass="orderQTO">
+		select count(*) from seller_order
+		<dynamic prepend="where">
+			<isNotNull property="supplierId" prepend="and">
+				supplier_id =
+				#supplierId#
+			</isNotNull>
+			<isNotNull property="orderSn" prepend="and">
+				order_sn = #orderSn#
+			</isNotNull>
+			<isNotNull property="orderStatus" prepend="and">
+				order_status =
+				#orderStatus#
+			</isNotNull>
+			<isNotNull property="timeBegin" prepend="and">
+				gmt_created >=
+				#timeBegin#
+			</isNotNull>
+			<isNotNull property="timeEnd" prepend="and">
+				#timeEnd# >= gmt_created
+			</isNotNull>
+			<isNotNull property="payStatus" prepend="and">
+				pay_status = #payStatus#
+			</isNotNull>
+			<isNotNull property="deliveryStatus" prepend="and">
+				#deliveryStatus# = delivery_status
+			</isNotNull>
+			<isNotNull property="payTimeBegin" prepend="and">
+				pay_time >=
+				#payTimeBegin#
+			</isNotNull>
+			<isNotNull property="payTimeEnd" prepend="and">
+				#payTimeEnd# >= pay_time
+			</isNotNull>
+			<isNotNull property="afterSale" prepend="and">
+				after_sale =
+				#afterSale#
+			</isNotNull>
+		</dynamic>
+	</select>
+  
+  <update id="updateConsigneeInfo" parameterClass="com.ve.tradecenter.core.domain.OrderDO">
+		update seller_order
+		<dynamic prepend="set">
+			<isNotNull prepend="," property="consignee">
+				consignee =
+				#consignee:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="," property="mobile">
+				mobile = #mobile:VARCHAR#"
+			</isNotNull>
+			<isNotNull prepend="," property="address">
+				address =
+				#address:VARCHAR#"
+			</isNotNull>
+			<isNotNull prepend="," property="gmtModified">
+				gmt_modified =
+				#gmtModified:DATETIME#"
+			</isNotNull>
+		</dynamic>
+		where supplier_id = #supplierId:BIGINT# and id= #id:BIGINT# 
+	</update>
+	
+	<update id="updateOrderMemo" parameterClass="com.ve.tradecenter.core.domain.OrderDO">
+		update seller_order
+		<dynamic prepend="set">
+			<isNotNull prepend="," property="userMemo">
+				user_memo = #userMemo:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="," property="sellerMemo">
+				seller_memo = #sellerMemo:VARCHAR#"
+			</isNotNull>
+			<isNotNull prepend="," property="adminMemo">
+				admin_memo = #adminMemo:VARCHAR#"
+			</isNotNull>
+			<isNotNull prepend="," property="gmtModified">
+				gmt_modified = #gmtModified:DATETIME#"
+			</isNotNull>
+		</dynamic>
+		where supplier_id = #supplierId:BIGINT# and id= #id:BIGINT#
+	</update>
+	
+	<update id="applyReturn" parameterClass="com.ve.tradecenter.core.domain.OrderDO">
+		update seller_order
+		<dynamic prepend="set">
+			<isNotNull prepend="," property="afterSale">
+				after_sale = #afterSale:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="gmtModified">
+				gmt_modified = #gmtModified:DATETIME#
+			</isNotNull>
+		</dynamic>
+		where supplier_id = #supplierId:BIGINT# and id= #id:BIGINT#  and is_active = 1 and is_delete = 0 
+	</update>
+	
+	<update id="auditReturnApply" parameterClass="com.ve.tradecenter.core.domain.OrderDO">
+		update seller_order
+		<dynamic prepend="set">
+			<isNotNull prepend="," property="afterSale">
+				after_sale = #afterSale:TINYINT#
+			</isNotNull>
+			<isNotNull prepend="," property="gmtModified">
+				gmt_modified = #gmtModified:DATETIME#
+			</isNotNull>
+		</dynamic>
+		where supplier_id = #supplierId:BIGINT# and id= #id:BIGINT#  and is_active = 1 and is_delete = 0 
+	</update>
+	
+	<update id="closeOrder" parameterClass="com.ve.tradecenter.core.domain.OrderDO">
+		update seller_order 
+		set order_status = #orderStatus:TINYINT#,
+			gmt_modified = now()
+		where supplier_id = #supplierId:BIGINT# and id= #id:BIGINT# and is_active = 1 and is_delete = 0
+	</update>
+	
+	<update id="refund" parameterClass="com.ve.tradecenter.core.domain.OrderDO">
+		update seller_order 
+		set after_sale = #afterSale:TINYINT#,
+			gmt_modified = now()
+		where supplier_id = #supplierId:BIGINT# and id= #id:BIGINT# and is_active = 1 and is_delete = 0
+	</update>
+	
+	<update id="deliveryGoods" parameterClass="com.ve.tradecenter.core.domain.OrderDO">
+		update seller_order 
+		set delivery_status = #deliveryStatus:TINYINT#,
+			gmt_modified = now()
+		where supplier_id = #supplierId:BIGINT# and id= #id:BIGINT# and is_active = 1 and is_delete = 0
+	</update>
+
+	<update id="orderPaySuccess">
+		update seller_order 
+		set pay_status = #payStatus:TINYINT#,
+			gmt_modified = now()
+		where supplier_id = #supplierId:BIGINT# and id= #id:BIGINT# and is_active = 1 and is_delete = 0
+	</update>
+  
+</sqlMap>

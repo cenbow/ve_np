@@ -1,0 +1,46 @@
+package com.ve.itemcenter.core.dao;
+
+import java.util.List;
+
+import com.ve.itemcenter.common.domain.ItemBrandQTO;
+import com.ve.itemcenter.core.domain.ItemBrandDO;
+
+public interface ItemBrandDAO {
+	// int countByExample(ItemBrandDOExample example);
+	//
+	// int deleteByExample(ItemBrandDOExample example);
+	//
+	// int deleteByPrimaryKey(Integer id);
+
+	Long addItemBrand(ItemBrandDO itemBrandDO);
+
+	ItemBrandDO getItemBrand(Long id);
+
+	int updateItemBrand(ItemBrandDO itemBrandDO);
+
+	List<ItemBrandDO> queryItemBrandList(ItemBrandQTO itemBrandQTO);
+
+	// void insertSelective(ItemBrandDO record);
+	//
+	// List<ItemBrandDO> selectByExampleWithBLOBs(ItemBrandDOExample example);
+	//
+	// List<ItemBrandDO> selectByExampleWithoutBLOBs(ItemBrandDOExample
+	// example);
+	//
+	// ItemBrandDO selectByPrimaryKey(Integer id);
+	//
+	// int updateByExampleSelective(ItemBrandDO record, ItemBrandDOExample
+	// example);
+	//
+	// int updateByExampleWithBLOBs(ItemBrandDO record, ItemBrandDOExample
+	// example);
+	//
+	// int updateByExampleWithoutBLOBs(ItemBrandDO record,
+	// ItemBrandDOExample example);
+	//
+	// int updateByPrimaryKeySelective(ItemBrandDO record);
+	//
+	// int updateByPrimaryKeyWithBLOBs(ItemBrandDO record);
+	//
+	// int updateByPrimaryKeyWithoutBLOBs(ItemBrandDO record);
+}

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="ACTIVITYCOUPON">
+	<typeAlias alias="ActivityCoupon" type="com.ve.marketingcenter.core.domain.coupon.ActivityCoupon" />
+	
+	<sql id="columList">
+		   id as id,
+		   activity_id as activityId,
+		   supplied_user_id as suppliedUserId,
+		   coupon_code as couponCode,
+		   scope as scope,
+		   total_count as totalCount,
+		   granted_count as grantedCount,
+		   status as status,
+		   gmt_created as gmtCreated,
+		   gmt_modified as gmtModified
+	</sql>
+
+	<insert id="addActivityCoupon" parameterClass="ActivityCoupon">
+		insert into activity_coupon
+		<dynamic prepend="(">
+			<isNotNull prepend="," property="id">id </isNotNull>
+			<isNotNull prepend="," property="activityId">activity_id </isNotNull>
+			<isNotNull prepend="," property="suppliedUserId">supplied_user_id </isNotNull>
+			<isNotNull prepend="," property="couponCode">coupon_code </isNotNull>
+			<isNotNull prepend="," property="scope">scope </isNotNull>
+			<isNotNull prepend="," property="totalCount">total_count </isNotNull>
+			<isNotNull prepend="," property="grantedCount">granted_count </isNotNull>
+			<isNotNull prepend="," property="status">status </isNotNull>
+			,deleted,gmt_created,gmt_modified
+			)
+		</dynamic>
+		values
+		<dynamic prepend="(">
+			<isNotNull prepend="," property="id">#id:VARCHAR#</isNotNull>
+			<isNotNull prepend="," property="activityId">#activityId:VARCHAR#</isNotNull>
+			<isNotNull prepend="," property="suppliedUserId">#suppliedUserId:VARCHAR#</isNotNull>
+			<isNotNull prepend="," property="couponCode">#couponCode:VARCHAR#</isNotNull>
+			<isNotNull prepend="," property="scope">#scope:VARCHAR#</isNotNull>
+			<isNotNull prepend="," property="totalCount">#totalCount:VARCHAR#</isNotNull>
+			<isNotNull prepend="," property="grantedCount">#grantedCount:VARCHAR#</isNotNull>
+			<isNotNull prepend="," property="status">#status:VARCHAR#</isNotNull>
+			,0,now(),now()
+			)
+		</dynamic>
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	<insert id="batchAddActivityCoupon" parameterClass="java.util.List">  
+		<![CDATA[ 
+	        insert into activity_coupon(activity_id,supplied_user_id,coupon_code,scope,total_count,granted_count,status,deleted,gmt_created,gmt_modified) values 
+	    ]]>  
+	    <iterate conjunction=",">  
+	        <![CDATA[ 
+	            (#coupon[].activityId#, #coupon[].suppliedUserId#, #coupon[].couponCode#, #coupon[].scope#, #coupon[].totalCount#, #coupon[].grantedCount#, #coupon[].status#,0,now(),now() ) 
+	        ]]>  
+	    </iterate> 
+	</insert>  
+
+	<update id="updateGrantedCount" parameterClass="ActivityCoupon">
+		update activity_coupon set
+        gmt_modified = now(),
+        granted_count = #grantedCount#
+        where id = #id# and deleted=0 and <![CDATA[#grantedCount#<=total_count]]>
+	</update>
+	
+	<select id="getActivityCoupon"  parameterClass="ActivityCoupon" resultClass="ActivityCoupon">
+		select
+		<include refid="ACTIVITYCOUPON.columList" />
+		from activity_coupon
+		where id = #id:BIGINT# and deleted=0
+	</select>
+	
+	<select id="queryCouponByCode"  parameterClass="java.lang.String" resultClass="ActivityCoupon">
+		select
+		<include refid="ACTIVITYCOUPON.columList" />
+		from activity_coupon
+		where coupon_code = #couponCode:VARCHAR# and deleted=0
+		order by id desc 
+	</select>
+	
+	<sql id="queryWhere">
+		where deleted=0
+		<isNotNull prepend="AND" property="activityId"> 
+			activity_id = #activityId:VARCHAR#
+		</isNotNull>
+		<isNotNull prepend="AND" property="suppliedUserId"> 
+			supplied_user_id = #suppliedUserId:VARCHAR#
+		</isNotNull>
+		<isEqual prepend="AND" property="status"  compareValue="1">
+			<![CDATA[ granted_count<total_count ]]>
+		</isEqual>
+		<isEqual prepend="AND" property="status"  compareValue="2">
+			 granted_count=total_count
+		</isEqual>
+
+	</sql>
+	
+	<select id="queryActivityCoupon" parameterClass="com.ve.marketingcenter.common.domain.qto.coupon.ActivityCouponQTO" resultClass="ActivityCoupon">
+		select
+		<include refid="ACTIVITYCOUPON.columList" />
+		from activity_coupon
+		<include refid="ACTIVITYCOUPON.queryWhere" />
+			order by id desc 
+		<isNotNull property="startRow">
+			<![CDATA[limit #startRow#,#pageSize#]]>
+		</isNotNull>
+	</select>
+	
+	<select id="queryCount" parameterClass="com.ve.marketingcenter.common.domain.qto.coupon.ActivityCouponQTO" resultClass="java.lang.Long">
+		select count(1) from activity_coupon
+		<include refid="ACTIVITYCOUPON.queryWhere" />
+	</select>
+	
+	<!-- 活动相关操作 -->	
+	<select id="getActivity"  parameterClass="java.lang.Long" resultClass="com.ve.marketingcenter.core.domain.ActivityDO">
+		select id,  creator_user_id creatorUserId,start_time as startTime,end_time as endTime,coupon_type as couponType
+		from market_activity
+		where id = #id:BIGINT# and delete_flag=1
+	</select>
+	<select id="queryActivityParam"  parameterClass="java.lang.Long" resultClass="com.ve.marketingcenter.core.domain.ActualParamDO">
+		select param_name as paramName,param_value as paramValue
+		from market_param_instance
+		where owner_id = #owner_id:BIGINT# and owner_type=2
+	</select>
+</sqlMap>

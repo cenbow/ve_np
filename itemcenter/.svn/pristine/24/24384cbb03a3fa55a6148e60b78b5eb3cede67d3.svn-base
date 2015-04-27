@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="item_category">
+	<typeAlias alias="ItemCategoryDO" type="com.ve.itemcenter.core.domain.ItemCategoryDO" />
+	<typeAlias alias="ItemCategoryQTO"	type="com.ve.itemcenter.common.domain.qto.ItemCategoryQTO" />
+
+	<resultMap class="ItemCategoryDO" id="ItemCategoryDOResult">
+		<result column="id" property="id" />
+	    <result column="cate_name" property="cateName" />
+	    <result column="cate_level" property="cateLevel" />
+	    <result column="parent_id" property="parentId" />
+	    <result column="spu_id" property="spuId" />
+	    <result column="sort" property="sort" />
+	    <result column="cate_status" property="cateStatus" />
+	    <result column="is_recommend" property="isRecommend" />
+	    <result column="topid" property="topid" />
+	    <result column="is_deleted" property="isDeleted" />
+	    <result column="gmt_created" property="gmtCreated" />
+	    <result column="gmt_modified" property="gmtModified" />
+	</resultMap>
+
+	<insert id="ItemCategoryDAO.addItemCategory" parameterClass="ItemCategoryDO">
+		insert into item_category
+		 <dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        id
+      </isNotNull>
+      <isNotNull prepend="," property="cateName" >
+        cate_name
+      </isNotNull>
+      <isNotNull prepend="," property="cateLevel" >
+        cate_level
+      </isNotNull>
+      <isNotNull prepend="," property="parentId" >
+        parent_id
+      </isNotNull>
+      <isNotNull prepend="," property="spuId" >
+        spu_id
+      </isNotNull>
+      <isNotNull prepend="," property="sort" >
+        sort
+      </isNotNull>
+      <isNotNull prepend="," property="cateStatus" >
+        cate_status
+      </isNotNull>
+      <isNotNull prepend="," property="isRecommend" >
+        is_recommend
+      </isNotNull>
+      <isNotNull prepend="," property="topid" >
+        topid
+      </isNotNull>
+      <isNotNull prepend="," property="isDeleted" >
+        is_deleted
+      </isNotNull>
+      )
+    </dynamic>
+    values
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        #id:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="cateName" >
+        #cateName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="cateLevel" >
+        #cateLevel:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="parentId" >
+        #parentId:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="spuId" >
+        #spuId:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="sort" >
+        #sort:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="cateStatus" >
+        #cateStatus:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="isRecommend" >
+        #isRecommend:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="topid" >
+        #topid:INTEGER#
+      </isNotNull>
+      <isNotNull prepend="," property="isDeleted" >
+        #isDeleted:INTEGER#
+      </isNotNull>
+      )
+    </dynamic>
+		<selectKey keyProperty="id" resultClass="Integer">
+			SELECT
+			LAST_INSERT_ID();
+		</selectKey>
+	</insert>
+
+	<sql id="item_category_base_column_list">
+		id, cate_name, cate_level, parent_id, spu_id, sort, cate_status, is_recommend, topid, 
+    is_deleted, gmt_created, gmt_modified
+	</sql>
+	
+	<sql id="ItemCategoryDAO.queryWhere">
+		<dynamic prepend="where">
+			<isNotNull prepend="AND" property="id"> 
+				id = #id#
+			</isNotNull>
+			<isNotNull prepend="AND" property="isDeleted"> 
+				is_deleted = #isDeleted#
+			</isNotNull>
+			<isNotNull prepend="AND" property="cateStatus"> 
+				cate_status = #"cateStatus"#
+			</isNotNull>
+			<isNotNull prepend="AND" property="parentId"> 
+				parent_id = #parentId#
+			</isNotNull>
+		</dynamic>
+	</sql>
+	
+	<update id="ItemCategoryDAO.updateItemCategory" >
+		update item_category
+		set gmt_modified=now()
+		<dynamic prepend="">
+	      <isNotNull prepend="," property="record.cateName" >
+	        cate_name = #record.cateName#
+	      </isNotNull>
+	      <isNotNull prepend="," property="record.spuId" >
+	        spu_id = #record.spuId#
+	      </isNotNull>
+	      <isNotNull prepend="," property="record.sort" >
+	        sort = #record.sort#
+	      </isNotNull>
+	      <isNotNull prepend="," property="record.isRecommend" >
+	        is_recommend = #record.isRecommend#
+	      </isNotNull>
+		</dynamic>
+		<include refid="ItemCategoryDAO.queryWhere" />
+	</update>
+	
+	<update id="ItemCategoryDAO.deleteItemCategory" >
+		update item_category
+		set gmt_modified=now()
+		<dynamic prepend="">
+			<isNotNull prepend="," property="record.isDeleted">
+				is_deleted = #record.isDeleted#
+			</isNotNull>
+		</dynamic>
+		<include refid="ItemCategoryDAO.queryWhere" />
+	</update>
+	
+	<select id="ItemCategoryDAO.getItemCategory" resultMap="ItemCategoryDOResult" parameterClass="ItemCategoryQTO">
+		select	<include refid="item_category_base_column_list" />	from item_category
+		<include refid="ItemCategoryDAO.queryWhere" />
+	</select>
+	
+	<select id="ItemCategoryDAO.countItemCategory" resultClass="Integer" parameterClass="ItemCategoryQTO">
+		select count(1) from item_category
+		<include refid="ItemCategoryDAO.queryWhere" />
+	</select>
+	
+	<select id="ItemCategoryDAO.queryItemCategory" resultMap="ItemCategoryDOResult" parameterClass="ItemCategoryQTO">
+		select	<include refid="item_category_base_column_list" /> from item_category 
+		 <include refid="ItemCategoryDAO.queryWhere" />
+			 <isNotNull property="needPaging">
+					limit #offset#,#pageSize#
+			 </isNotNull>
+	</select>
+</sqlMap>

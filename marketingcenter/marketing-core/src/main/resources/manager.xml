@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans default-autowire="byName">
+	<bean id="activityManager" class="com.ve.marketingcenter.core.manager.activity.impl.ActivityManagerImpl"/>
+	<bean id="formalParamManager" class="com.ve.marketingcenter.core.manager.formalParam.impl.FormalParamManagerImpl"/>
+	<bean id="auditTrackManager" class="com.ve.marketingcenter.core.manager.track.impl.AuditTrackManagerImpl"/>
+	<bean id="toolManager" class="com.ve.marketingcenter.core.manager.tool.impl.ToolManagerImpl"/>
+	<bean id="scopeManager" class="com.ve.marketingcenter.core.manager.scope.impl.ScopeManagerImpl"/>
+	<bean id="actualParamManager" class="com.ve.marketingcenter.core.manager.actualParam.impl.ActualParamManagerImpl"/>
+<!-- 	
+	<bean id="componentManager" class="com.ve.marketingcenter.core.manager.impl.ComponentManagerImpl"/>
+	 -->
+</beans>

@@ -1,0 +1,48 @@
+package com.ve.usercenter.core.service.action.user;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.dto.UserDTO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserManager;
+import com.ve.usercenter.core.service.RequestContext;
+import com.ve.usercenter.core.service.UserRequest;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.service.action.Action;
+import com.ve.usercenter.core.service.action.ActionEnum;
+
+@Service
+public class UserLoginAction implements Action {
+
+	@Resource
+	private UserManager userManager;
+
+	@Override
+	public UserResponse execute(RequestContext context) throws UserException {
+		// TODO Auto-generated method stub
+		UserDTO userDto = null;
+
+		UserRequest userRequest = context.getRequest();
+		String loginName = (String) userRequest.getParam("loginName");
+		String loginPwd = (String) userRequest.getParam("loginPwd");
+
+		try {
+			userDto = userManager.userLogin(loginName, loginPwd);
+		} catch (UserException e) {
+			log.error(e.getMessage());
+			return new UserResponse(e.getResponseCode().getCode(),
+					e.getMessage());
+		}
+
+		return new UserResponse(userDto);
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return ActionEnum.USER_LOGIN.getActionName();
+	}
+
+}

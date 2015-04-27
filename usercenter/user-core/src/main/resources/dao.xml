@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans default-autowire="byName">
+	<!-- <bean id="userDao" class="com.ve.usercenter.core.dao.impl.UserDaoImpl"/>
+	<bean id="userExtraInfoDao" class="com.ve.usercenter.core.dao.impl.UserExtraInfoDaoImpl"/>
+	<bean id="supplierExtraDao" class="com.ve.usercenter.core.dao.impl.SupplierExtraInfoDaoImpl"/>
+	<bean id="userBabyInfoDao" class="com.ve.usercenter.core.dao.impl.UserBabyInfoDaoImpl"/> -->
+</beans>

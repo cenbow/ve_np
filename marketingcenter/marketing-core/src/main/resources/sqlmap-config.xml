@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN" "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+<sqlMapConfig>
+	<settings useStatementNamespaces="true" />
+	<sqlMap resource="sqlmap/market_activity_SqlMap.xml" />
+	<sqlMap resource="sqlmap/market_param_template_SqlMap.xml" />
+	<sqlMap resource="sqlmap/market_audit_track_SqlMap.xml" />
+	<sqlMap resource="sqlmap/market_scope_SqlMap.xml" />
+	<sqlMap resource="sqlmap/market_param_instance_SqlMap.xml"/>
+	<sqlMap resource="sqlmap/market_tool_SqlMap.xml"/>
+	
+	<!--<sqlMap resource="sqlmap/market_module_SqlMap.xml"/>
+		 -->
+    
+    <!-- coupon sqlmap -->
+    <sqlMap resource="sqlmap/ibatis-ActivityCoupon.xml"/>
+    <sqlMap resource="sqlmap/ibatis-GrantedCoupon.xml"/>
+    <sqlMap resource="sqlmap/ibatis-ReceivedCoupon.xml"/>
+</sqlMapConfig>

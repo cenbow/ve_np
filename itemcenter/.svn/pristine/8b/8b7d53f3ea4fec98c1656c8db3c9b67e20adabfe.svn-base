@@ -1,0 +1,43 @@
+package com.ve.itemcenter.core.dao.impl;
+
+import java.util.List;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.domain.SkuPropertyQTO;
+import com.ve.itemcenter.core.dao.SkuPropertyDAO;
+import com.ve.itemcenter.core.domain.SkuPropertyDO;
+
+@Service
+public class SkuPropertyDAOImpl extends SqlMapClientDaoSupport implements SkuPropertyDAO {
+
+	public SkuPropertyDAOImpl() {
+		super();
+	}
+
+	public Long addSkuProperty(SkuPropertyDO skuPropertyDO) {
+		skuPropertyDO.setIsDeleted(DBConst.UN_DELETED.getCode());
+		Long newInsertedId = (Long) getSqlMapClientTemplate().insert("SkuPropertyDAO.addSkuProperty", skuPropertyDO);
+		return newInsertedId;
+	}
+
+	public SkuPropertyDO getSkuProperty(Long id) {
+		SkuPropertyDO record = (SkuPropertyDO) getSqlMapClientTemplate()
+				.queryForObject("SkuPropertyDAO.getSkuProperty", id);
+		return record;
+	}
+
+	public int updateSkuProperty(SkuPropertyDO skuPropertyDO) {
+		int rows = getSqlMapClientTemplate().update("SkuPropertyDAO.updateSkuProperty", skuPropertyDO);
+		return rows;
+	}
+
+	public List<SkuPropertyDO> querySkuProperty(SkuPropertyQTO SkuPropertyQTO) {
+		List<SkuPropertyDO> list = getSqlMapClientTemplate()
+				.queryForList("SkuPropertyDAO.querySkuProperty", SkuPropertyQTO);
+		return list;
+	}
+
+}

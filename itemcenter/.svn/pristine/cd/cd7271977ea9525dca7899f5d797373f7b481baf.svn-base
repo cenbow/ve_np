@@ -1,0 +1,96 @@
+package com.ve.itemcenter.core.manager.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.constant.ResCodeNum;
+import com.ve.itemcenter.common.domain.SkuPropertyDTO;
+import com.ve.itemcenter.common.domain.SkuPropertyQTO;
+import com.ve.itemcenter.core.dao.SkuPropertyDAO;
+import com.ve.itemcenter.core.domain.SkuPropertyDO;
+import com.ve.itemcenter.core.exception.ItemException;
+import com.ve.itemcenter.core.manager.SkuPropertyManager;
+import com.ve.itemcenter.core.util.ExceptionUtil;
+import com.ve.itemcenter.core.util.ItemUtil;
+
+@Service
+public class SkuPropertyManagerImpl implements SkuPropertyManager {
+	@Resource
+	private SkuPropertyDAO skuPropertyDAO;
+
+	@Override
+	public SkuPropertyDTO addSkuProperty(SkuPropertyDTO skuPropertyDTO) throws ItemException {
+		try {
+			// 验证skuPropertyDTO内的属性
+			if (!verifySkuPropertyDTOProperty(skuPropertyDTO)) {
+				throw ExceptionUtil.getException(ResCodeNum.PARAM_E_INVALID, "skuPropertyDTO property incorrect");
+			}
+			SkuPropertyDO skuPropertyDO = new SkuPropertyDO();
+			ItemUtil.copyProperties(skuPropertyDTO, skuPropertyDO);// DTO转DO
+			long newInsertedId = skuPropertyDAO.addSkuProperty(skuPropertyDO);// 新增的记录返回的ID
+			skuPropertyDTO = getSkuProperty(newInsertedId);// 新增加的记录对应的skuPropertyDO
+			return skuPropertyDTO;
+		} catch (Exception e) {
+			throw new ItemException(ResCodeNum.SYS_E_DEFAULT_ERROR, e);
+		}
+	}
+
+	@Override
+	public boolean updateSkuProperty(SkuPropertyDTO skuPropertyDTO) throws ItemException {
+		// 验证参数
+		if (skuPropertyDTO.getId() == null) {
+			throw ExceptionUtil.getException(ResCodeNum.PARAM_E_MISSING, "skuPropertyDTO is null");
+		}
+		if (!verifySkuPropertyDTOProperty(skuPropertyDTO)) {
+			throw ExceptionUtil.getException(ResCodeNum.PARAM_E_INVALID, "skuPropertyDTO property incorrect");
+		}
+		SkuPropertyDO skuPropertyDO = new SkuPropertyDO();
+		ItemUtil.copyProperties(skuPropertyDTO, skuPropertyDO);
+		int num = skuPropertyDAO.updateSkuProperty(skuPropertyDO);
+		return num > 0 ? true : false;
+	}
+
+	@Override
+	public SkuPropertyDTO getSkuProperty(long id) throws ItemException {
+		SkuPropertyDO skuPropertyDO = skuPropertyDAO.getSkuProperty(id);
+		if (skuPropertyDO == null) {
+			throw ExceptionUtil.getException(ResCodeNum.BASE_PARAM_E_RECORD_NOT_EXIST, "Cannot find requested record");
+		}
+		SkuPropertyDTO skuPropertyDTO = new SkuPropertyDTO();
+		ItemUtil.copyProperties(skuPropertyDO, skuPropertyDTO);
+		return skuPropertyDTO;
+	}
+
+	@Override
+	public boolean deleteSkuProperty(long id) throws ItemException {
+		// TODO 验证id
+
+		SkuPropertyDO skuPropertyDO = new SkuPropertyDO();
+		skuPropertyDO.setId(id);
+		skuPropertyDO.setIsDeleted(DBConst.DELETED.getCode());
+		int num = skuPropertyDAO.updateSkuProperty(skuPropertyDO);
+		return num > 0 ? true : false;
+	}
+
+	@Override
+	public boolean verifySkuPropertyDTOProperty(SkuPropertyDTO skuPropertyDTO) throws ItemException {
+		// TODO 验证SkuPropertyDTO字段属性
+		return true;
+	}
+
+	public List<SkuPropertyDTO> querySkuProperty(SkuPropertyQTO skuPropertyQTO) throws ItemException {
+		List<SkuPropertyDO> list = skuPropertyDAO.querySkuProperty(skuPropertyQTO);
+		List<SkuPropertyDTO> skuPropertyDTOList = new ArrayList<SkuPropertyDTO>();// 需要返回的DTO列表
+		for (SkuPropertyDO skuPropertyDO : list) {
+			SkuPropertyDTO dto = new SkuPropertyDTO();
+			ItemUtil.copyProperties(skuPropertyDO, dto);
+			skuPropertyDTOList.add(dto);
+		}
+		return skuPropertyDTOList;
+	}
+}

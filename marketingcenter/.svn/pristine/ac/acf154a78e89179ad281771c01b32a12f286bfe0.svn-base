@@ -1,0 +1,458 @@
+package com.ve.marketingcenter.core.service.action.engine;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.springframework.stereotype.Service;
+
+import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.ve.marketingcenter.common.constant.MarketingConstant;
+import com.ve.marketingcenter.common.domain.dto.FavorableInfo;
+import com.ve.marketingcenter.common.domain.dto.MarketingActivityDTO;
+import com.ve.marketingcenter.common.domain.dto.MarketingItemDTO;
+import com.ve.marketingcenter.common.domain.dto.MarketingScopeDTO;
+import com.ve.marketingcenter.common.domain.dto.coupon.ActivityCouponDTO;
+import com.ve.marketingcenter.common.domain.qto.MarketingScopeQTO;
+import com.ve.marketingcenter.core.domain.ToolDO;
+import com.ve.marketingcenter.core.exception.MarketingException;
+import com.ve.marketingcenter.core.manager.activity.ActivityManager;
+import com.ve.marketingcenter.core.manager.actualParam.ActualParamManager;
+import com.ve.marketingcenter.core.manager.scope.ScopeManager;
+import com.ve.marketingcenter.core.manager.tool.ToolManager;
+import com.ve.marketingcenter.core.service.action.engine.tools.Tool;
+import com.ve.marketingcenter.core.util.MarketingUtils;
+@Service
+public class ComputeFavorable {
+	@Resource(name = "scopeManager")
+	private ScopeManager scopeManager;
+	
+	@Resource(name = "activityManager")
+	private ActivityManager activityManager;
+	
+	@Resource(name = "toolManager")
+	private ToolManager toolManager;
+	
+	@Resource(name = "actualParamManager")
+	private ActualParamManager actualParamManager;
+	/**
+	 * 获取活动列表map(查询活动时已对活动本身的有效性(包括审核状态，有效时间段，是否已删除)进行了过滤)
+	 * @param items
+	 * @param marketCache
+	 * @return
+	 * @throws MarketingException
+	 */
+	protected Map<Long,Set<Long>> getActivityMap(List<MarketingItemDTO> items,
+			Cache<Long,MarketingActivityDTO> marketCache) throws MarketingException{
+		//活动和其下的商品
+		Map<Long,Set<Long>> actContainsItems = Maps.newHashMap();
+		List<MarketingScopeDTO> scopeActs = null;
+		List<MarketingScopeDTO> globalActs = getGlobalScopes();
+		boolean hasGlobal = CollectionUtils.isNotEmpty(globalActs);
+		//全场活动不包含的单品
+		Map<Long,Set<Long>> acts_exItems = Maps.newHashMap();
+		//全场活动不包含的专场
+		Map<Long,Set<Long>> acts_exSpecials = Maps.newHashMap();
+		if(hasGlobal){
+			sortingExcept(globalActs,acts_exItems,acts_exSpecials);
+		}
+		//遍历商品列表
+		for (MarketingItemDTO item : items) {
+			scopeActs = getScopesByItem(item.getItemId());
+			//如果直接包含于某活动
+			if(CollectionUtils.isNotEmpty(scopeActs)){
+				for(MarketingScopeDTO msdto : scopeActs){
+					sortingItemsAndPutCache(actContainsItems,item,msdto,marketCache);
+				}
+			}
+			//获取商品所属的专场
+			//CONTINUED 黄晨
+			Set<Long> specials = getSpecialByItem(item);
+			if(CollectionUtils.isNotEmpty(specials)){
+				for(Long specialId : specials){
+					scopeActs = getScopesBySpecial(specialId);//专场所属的活动
+					if(CollectionUtils.isNotEmpty(scopeActs)){
+						for(MarketingScopeDTO msdto : scopeActs){
+							//活动不排除该商品
+							if(isNotExcept(acts_exItems,msdto.getActId(),item.getItemSkuId())){
+								sortingItemsAndPutCache(actContainsItems,item,msdto,marketCache);
+							}
+						}
+					}
+				}
+			}
+			
+			//有全场活动
+			if(hasGlobal){
+				for(MarketingScopeDTO msdto : globalActs){
+					Long actId = msdto.getActId();
+					if(acts_exItems.containsKey(actId)){//该活动有不包含的单品
+						if(!(acts_exItems.get(actId).contains(item.getItemSkuId()))){//商品不包含于活动不包含的商品中
+							if(CollectionUtils.isEmpty(specials)){//该商品不属于任何的专场
+								sortingItemsAndPutCache(actContainsItems,item,msdto,marketCache);
+							}else{
+								for(Long specialId : specials){
+									if(acts_exSpecials.containsKey(actId)){//该商品属于某个专场，且该活动有不包含的专场
+										if(!acts_exSpecials.get(actId).contains(specialId)){//该商品所属的专场不在活动不包含的专场之内
+											sortingItemsAndPutCache(actContainsItems,item,msdto,marketCache);
+										}
+									}else{//该商品属于某个专场，但该活动没有不包含的专场
+										sortingItemsAndPutCache(actContainsItems,item,msdto,marketCache);
+									}
+								}
+							}
+						}
+					}else if(acts_exSpecials.containsKey(actId)){//该活动只有不包含的专场
+						if(CollectionUtils.isEmpty(Sets.intersection(acts_exSpecials.get(actId), specials))){//商品所属的专场和活动不包含的专场的交集为空
+							sortingItemsAndPutCache(actContainsItems,item,msdto,marketCache);
+						}
+					}else{//全场活动，而且该活动没有不包含的专场和单品
+						sortingItemsAndPutCache(actContainsItems,item,msdto,marketCache);
+					}
+				}
+			}
+		}
+		return actContainsItems;
+	}
+	
+	/**
+	 * 根据平台条件和活动是否用券及是否有券对活动进行过滤(由于活动的用户属性形参挂在工具上，所以用户条件在调用工具解析时过滤)
+	 * @param marketMap
+	 * @param uid
+	 * @param plat
+	 * @return
+	 * @throws ExecutionException 
+	 */
+	protected boolean checkActivityMap(Map<Long,Set<Long>> marketMap,String utype,
+			String plat,Cache<Long,MarketingActivityDTO> marketCache,
+			 Map<Long,ActivityCouponDTO> couponCache,
+			Map<Long,ActivityCouponDTO> usedCoupon) throws MarketingException{
+		if(MapUtils.isEmpty(marketMap)){
+			return false;
+		}
+		for(Iterator<Entry<Long, Set<Long>>> iterator 
+				= marketMap.entrySet().iterator();iterator.hasNext();){
+			Long actId = iterator.next().getKey();
+			MarketingActivityDTO actDto = getActivityDtoFromCache(marketCache,actId);
+			Preconditions.checkNotNull(actDto,"没有找到id="+actId+"的活动!");
+			//不满足平台条件
+			if((MarketingUtils.getCombinedPlatformDBValue(actDto.getPlatform()) & 
+				MarketingUtils.getCombinedPlatformDBValue(plat)) == 0){
+				iterator.remove();
+			}
+			
+			//如果需要券
+			if(actDto.getCouponFlag() == MarketingConstant.GLOBAL_FLAG_YES){
+				//无券则不参加优惠活动
+				if(couponCache == null || couponCache.get(actId) == null){
+					iterator.remove();
+				}else{
+					//活动使用的优惠券
+					usedCoupon.put(actId, couponCache.get(actId));
+				}
+			}
+		}
+		return MapUtils.isNotEmpty(marketMap);
+	}
+	
+	/**
+	 * 缓存商品列表
+	 * @param items
+	 * @return
+	 */
+	protected Map<Long,MarketingItemDTO> putItemsCache(List<MarketingItemDTO> items){
+		Map<Long,MarketingItemDTO> itemsCache = Maps.newHashMap();
+		for(MarketingItemDTO item : items){
+			itemsCache.put(item.getItemSkuId(), item);
+		}
+		return itemsCache;
+	}
+
+	/**
+	 * 调用工具(javaBean)进行解析,
+	 * @param marketMap
+	 * @param marketCache
+	 * @return
+	 * @throws MarketingException 
+	 */
+	protected List<FavorableInfo> parseAngCompute(Map<Long,Set<Long>> marketMap,Cache<Long,MarketingActivityDTO> marketCache,
+			Map<Long,MarketingItemDTO> itemsCache,String utype,Map<Long,ActivityCouponDTO> usedCoupon) throws MarketingException{
+		FavorableInfo repellent = null;
+		List<FavorableInfo> nonRepellents = Lists.newArrayList();
+		FavorableInfo info;
+		for(Iterator<Entry<Long, Set<Long>>> iterator 
+				= marketMap.entrySet().iterator();iterator.hasNext();){
+			Entry<Long, Set<Long>> entry = iterator.next();
+			Long activityId = entry.getKey();
+			MarketingActivityDTO actDto = getActivityDtoFromCache(marketCache,activityId);
+			ToolDO toolDo = toolManager.getTool(actDto.getToolId());
+			switch(toolDo.getImplType()){
+			case MarketingConstant.IMPL_TYPE_BEAN:
+				try {
+					info =((Tool)Class.forName(toolDo.getImplContent()).newInstance()).
+							parse(entry.getValue(), utype, itemsCache,
+									actualParamManager.queryActualParamsByActId(entry.getKey()));
+					info.setActivity(actDto);
+					info.setCoupon(usedCoupon == null?null:usedCoupon.get(activityId));
+					info.setItemList(getActContainsItems(entry.getValue(),itemsCache));
+					
+					if(actDto.getRepellentFlag() == MarketingConstant.GLOBAL_FLAG_YES){
+						if(repellent == null){
+							repellent = info;
+						}else{
+							repellent = repellent.getOfferAmount()<info.getOfferAmount()?info:repellent;
+						}
+					}else{
+						nonRepellents.add(info);
+					}
+				} catch (ClassNotFoundException e) {
+					throw new MarketingException("类定义不存在",e.getException());
+				} catch (InstantiationException e) {
+					throw new MarketingException("初始化工具出错",e.getCause());
+				} catch (IllegalAccessException e) {
+					throw new MarketingException("非法的访问",e.getCause());
+				}
+				break;
+			case MarketingConstant.IMPL_TYPE_XML:
+				throw new IllegalArgumentException("暂不支持此类工具。implType="+toolDo.getImplType());
+			case MarketingConstant.IMPL_TYPE_JSON:
+				throw new IllegalArgumentException("暂不支持此类工具。ToolDO.implType="+toolDo.getImplType());
+			case MarketingConstant.IMPL_TYPE_PARAM:
+				throw new IllegalArgumentException("暂不支持此类工具。ToolDO.implType="+toolDo.getImplType());
+			default:
+				throw new IllegalArgumentException("不存在此类型的工具。ToolDO.implType="+toolDo.getImplType());
+			}
+		}
+		return getOptimal(repellent,nonRepellents);
+	}
+	
+	/**
+	 * 获取优惠额最大者返回
+	 * @param repellent
+	 * @param nonRepellents
+	 * @return
+	 */
+	private static List<FavorableInfo> getOptimal(FavorableInfo repellent,List<FavorableInfo> nonRepellents){
+		if(repellent == null){
+			return nonRepellents;
+		}
+		
+		long totalOfferAmount = 0;
+		for(FavorableInfo info : nonRepellents){
+			long tmp = info.getOfferAmount() == null?0:info.getOfferAmount().longValue();
+			totalOfferAmount += tmp;
+		}
+		
+		long repellentOfferAmount = repellent.getOfferAmount() == null?0:repellent.getOfferAmount().longValue();
+		if(totalOfferAmount > repellentOfferAmount){
+			return nonRepellents;
+		}
+		List<FavorableInfo> rtnList = Lists.newArrayList();
+		rtnList.add(repellent);
+		return rtnList;
+	}
+	
+	/**
+	 * 从缓存中获取MarketingActivityDTO对象
+	 * @param marketCache
+	 * @param actId
+	 * @return
+	 * @throws MarketingException
+	 */
+	private MarketingActivityDTO getActivityDtoFromCache(Cache<Long,MarketingActivityDTO> marketCache,
+			final Long actId) throws MarketingException{
+		try {
+			return marketCache.get(actId,
+				new Callable<MarketingActivityDTO>(){
+				@Override
+				public MarketingActivityDTO call() throws Exception {
+					return activityManager.getActivity(actId);
+				}
+			});
+		} catch (ExecutionException e) {
+			// TODO exception
+			throw new MarketingException();
+		}
+	}
+
+	/**
+	 * 分拣全场活动不包含的单品/专场
+	 * @param globalActs
+	 * @param exceptItemsCache
+	 * @param exceptSpcialsCache
+	 * @throws MarketingException
+	 */
+	private void sortingExcept(List<MarketingScopeDTO> globalActs,
+			Map<Long,Set<Long>> exceptItemsCache,
+			Map<Long,Set<Long>> exceptSpcialsCache) throws MarketingException{
+		for(MarketingScopeDTO msdto : globalActs){
+			List<MarketingScopeDTO> exceptItems = getExceptions(msdto.getActId(),
+					MarketingConstant.ACTIVITY_SCOPE_SIG);
+			if(CollectionUtils.isNotEmpty(exceptItems)){
+				Set<Long> itemIds = Sets.newHashSet();
+				for(MarketingScopeDTO tmp : exceptItems){
+					itemIds.add(tmp.getCludeId());
+				}
+				exceptItemsCache.put(msdto.getActId(), itemIds);
+			}
+			
+			List<MarketingScopeDTO> exceptSpecials = getExceptions(msdto.getActId(),
+					MarketingConstant.ACTIVITY_SCOPE_SPC);
+			if(CollectionUtils.isNotEmpty(exceptSpecials)){
+				Set<Long> specialIds = Sets.newHashSet();
+				for(MarketingScopeDTO tmp : exceptSpecials){
+					specialIds.add(tmp.getCludeId());
+				}
+				exceptSpcialsCache.put(msdto.getActId(),specialIds);
+			}
+		}
+	}
+	
+	/**
+	 * 获取直接包含该商品的活动
+	 * @param item
+	 * @return
+	 * @throws MarketingException
+	 */
+	private List<MarketingScopeDTO> getScopesByItem(Long itemId) 
+			throws MarketingException{
+		MarketingScopeQTO qto = new MarketingScopeQTO();
+		qto.setCludeId(itemId);
+		qto.setCludeType(MarketingConstant.GLOBAL_FLAG_YES);
+		qto.setMarketType(MarketingConstant.ACTIVITY_SCOPE_SIG);
+//		qto.setCouponFlag(couponFlag);
+		return scopeManager.queryActivityScope(qto);
+	}
+	
+
+	/**
+	 * 获取专场所属的活动
+	 * @param id//CONTINUED 黄晨
+	 * @return
+	 * @throws MarketingException
+	 */
+	private List<MarketingScopeDTO> getScopesBySpecial(Long specialId) 
+			throws MarketingException{
+		MarketingScopeQTO qto = new MarketingScopeQTO();
+		qto.setCludeId(specialId);
+		qto.setCludeType(MarketingConstant.GLOBAL_FLAG_YES);
+		qto.setMarketType(MarketingConstant.ACTIVITY_SCOPE_SPC);
+//		qto.setCouponFlag(couponFlag);
+		return scopeManager.queryActivityScope(qto);
+	}
+	
+	/**
+	 *获取全场活动列表
+	 * @return
+	 * @throws MarketingException
+	 */
+	private List<MarketingScopeDTO> getGlobalScopes() 
+			throws MarketingException{
+		MarketingScopeQTO qto = new MarketingScopeQTO();
+		qto.setCludeType(MarketingConstant.GLOBAL_FLAG_YES);
+		qto.setMarketType(MarketingConstant.ACTIVITY_SCOPE_ALL);
+//		qto.setCouponFlag(couponFlag);
+		return scopeManager.queryActivityScope(qto);
+	}
+	
+	/**
+	 * 获取商品所属的专场
+	 * @param item
+	 * @return
+	 * @throws MarketingException
+	 */
+	private Set<Long> getSpecialByItem(MarketingItemDTO item)
+			throws MarketingException{
+		//CONTINUED 黄晨
+		Set<Long> specials = Sets.newHashSet();
+		specials.add(111000L);
+		return specials;
+	}
+	
+	/**
+	 * 活动是否不排除商品/专场
+	 * @param actId
+	 * @return
+	 * @throws MarketingException
+	 */
+	private static boolean isNotExcept(Map<Long,Set<Long>> cache,
+			Long actId,Long containId) throws MarketingException{
+		return !isExcept(cache,actId,containId);
+	}
+	
+	/**
+	 * 活动是否排除商品/专场
+	 * @param actId
+	 * @return
+	 * @throws MarketingException
+	 */
+	private static boolean isExcept(Map<Long,Set<Long>> cache,
+			Long actId,Long containId) throws MarketingException{
+		if(!cache.containsKey(actId)){
+			return false;
+		}
+		return cache.get(actId).contains(containId);
+	}
+	
+	/**
+	 * 活动不包含的商品/专场
+	 * @param actId
+	 * @return(MarketingConstant.ACTIVITY_SCOPE_SIG,
+	 * @throws MarketingException
+	 */
+	private List<MarketingScopeDTO> getExceptions(Long actId,Integer marketType) 
+			throws MarketingException{
+		MarketingScopeQTO qto = new MarketingScopeQTO();
+		qto.setActId(actId);
+		qto.setCludeType(MarketingConstant.GLOBAL_FLAG_NO);
+		qto.setMarketType(marketType);
+		return scopeManager.queryActivityScope(qto);
+	}
+	
+	/**
+	 * 分拣活动和商品并设置缓存
+	 * @param map
+	 * @param item
+	 * @param msdto
+	 * @param marketCache
+	 */
+	private static void sortingItemsAndPutCache(Map<Long,Set<Long>> map,MarketingItemDTO item,
+			MarketingScopeDTO msdto,Cache<Long,MarketingActivityDTO> marketCache){
+		Long actId = msdto.getActId();
+		if(map.containsKey(actId)){
+			map.get(actId).add(item.getItemSkuId());
+		}else{
+			Set<Long> set = Sets.newHashSet();
+			set.add(item.getItemSkuId());
+			map.put(actId,set);
+			marketCache.put(actId, msdto.getActivity());
+		}
+	}
+	
+	/**
+	 * 从缓存中获取商品对象列表
+	 * @param itemIds
+	 * @param itemsCache
+	 * @return
+	 */
+	private static List<MarketingItemDTO> getActContainsItems(Set<Long> itemIds,Map<Long,MarketingItemDTO> itemsCache){
+		List<MarketingItemDTO> items = Lists.newArrayList();
+		for(Long itemId : itemIds){
+			items.add(itemsCache.get(itemId));
+		}
+		return items;
+	}
+
+}

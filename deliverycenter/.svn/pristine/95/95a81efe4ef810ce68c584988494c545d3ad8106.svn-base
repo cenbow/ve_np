@@ -1,0 +1,47 @@
+package com.ve.deliverycenter.core.util;
+
+import org.springframework.beans.BeanUtils;
+
+import com.ve.deliverycenter.common.constant.RetCodeEnum;
+import com.ve.deliverycenter.common.dto.BaseDTO;
+import com.ve.deliverycenter.common.qto.BaseQTO;
+import com.ve.deliverycenter.core.domain.BaseDo;
+import com.ve.deliverycenter.core.exception.DeliveryException;
+
+public class TransUtil {
+	public static BaseDo trans2Do(BaseDTO dto, BaseDo domain)
+			throws DeliveryException {
+		checkNull(dto, domain);
+		if (dto == null || domain == null) {
+			return null;
+		}
+		BeanUtils.copyProperties(dto, domain);
+		return domain;
+	}
+
+	public static BaseDTO trans2Dto(BaseDTO dto, BaseDo domain)
+			throws DeliveryException {
+		checkNull(dto, domain);
+		BeanUtils.copyProperties(domain, dto);
+		return dto;
+	}
+
+	public static BaseQTO trans2Qto(BaseDTO dto, BaseQTO qto)
+			throws DeliveryException {
+		checkNull(dto, qto);
+		BeanUtils.copyProperties(dto, qto);
+		return qto;
+	}
+
+	private static void checkNull(Object obj1, Object obj2)
+			throws DeliveryException {
+		if (obj1 == null) {
+			throw new DeliveryException(RetCodeEnum.PARAMERTER_NULL.getCode(),
+					"trans source is null");
+		}
+		if (obj2 == null) {
+			throw new DeliveryException(RetCodeEnum.PARAMERTER_NULL.getCode(),
+					"trans target is null");
+		}
+	}
+}

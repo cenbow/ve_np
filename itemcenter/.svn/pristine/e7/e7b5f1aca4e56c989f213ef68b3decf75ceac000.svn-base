@@ -1,0 +1,21 @@
+package com.ve.itemcenter.core.util;
+
+import com.ve.itemcenter.common.constant.ResCodeNum;
+import com.ve.itemcenter.core.service.ItemResponse;
+
+public class ResponseUtil {
+
+	public static <T> ItemResponse<T> returnRithtResponse(T model) {
+		return new ItemResponse(model);
+	}
+
+	public static <T> ItemResponse<T> returnRithtResponse(T model,
+			long totalCount) {
+		return new ItemResponse(model, totalCount);
+	}
+
+	public static <T> ItemResponse<T> returnErrorResponse(ResCodeNum resCodeNum) {
+		return new ItemResponse(resCodeNum);
+	}
+
+}

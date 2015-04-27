@@ -1,0 +1,7 @@
+package com.ve.deliverycenter.core.dao;
+
+import com.ve.deliverycenter.core.crud.dao.CrudDao;
+
+public class BaseDao extends CrudDao {
+
+}

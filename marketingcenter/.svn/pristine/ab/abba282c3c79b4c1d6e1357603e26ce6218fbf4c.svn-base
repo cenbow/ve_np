@@ -1,0 +1,87 @@
+package com.ve.marketingcenter.common.api;
+
+import com.ve.marketingcenter.common.constant.ReturnCode;
+import com.ve.marketingcenter.common.constant.coupon.RetCodeEnum;
+
+public class MarketingResponse<T> implements Response<T> {
+	private static final long serialVersionUID = 8295766534182699773L;
+
+	private T module;
+	private String resCode;
+	private String message;
+	private long totalCount;
+
+	public MarketingResponse(String resCode) {
+		this.resCode = resCode;
+	}
+
+	public MarketingResponse(String resCode, String message) {
+		this.resCode = resCode;
+		this.message = message;
+	}
+
+	public MarketingResponse(ReturnCode rtnCode) {
+		this(rtnCode.getCode(), rtnCode.getMessage());
+	}
+
+	public MarketingResponse(ReturnCode rtnCode, String message) {
+		this(rtnCode);
+		this.message = message;
+	}
+
+	public MarketingResponse(T module) {
+		this.module = module;
+		this.resCode = ReturnCode.SUCCESS.getCode();
+		this.message = ReturnCode.SUCCESS.getMessage();
+	}
+
+	public MarketingResponse(T module, long totalCount) {
+		this.module = module;
+		this.totalCount = totalCount;
+		this.resCode = ReturnCode.SUCCESS.getCode();
+		this.message = ReturnCode.SUCCESS.getMessage();
+	}
+
+	@Override
+	public T getModule() {
+		return module;
+	}
+
+	@Override
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	@Override
+	public long getTotalCount() {
+		return totalCount;
+	}
+
+	public void setTotalCount(long totalCount) {
+		this.totalCount = totalCount;
+	}
+
+	@Override
+	public String getResCode() {
+		return resCode;
+	}
+
+	public void setResCode(String resCode) {
+		this.resCode = resCode;
+	}
+
+	public void setModule(T module) {
+		this.module = module;
+	}
+
+	@Override
+	public boolean isSuccess() {
+		// TODO Auto-generated method stub
+		return RetCodeEnum.SUCCESS.getCode().equals(this.resCode) ? true
+				: false;
+	}
+}

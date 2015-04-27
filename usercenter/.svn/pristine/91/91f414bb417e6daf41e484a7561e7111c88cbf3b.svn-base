@@ -1,0 +1,229 @@
+package com.ve.usercenter.core.domain;
+
+import java.io.Serializable;
+import java.util.Date;
+
+public class UserAuthInfoDO implements Serializable {
+	private Long id;
+
+	private Long userId;
+
+	private String realName;
+
+	private String idcardNo;
+
+	private String idcardFrontImg;
+
+	private String idcardReverseImg;
+
+	private Byte sex;
+
+	private String birthday;
+
+	private Integer height;
+
+	private Integer weight;
+
+	private String profession;
+
+	private String country;
+
+	private String province;
+
+	private String city;
+
+	private String area;
+
+	private String address;
+
+	private String email;
+
+	private String mPhoneNo;
+
+	private String remark;
+
+	private Byte status;
+
+	private Date gmtCreated;
+
+	private Date gmtModified;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public String getRealName() {
+		return realName;
+	}
+
+	public void setRealName(String realName) {
+		this.realName = realName == null ? null : realName.trim();
+	}
+
+	public String getIdcardNo() {
+		return idcardNo;
+	}
+
+	public void setIdcardNo(String idcardNo) {
+		this.idcardNo = idcardNo == null ? null : idcardNo.trim();
+	}
+
+	public String getIdcardFrontImg() {
+		return idcardFrontImg;
+	}
+
+	public void setIdcardFrontImg(String idcardFrontImg) {
+		this.idcardFrontImg = idcardFrontImg == null ? null : idcardFrontImg
+				.trim();
+	}
+
+	public String getIdcardReverseImg() {
+		return idcardReverseImg;
+	}
+
+	public void setIdcardReverseImg(String idcardReverseImg) {
+		this.idcardReverseImg = idcardReverseImg == null ? null
+				: idcardReverseImg.trim();
+	}
+
+	public Byte getSex() {
+		return sex;
+	}
+
+	public void setSex(Byte sex) {
+		this.sex = sex;
+	}
+
+	public String getBirthday() {
+		return birthday;
+	}
+
+	public void setBirthday(String birthday) {
+		this.birthday = birthday;
+	}
+
+	public Integer getHeight() {
+		return height;
+	}
+
+	public void setHeight(Integer height) {
+		this.height = height;
+	}
+
+	public Integer getWeight() {
+		return weight;
+	}
+
+	public void setWeight(Integer weight) {
+		this.weight = weight;
+	}
+
+	public String getProfession() {
+		return profession;
+	}
+
+	public void setProfession(String profession) {
+		this.profession = profession == null ? null : profession.trim();
+	}
+
+	public String getCountry() {
+		return country;
+	}
+
+	public void setCountry(String country) {
+		this.country = country == null ? null : country.trim();
+	}
+
+	public String getProvince() {
+		return province;
+	}
+
+	public void setProvince(String province) {
+		this.province = province == null ? null : province.trim();
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city == null ? null : city.trim();
+	}
+
+	public String getArea() {
+		return area;
+	}
+
+	public void setArea(String area) {
+		this.area = area == null ? null : area.trim();
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address == null ? null : address.trim();
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email == null ? null : email.trim();
+	}
+
+	public String getmPhoneNo() {
+		return mPhoneNo;
+	}
+
+	public void setmPhoneNo(String mPhoneNo) {
+		this.mPhoneNo = mPhoneNo == null ? null : mPhoneNo.trim();
+	}
+
+	public Byte getStatus() {
+		return status;
+	}
+
+	public void setStatus(Byte status) {
+		this.status = status;
+	}
+
+	public Date getGmtCreated() {
+		return gmtCreated;
+	}
+
+	public void setGmtCreated(Date gmtCreated) {
+		this.gmtCreated = gmtCreated;
+	}
+
+	public Date getGmtModified() {
+		return gmtModified;
+	}
+
+	public void setGmtModified(Date gmtModified) {
+		this.gmtModified = gmtModified;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+}

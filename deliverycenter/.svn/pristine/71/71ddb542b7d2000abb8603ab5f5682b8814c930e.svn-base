@@ -1,0 +1,61 @@
+package com.ve.deliverycenter.core.crud.dao;
+
+import java.util.List;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+
+import com.ve.deliverycenter.core.crud.inf.Crud;
+import com.ve.deliverycenter.core.crud.pojo.BaseObject;
+
+/**
+ * Dao基类
+ * 
+ * @author dong.dong
+ */
+public class CrudDao extends SqlMapClientDaoSupport implements Crud {
+
+	@Override
+	public int delete(BaseObject bo) {
+		return getSqlMapClientTemplate().delete(
+				getStatementName(bo.getClass(), "delete"), bo);
+	}
+
+	@Override
+	public Object insert(BaseObject bo) {
+		return getSqlMapClientTemplate().insert(
+				getStatementName(bo.getClass(), "insert"), bo);
+	}
+
+	@Override
+	public int update(BaseObject bo) {
+		return getSqlMapClientTemplate().update(
+				getStatementName(bo.getClass(), "update"), bo);
+	}
+
+	private String getStatementName(Class classT, String crudName) {
+		return classT.getName()
+				.substring(classT.getName().lastIndexOf(".") + 1).toUpperCase()
+				+ "." + crudName;
+	}
+
+	@Override
+	public Object queryForObject(String statementName, Object obj) {
+		return getSqlMapClientTemplate().queryForObject(statementName, obj);
+	}
+
+	@Override
+	public List queryForList(String statementName, Object obj) {
+		return getSqlMapClientTemplate().queryForList(statementName, obj);
+	}
+
+	@Override
+	public Object queryCachedObject(String statementName, Object cacheKey) {
+		return null;
+	}
+
+	@Override
+	public List queryCachedList(String statementName, Object cacheKey) {
+		return null;
+	}
+
+}

@@ -1,0 +1,35 @@
+package itemsku;
+
+import javax.annotation.Resource;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.ve.itemcenter.common.api.BaseRequest;
+import com.ve.itemcenter.common.api.ItemService;
+import com.ve.itemcenter.common.api.Request;
+import com.ve.itemcenter.common.api.Response;
+import com.ve.itemcenter.common.domain.ItemSkuDTO;
+import com.ve.itemcenter.core.service.action.ActionEnum;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:applicationContext.xml" })
+public class UpdateItemSkuTest {
+	@Resource
+	private ItemService itemService;
+
+	@Test
+	public void test() {
+		System.out.println(1);
+		Request request = new BaseRequest();
+		ItemSkuDTO itemSkuDTO = new ItemSkuDTO();
+		itemSkuDTO.setId(3L);
+		itemSkuDTO.setCodeValue("蓝色-16寸-1000克");
+		request.setParam("itemSkuDTO", itemSkuDTO);
+		request.setCommand(ActionEnum.UPDATE_ITEM_SKU.getActionName());
+		Response response = itemService.execute(request);
+		System.out.println(1);
+	}
+}

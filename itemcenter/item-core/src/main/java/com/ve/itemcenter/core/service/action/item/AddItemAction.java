@@ -1,0 +1,120 @@
+package com.ve.itemcenter.core.service.action.item;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.ve.itemcenter.common.api.ItemResponse;
+import com.ve.itemcenter.common.constant.ActionEnum;
+import com.ve.itemcenter.common.constant.ResCodeNum;
+import com.ve.itemcenter.common.domain.dto.ItemDTO;
+import com.ve.itemcenter.common.domain.dto.ItemImageDTO;
+import com.ve.itemcenter.common.domain.dto.ItemSkuDTO;
+import com.ve.itemcenter.common.domain.dto.SkuPropertyDTO;
+import com.ve.itemcenter.core.exception.ItemException;
+import com.ve.itemcenter.core.manager.ItemImageManager;
+import com.ve.itemcenter.core.manager.ItemManager;
+import com.ve.itemcenter.core.manager.ItemSkuManager;
+import com.ve.itemcenter.core.manager.SkuPropertyManager;
+import com.ve.itemcenter.core.service.ItemRequest;
+import com.ve.itemcenter.core.service.RequestContext;
+import com.ve.itemcenter.core.service.action.Action;
+import com.ve.itemcenter.core.util.ResponseUtil;
+
+/**
+ * 增加商品Action
+ * 
+ * @author chen.huang
+ *
+ */
+@Service
+public class AddItemAction implements Action {
+	private static final Logger log = LoggerFactory.getLogger(AddItemAction.class);
+	@Resource
+	private ItemManager itemManager;
+
+	@Resource
+	private ItemSkuManager itemSkuManager;
+
+	@Resource
+	private SkuPropertyManager skuPropertyManager;
+
+	@Resource
+	private ItemImageManager itemImageManager;
+
+	@Resource
+	TransactionTemplate transactionTemplate;
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public ItemResponse execute(final RequestContext context) throws ItemException {
+		@SuppressWarnings("rawtypes")
+		ItemResponse response = transactionTemplate.execute(new TransactionCallback() {
+			@Override
+			public Object doInTransaction(TransactionStatus status) {
+				try {
+
+					ItemResponse response = null;
+					ItemRequest request = context.getRequest();
+					// 验证DTO是否为空
+					if (request.getParam("itemDTO") == null) {
+						return ResponseUtil.getErrorResponse(ResCodeNum.PARAM_E_MISSING, "itemDTO is null");
+					}
+					ItemDTO itemDTO = (ItemDTO) request.getParam("itemDTO");
+					// 1.首先添加item返回itemId
+					ItemDTO retitemDTO = itemManager.addItem(itemDTO);// 新增加的itemDO
+					Long itemId = retitemDTO.getId();
+					Long sellerId = retitemDTO.getSupplierId();
+
+					// 返回的ItemSkuDTO列表
+					List<ItemSkuDTO> retItemSkuDTOList = new ArrayList<ItemSkuDTO>();
+					List<ItemSkuDTO> itemSkuDTOList = itemDTO.getItemSkuDTOList();
+					for (ItemSkuDTO itemSkuDTO : itemSkuDTOList) {
+						itemSkuDTO.setItemId(itemId);
+						itemSkuDTO.setSellerId(sellerId);
+						// 2.添加ItemSkuList
+						ItemSkuDTO retitemSkuDTO = itemSkuManager.addItemSku(itemSkuDTO);
+						Long skuId = retitemSkuDTO.getId();
+						List<SkuPropertyDTO> skuPropertyDTOList = itemSkuDTO.getSkuPropertyDTOList();
+						//2.5将code_value值更新到item_sku表中
+						itemSkuManager.updateItemSkuCodeValue(skuId, sellerId, skuPropertyDTOList);
+						// 3.添加SkuPropertyList
+						List<SkuPropertyDTO> retSkuPropertyDTOList = skuPropertyManager
+								.addSkuProperty(skuId, sellerId, skuPropertyDTOList);
+						retitemSkuDTO.setSkuPropertyDTOList(retSkuPropertyDTOList);
+						retItemSkuDTOList.add(retitemSkuDTO);
+					}
+
+					// 4.添加副图列表
+					List<ItemImageDTO> itemImageDTOList = itemDTO.getItemImageDTOList();
+					List<ItemImageDTO> retItemImageDTOList = itemImageManager
+							.addItemImage(itemId, sellerId, itemImageDTOList);
+
+					retitemDTO.setItemSkuDTOList(retItemSkuDTOList);
+					retitemDTO.setItemImageDTOList(retItemImageDTOList);
+					response = ResponseUtil.getSuccessResponse(retitemDTO);
+					return response;
+				} catch (ItemException e) {
+					status.setRollbackOnly();
+					log.error(e.getMessage());
+					return ResponseUtil.getErrorResponse(e.getResCodeNum(), e.getMessage());
+				}
+			}
+		});
+		return response;
+
+	}
+
+	@Override
+	public String getName() {
+		return ActionEnum.ADD_ITEM.getActionName();
+	}
+}

@@ -1,0 +1,50 @@
+package itemimage;
+
+import java.util.ArrayList;
+
+import javax.annotation.Resource;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.ve.itemcenter.common.api.BaseRequest;
+import com.ve.itemcenter.common.api.ItemService;
+import com.ve.itemcenter.common.api.Request;
+import com.ve.itemcenter.common.api.Response;
+import com.ve.itemcenter.common.domain.ItemImageDTO;
+import com.ve.itemcenter.core.service.action.ActionEnum;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:applicationContext.xml" })
+public class AddItemImageTest {
+	@Resource
+	private ItemService itemService;
+
+	@Test
+	public void test() {
+		// System.out.println(1);
+		Request request = new BaseRequest();
+		ItemImageDTO itemImageDTO = new ItemImageDTO();
+		itemImageDTO.setImageName("虎1");
+		itemImageDTO.setItemId(1L);
+		itemImageDTO.setImageType(2);
+		itemImageDTO.setSupplierId(2L);
+		itemImageDTO.setImgUrl("http://www.163.com/a.jpeg");
+
+		ItemImageDTO itemImageDTO2 = new ItemImageDTO();
+		itemImageDTO2.setImageName("虎2");
+		itemImageDTO2.setItemId(1L);
+		itemImageDTO2.setImageType(2);
+		itemImageDTO2.setSupplierId(2L);
+		itemImageDTO2.setImgUrl("http://www.163.com/a.jpeg");
+		ArrayList<ItemImageDTO> itemImageDTOList = new ArrayList<ItemImageDTO>();
+		itemImageDTOList.add(itemImageDTO);
+		itemImageDTOList.add(itemImageDTO2);
+		request.setParam("itemImageDTOList", itemImageDTOList);
+		request.setCommand(ActionEnum.ADD_ITEM_IMAGE.getActionName());
+		Response response = itemService.execute(request);
+		System.out.println(1);
+	}
+}

@@ -1,0 +1,14 @@
+package com.ve.tradecenter.core.manager.impl;
+
+import com.ve.tradecenter.core.domain.OrderDO;
+import com.ve.tradecenter.core.exception.TradeException;
+import com.ve.tradecenter.core.manager.OrderManager;
+
+public class OrderManagerImpl implements OrderManager{
+
+	@Override
+	public OrderDO addOrder(OrderDO orderDO) throws TradeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

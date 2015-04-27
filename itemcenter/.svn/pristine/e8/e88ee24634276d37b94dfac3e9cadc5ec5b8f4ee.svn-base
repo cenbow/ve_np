@@ -1,0 +1,77 @@
+package com.ve.itemcenter.core.manager;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.domain.ItemDTO;
+import com.ve.itemcenter.common.domain.ItemQTO;
+import com.ve.itemcenter.core.exception.ItemException;
+
+@Service
+public interface ItemManager {
+
+	/**
+	 * 添加商品
+	 * 
+	 * @param itemDO
+	 * @return
+	 * @throws ItemException
+	 */
+	public ItemDTO addItem(ItemDTO itemDTO) throws ItemException;
+
+	/**
+	 * 添加商品
+	 * 
+	 * @param itemDO
+	 * @return
+	 * @throws ItemException
+	 */
+	public boolean updateItem(ItemDTO itemDTO) throws ItemException;
+
+	/**
+	 * 查看商品
+	 * 
+	 * @param itemDO
+	 * @return
+	 * @throws ItemException
+	 */
+	public ItemDTO getItem(long id) throws ItemException;
+
+	/**
+	 * 删除商品
+	 * 
+	 * @param id
+	 * @return
+	 * @throws ItemException
+	 */
+	public boolean deleteItem(long id) throws ItemException;
+
+	/**
+	 * 将商品移入回收站
+	 * 
+	 * @param id
+	 * @return
+	 * @throws ItemException
+	 */
+	public boolean removeItem(long id) throws ItemException;
+
+	/**
+	 * 验证itemDTO
+	 * 
+	 * @param itemDO
+	 * @return
+	 * @throws ItemException
+	 */
+	public boolean verifyItemDTOProperty(ItemDTO itemDTO) throws ItemException;
+
+	/**
+	 * 查询商品列表
+	 * 
+	 * @param itemQTO
+	 * @return
+	 * @throws ItemException
+	 */
+	public List<ItemDTO> queryItem(ItemQTO itemQTO) throws ItemException;
+
+}

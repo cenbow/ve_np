@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="item_sku">
+	<typeAlias alias="ItemSkuDO" type="com.ve.itemcenter.core.domain.ItemSkuDO" />
+	<typeAlias alias="ItemSkuDTO"	type="com.ve.itemcenter.common.domain.ItemSkuDTO" />
+	<typeAlias alias="ItemSkuQTO"	type="com.ve.itemcenter.common.domain.ItemSkuQTO" />
+
+	<resultMap class="ItemSkuDO" id="ItemSkuDOResult">
+		<result property="id" column="id" />
+		<result property="codeValue" column="code_value" />
+		<result property="itemId" column="item_id" />
+		<result property="materialCode" column="material_code" />
+		<result property="barCode" column="bar_code" />
+		<result property="sellerId" column="seller_id" />
+		<result property="marketPrice" column="market_price" />
+		<result property="promotionPrice" column="market_price" />
+		<result property="wirelessPrice" column="wireless_price" />
+		<result property="stockNum" column="stock_num" />
+		<result property="soldNum" column="sold_num" />
+		<result property="isDeleted" column="is_deleted" />
+		<result property="gmtCreated" column="gmt_created" />
+		<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+
+	<sql id="ItemSkuFields">
+		id,
+		code_value,
+		item_id,
+		material_code,
+		bar_code,
+		seller_id,
+		market_price,
+		promotion_price,
+		wireless_price,
+		stock_num,
+		sold_num,
+		is_deleted,
+		gmt_created,
+		gmt_modified
+	</sql>
+
+	<insert id="ItemSkuDAO.addItemSku" parameterClass="ItemSkuDO">
+		insert into item_sku(
+		<include refid="ItemSkuFields" />
+		)values(
+		#id#,
+		#codeValue#,
+		#itemId#,
+		#materialCode#,
+		#barCode#,
+		#sellerId#,
+		#marketPrice#,
+		#promotionPrice#,
+		#wirelessPrice#,
+		#stockNum#,
+		#soldNum#,
+		#isDeleted#,
+		now(),
+		now()
+		)
+		<selectKey keyProperty="id" resultClass="Long">
+			SELECT
+			LAST_INSERT_ID();
+		</selectKey>
+	</insert>
+
+	<sql id="item_sku_Base_Column_List">
+		id,
+		code_value,
+		item_id,
+		material_code,
+		bar_code,
+		seller_id,
+		market_price,
+		promotion_price,
+		wireless_price,
+		stock_num,
+		sold_num,
+		is_deleted,
+		gmt_created,
+		gmt_modified
+	</sql>
+	
+	<update id="ItemSkuDAO.updateItemSku" parameterClass="ItemSkuDO">
+		update item_sku
+		set gmt_modified=now()
+		<dynamic prepend="">
+			<isNotNull prepend="," property="codeValue">
+				code_value = #codeValue#
+			</isNotNull>
+			<isNotNull prepend="," property="materialCode">
+				material_code = #materialCode#
+			</isNotNull>
+			<isNotNull prepend="," property="barCode">
+				bar_code = #barCode#
+			</isNotNull>
+			<isNotNull prepend="," property="marketPrice">
+				market_price =
+				#marketPrice#
+			</isNotNull>
+			<isNotNull prepend="," property="promotionPrice">
+				promotion_price = #promotionPrice#
+			</isNotNull>
+			<isNotNull prepend="," property="wirelessPrice">
+				wireless_price =
+				#wirelessPrice#
+			</isNotNull>
+			<isNotNull prepend="," property="stockNum">
+				stock_num = #stockNum#
+			</isNotNull>
+			<isNotNull prepend="," property="soldNum">
+				sold_num = #soldNum#
+			</isNotNull>
+			<isNotNull prepend="," property="isDeleted">
+				is_deleted = #isDeleted#
+			</isNotNull>
+		</dynamic>
+		<dynamic prepend="where">
+				<isNotNull property="id" prepend="and">
+					id=#id#
+				</isNotNull>
+				<isNotNull property="sellerId" prepend="and">
+					seller_id=#sellerId#
+				</isNotNull>
+			</dynamic>
+		 and is_deleted=0
+	</update>
+	
+	<select id="ItemSkuDAO.getItemSku" resultMap="ItemSkuDOResult"
+		parameterClass="Long">
+		select
+		<include refid="item_sku_Base_Column_List" />
+		from item_sku
+		where id = #id# and is_deleted=0
+	</select>
+	
+	<select id="ItemSkuDAO.queryItemSku" resultMap="ItemSkuDOResult"
+		parameterClass="ItemSkuQTO">
+		select
+		<include refid="item_sku_Base_Column_List" />
+		from item_sku 
+			<dynamic prepend="where">
+				<isNotNull property="itemId" prepend="and">
+					item_id=#itemId#
+				</isNotNull>
+			</dynamic>
+		and is_deleted=0
+		 limit #currentPage#,#pageSize#
+	</select>
+</sqlMap>

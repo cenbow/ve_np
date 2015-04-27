@@ -1,0 +1,22 @@
+package com.ve.deliverycenter.client.express.impl;
+
+import com.ve.deliverycenter.client.express.intef.ExpressClient;
+import com.ve.deliverycenter.common.api.BaseRequest;
+import com.ve.deliverycenter.common.api.DeliveryService;
+import com.ve.deliverycenter.common.api.Request;
+import com.ve.deliverycenter.common.api.Response;
+import com.ve.deliverycenter.common.dto.express.ExpressDTO;
+
+public class ExpressClientImpl implements ExpressClient {
+
+	private DeliveryService deliveryService;
+
+	@Override
+	public Response<ExpressDTO> addExpress(ExpressDTO expressDTO) {
+		Request request = new BaseRequest();
+		request.setCommand("addExpress");
+		request.setParam("param", expressDTO);
+		Response response = deliveryService.execute(request);
+		return response;
+	}
+}

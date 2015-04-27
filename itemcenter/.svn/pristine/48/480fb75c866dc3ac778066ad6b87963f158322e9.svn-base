@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="item_brand">
+	<typeAlias alias="itemBrandDO" type="com.ve.itemcenter.core.domain.ItemBrandDO" />
+	<typeAlias alias="itemBrandDTO"	type="com.ve.itemcenter.common.domain.ItemBrandDTO" />
+	<typeAlias alias="itemBrandQTO"	type="com.ve.itemcenter.common.domain.ItemBrandQTO" />
+
+	<resultMap class="itemBrandDO" id="itemBrandDOResult">
+		<result property="id" column="id" />
+		<result property="cname" column="cname" />
+		<result property="ename" column="ename" />
+		<result property="brandStatus" column="brand_status" />
+		<result property="logoUrl" column="logo_url" />
+		<result property="country" column="country" />
+		<result property="countryIcon" column="country_icon" />
+		<result property="buildTime" column="build_time" />
+		<result property="initiator" column="initiator" />
+		<result property="background" column="background" />
+		<result property="headAddress" column="head_address" />
+		<result property="sort" column="sort" />
+		<result property="isDeleted" column="is_deleted" />
+		<result property="gmtCreated" column="gmt_created" />
+		<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+
+	<resultMap class="itemBrandDTO" id="itemBrandDTOResult">
+		<result property="id" column="id" />
+		<result property="cname" column="cname" />
+		<result property="ename" column="ename" />
+		<result property="brandStatus" column="brand_status" />
+		<result property="logoUrl" column="logo_url" />
+		<result property="country" column="country" />
+		<result property="countryIcon" column="country_icon" />
+		<result property="buildTime" column="build_time" />
+		<result property="initiator" column="initiator" />
+		<result property="background" column="background" />
+		<result property="headAddress" column="head_address" />
+		<result property="sort" column="sort" />
+		<result property="gmtCreated" column="gmt_created" />
+		<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+
+	<sql id="itemBrandFields">
+		id,
+		cname,
+		ename,
+		brand_status,
+		logo_url,
+		country,
+		country_icon,
+		build_time,
+		initiator,
+		background,
+		head_address,
+		sort,
+		is_deleted,
+		gmt_created,
+		gmt_modified
+	</sql>
+
+	<insert id="ItemBrandDAO.addItemBrand" parameterClass="itemBrandDO">
+		insert into item_brand(
+		<include refid="itemBrandFields" />
+		)values(
+		#id#,
+		#cname#,
+		#ename#,
+		#brandStatus#,
+		#logoUrl#,
+		#country#,
+		#countryIcon#,
+		#buildTime#,
+		#initiator#,
+		#background#,
+		#headAddress#,
+		#sort#,
+		#isDeleted#,
+		now(),
+		now()
+		)
+		<selectKey keyProperty="id" resultClass="Long">
+			SELECT
+			LAST_INSERT_ID();
+		</selectKey>
+	</insert>
+
+	<sql id="Base_Column_List">
+		id, cname, ename, brand_status, logo_url, country,
+		country_icon,
+		build_time, initiator,
+		background, head_address, sort,
+		is_deleted, gmt_created, gmt_modified
+	</sql>
+
+	<select id="ItemBrandDAO.getItemBrand" resultMap="itemBrandDOResult"
+		parameterClass="Long">
+		select
+		<include refid="item_brand.Base_Column_List" />
+		from item_brand
+		where id = #id# 
+	</select>
+
+	<update id="ItemBrandDAO.updateItemBrand" parameterClass="itemBrandDO">
+		update item_brand
+		set gmt_modified=now()
+		<dynamic prepend="">
+			<isNotNull prepend="," property="cname">
+				cname = #cname#
+			</isNotNull>
+			<isNotNull prepend="," property="ename">
+				ename = #ename#
+			</isNotNull>
+			<isNotNull prepend="," property="brandStatus">
+				brand_status =
+				#brandStatus#
+			</isNotNull>
+			<isNotNull prepend="," property="logoUrl">
+				logo_url = #logoUrl#
+			</isNotNull>
+			<isNotNull prepend="," property="country">
+				country = #country#
+			</isNotNull>
+			<isNotNull prepend="," property="countryIcon">
+				country_icon =
+				#countryIcon#
+			</isNotNull>
+			<isNotNull prepend="," property="buildTime">
+				build_time = #buildTime#
+			</isNotNull>
+			<isNotNull prepend="," property="initiator">
+				initiator = #initiator#
+			</isNotNull>
+			<isNotNull prepend="," property="background">
+				background = #background#
+			</isNotNull>
+			<isNotNull prepend="," property="headAddress">
+				head_address =
+				#headAddress#
+			</isNotNull>
+			<isNotNull prepend="," property="sort">
+				sort = #sort#
+			</isNotNull>
+			<isNotNull prepend="," property="descs">
+				descs = #descs#
+			</isNotNull>
+			<isNotNull prepend="," property="isDeleted">
+				is_deleted = #isDeleted#
+			</isNotNull>
+		</dynamic>
+		where id = #id#
+	</update>
+	
+	<select id="ItemBrandDAO.queryItemBrandList" resultMap="itemBrandDOResult"
+		parameterClass="itemBrandQTO">
+		select
+		<include refid="item_brand.Base_Column_List" />
+		from item_brand
+		 limit #currentPage#,#pageSize#
+	</select>
+	
+	
+</sqlMap>

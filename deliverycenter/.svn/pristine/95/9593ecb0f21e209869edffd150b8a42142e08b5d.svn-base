@@ -1,0 +1,67 @@
+package com.ve.deliverycenter.core.service;
+
+import com.ve.deliverycenter.common.api.Response;
+import com.ve.deliverycenter.common.constant.RetCodeEnum;
+
+public class DeliveryResponse<T> implements Response<T> {
+	private static final long serialVersionUID = 8295766534182699773L;
+
+	private T module;
+	private String code;
+	private String message;
+	private long totalCount = 0;
+
+	public DeliveryResponse(RetCodeEnum retCodeEnum) {
+		this.code = retCodeEnum.getCode();
+		this.message = retCodeEnum.getMessage();
+	}
+
+	public DeliveryResponse(String code, String message) {
+		this.code = code;
+		this.message = message;
+	}
+
+	public DeliveryResponse(RetCodeEnum retCodeEnum, T module) {
+		this.code = retCodeEnum.getCode();
+		this.message = retCodeEnum.getMessage();
+		this.module = module;
+	}
+
+	public DeliveryResponse(RetCodeEnum retCodeEnum, T module, long totalCount) {
+		this.code = retCodeEnum.getCode();
+		this.message = retCodeEnum.getMessage();
+		this.module = module;
+		this.totalCount = totalCount;
+	}
+
+	@Override
+	public T getModule() {
+		// TODO Auto-generated method stub
+		return this.module;
+	}
+
+	@Override
+	public boolean isSuccess() {
+		// TODO Auto-generated method stub
+		return RetCodeEnum.SUCCESS.getCode().equals(this.code) ? true : false;
+	}
+
+	@Override
+	public String getCode() {
+		// TODO Auto-generated method stub
+		return this.code;
+	}
+
+	@Override
+	public String getMessage() {
+		// TODO Auto-generated method stub
+		return this.message;
+	}
+
+	@Override
+	public long getTotalCount() {
+		// TODO Auto-generated method stub
+		return this.totalCount;
+	}
+
+}

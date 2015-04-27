@@ -1,0 +1,43 @@
+package com.ve.tradecenter.core.manager;
+
+
+import java.util.Date;
+
+import com.ve.tradecenter.core.domain.PaymentNoticeDO;
+import com.ve.tradecenter.core.exception.TradeException;
+
+public interface PaymentNoticeManager {
+	
+	/**
+	 * 添加支付单号
+	 * @return
+	 * @throws TradeException
+	 */
+	public Long addPaymentNotice(PaymentNoticeDO paymentNoticeDO)throws TradeException;
+	
+	/**
+	 * 查询付款单
+	 * @param id
+	 * @return
+	 * @throws TradeException
+	 */
+	/*public PaymentNoticeDO getPaymentNotice(Long id)throws TradeException;*/
+	
+	/**
+	 * 根据交易号查询支付单
+	 * @param tradeNo
+	 * @return
+	 * @throws TradeException
+	 */
+	public PaymentNoticeDO getPaymentNoticeByTradeNo(String tradeNo,long supplierId)throws TradeException;
+	
+	/**
+	 * 标记支付单状态为  支付成功
+	 * @param payStatus
+	 * @param tradeNo
+	 * @return
+	 * @throws TradeExcetion
+	 */
+	public int paySuccess(boolean payStatus,long totalFee,String  outerTradeNo,long id,long supplierId)throws TradeException;
+	
+}

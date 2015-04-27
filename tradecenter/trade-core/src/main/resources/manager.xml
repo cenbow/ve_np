@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans default-autowire="byName">
+	<!-- <bean id="orderManager" class="com.ve.tradecenter.core.manager.impl.DefaultOrderManager"/> -->
+	
+	<bean id="cartItemManager" class="com.ve.tradecenter.core.manager.impl.CartItemManagerImpl"/>
+	
+	<bean id="userCartItemManager" class="com.ve.tradecenter.core.manager.impl.UserCartItemManagerImpl"/>
+	
+	<bean id="orderManager" class="com.ve.tradecenter.core.manager.impl.OrderManagerImpl"/>
+	
+	<bean id="orderItemManager" class="com.ve.tradecenter.core.manager.impl.OrderItemManagerImpl"/>
+	
+	<bean id="orderSeqManager" class="com.ve.tradecenter.core.manager.impl.OrderSeqManagerImpl"/>
+	
+	<bean id="paymentNoticeManager" class="com.ve.tradecenter.core.manager.impl.PaymentNoticeManagerImpl"/>
+	
+	<bean id="itemManager" class="com.ve.tradecenter.core.manager.impl.ItemManagerImpl"/>
+	
+	<bean id="promotionManager" class="com.ve.tradecenter.core.manager.impl.PromotionManagerImpl"/>
+	
+	<bean id="userManager" class="com.ve.tradecenter.core.manager.impl.UserManagerImpl" />
+	
+	<bean id="deliveryManager" class="com.ve.tradecenter.core.manager.impl.DeliveryManagerImpl" />
+	
+	<bean id="paymentManager" class="com.ve.tradecenter.core.manager.impl.PaymentManagerImpl" />
+	
+	<bean id="sellerOrderManager" class="com.ve.tradecenter.core.manager.impl.SellerOrderManagerImpl" />
+	
+	<bean id="returnOrderItemManager" class="com.ve.tradecenter.core.manager.impl.ReturnOrderItemManagerImpl" />
+	
+	<bean id="returnOrderManager" class="com.ve.tradecenter.core.manager.impl.ReturnOrderManagerImpl" />
+	
+	<bean id="orderLogManagerImpl" class="com.ve.tradecenter.core.manager.impl.OrderLogManagerImpl" />
+	
+	<bean id="deliveryNoticeManager" class="com.ve.tradecenter.core.manager.impl.DeliveryNoticeManagerImpl" />
+	
+</beans>

@@ -1,0 +1,73 @@
+package com.ve.deliverycenter.common.constant;
+
+public enum ActionEnum {
+	/************************************ 快递相关操作接口 ********************************************/
+	/**
+	 * 添加快递
+	 */
+	ADD_EXPRESS("AddExpress"),
+	/**
+	 * 删除快递
+	 */
+	DELETE_EXPRESS("DeleteExpress"),
+	/**
+	 * 修改快递
+	 */
+	UPDATE_EXPRESS("UpdateExpress"),
+	/**
+	 * 查询快递
+	 */
+	QUERY_EXPRESS("QueryExpress"),
+	/**
+	 * 新增快递属性
+	 */
+	ADD_EXPRESS_PROPERTY("AddExpressProperty"),
+	/**
+	 * 删除快递属性
+	 */
+	DELETE_EXPRESS_PROPERTY("DeleteExpressProperty"),
+	/************************************ 运费相关操作接口 ********************************************/
+	/**
+	 * 添加运费标准
+	 */
+	ADD_STDFEE("AddStdFee"),
+	/**
+	 * 删除运费标准
+	 */
+	DELETE_STDFEE("DeleteStdFee"),
+	/**
+	 * 修改运费标准
+	 */
+	UPDATE_STDFEE("UpdateStdFee"),
+	/**
+	 * 查询运费标准
+	 */
+	QUERY_STDFEE("QueryStdFee"),
+	/**
+	 * 新增区域运费
+	 */
+	ADD_REGION_FEE("AddRegionFee"),
+	/**
+	 * 删除区域运费
+	 */
+	DELETE_REGION_FEE("DeleteRegionFee");
+
+	private String actionName;
+
+	private ActionEnum(String actionName) {
+		this.actionName = actionName;
+	}
+
+	public static ActionEnum getActionEnum(String actionName) {
+		for (ActionEnum ae : ActionEnum.values()) {
+			if (ae.actionName.equals(actionName)) {
+				return ae;
+			}
+		}
+		return null;
+	}
+
+	public String getActionName() {
+		return actionName;
+	}
+}

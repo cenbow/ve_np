@@ -1,0 +1,257 @@
+package com.ve.usercenter.core.manager.impl;
+
+import java.util.Date;
+
+import javax.annotation.Resource;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.constant.ResponseCode;
+import com.ve.usercenter.common.dto.UserAuthInfoDTO;
+import com.ve.usercenter.common.dto.UserDTO;
+import com.ve.usercenter.core.dao.UserAuthInfoDao;
+import com.ve.usercenter.core.domain.UserAuthInfoDO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserAuthInfoManager;
+import com.ve.usercenter.core.manager.UserManager;
+import com.ve.usercenter.core.util.IdCardCheckUtil;
+
+@Service
+public class UserAuthInfoManagerImpl implements UserAuthInfoManager {
+
+	@Resource
+	private UserManager userManager;
+	@Resource
+	private UserAuthInfoDao userAuthInfoDao;
+
+	@Override
+	public UserAuthInfoDTO addUserAuthInfo(UserAuthInfoDTO authInfoDto)
+			throws UserException {
+		// TODO Auto-generated method stub
+		UserAuthInfoDO userAuthInfoDo = null;
+
+		Date date = new Date();
+		authInfoDto.setGmtCreated(date);
+		authInfoDto.setGmtModified(date);
+
+		if (null == authInfoDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"authInfoDto is null");
+		}
+
+		// 校验身份证信息
+		if (authInfoDto.getIdcardNo() == null) {
+			throw new UserException(ResponseCode.B_ADD_ERROR,
+					"idcardno is null");
+		}
+		String errorCode = null;
+		try {
+			errorCode = IdCardCheckUtil.IDCardValidate(authInfoDto
+					.getIdcardNo());
+		} catch (UserException e) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR, errorCode);
+		}
+
+		// 判断名字是否为空
+		if (null == authInfoDto.getRealName()) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"real name is null");
+		}
+
+		// 判断身份证正反面地址是否为空
+		if (null == authInfoDto.getIdcardFrontImg()) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"idCardFrontImg  is null");
+		}
+
+		if (null == authInfoDto.getIdcardReverseImg()) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"idCardReverseImg  is null");
+		}
+
+		// 查询指定的用户是否存在
+		UserDTO userDto = userManager.getUserById(authInfoDto.getUserId());
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user is not exist");
+		}
+
+		// 每个用户只能存在一条记录
+		UserAuthInfoDTO userAuthDto = getAuthInfoByUserId(authInfoDto
+				.getUserId());
+		if (null != userAuthDto) {
+			throw new UserException(ResponseCode.B_ADD_ERROR,
+					"this user auth info is exist");
+		}
+
+		userAuthInfoDo = new UserAuthInfoDO();
+
+		BeanUtils.copyProperties(authInfoDto, userAuthInfoDo);
+
+		Long id = userAuthInfoDao.addAuthInfo(userAuthInfoDo);
+
+		authInfoDto = getAuthInfoById(id);
+
+		return authInfoDto;
+	}
+
+	@Override
+	public UserAuthInfoDTO getAuthInfoById(Long id) throws UserException {
+		// TODO Auto-generated method stub
+
+		UserAuthInfoDTO userAuthInfoDto = null;
+
+		if (null == id) {
+			throw new UserException(ResponseCode.P_PARAM_NULL, "id is null");
+		}
+
+		if (id < 0) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"id must greater than zero");
+		}
+
+		UserAuthInfoDO userAuthInfoDo = userAuthInfoDao.getAuthInfoById(id);
+		if (userAuthInfoDo != null) {
+			userAuthInfoDto = new UserAuthInfoDTO();
+			BeanUtils.copyProperties(userAuthInfoDo, userAuthInfoDto);
+		}
+
+		return userAuthInfoDto;
+	}
+
+	@Override
+	public UserAuthInfoDTO getAuthInfoByUserId(Long userId)
+			throws UserException {
+		// TODO Auto-generated method stub
+
+		UserDTO userDto = userManager.getUserById(userId);
+		UserAuthInfoDTO userAuthInfoDto = null;
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_ADD_ERROR,
+					"usre is not exist");
+		}
+
+		UserAuthInfoDO userAuthInfoDo = userAuthInfoDao
+				.getAuthInfoByUserId(userId);
+
+		if (null != userAuthInfoDo) {
+			userAuthInfoDto = new UserAuthInfoDTO();
+			BeanUtils.copyProperties(userAuthInfoDo, userAuthInfoDto);
+		}
+
+		return userAuthInfoDto;
+	}
+
+	@Override
+	public int userIdentified(Long userId, String remark) throws UserException {
+		// TODO Auto-generated method stub
+
+		UserAuthInfoDTO userAuthInfoDto = null;
+
+		UserDTO userDto = userManager.getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"user is not exist");
+		}
+
+		int result = userAuthInfoDao.userIdentified(userId, remark);
+
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+		return result;
+	}
+
+	@Override
+	public int userFailIdentified(Long userId, String remark)
+			throws UserException {
+		// TODO Auto-generated method stub
+
+		UserDTO userDto = userManager.getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"user is not exist");
+		}
+
+		int result = userAuthInfoDao.userFailIdentified(userId, remark);
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+		return result;
+	}
+
+	@Override
+	public int updateAuthInfo(UserAuthInfoDTO authInfoDto) throws UserException {
+		// TODO Auto-generated method stub
+
+		if (null == authInfoDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"authInfoDto is null");
+		}
+
+		// 校验身份证信息
+		if (authInfoDto.getIdcardNo() == null) {
+			throw new UserException(ResponseCode.B_ADD_ERROR,
+					"idcardno is null");
+		}
+		String errorCode = null;
+		try {
+			errorCode = IdCardCheckUtil.IDCardValidate(authInfoDto
+					.getIdcardNo());
+		} catch (UserException e) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR, errorCode);
+		}
+
+		// 判断名字是否为空
+		if (null == authInfoDto.getRealName()) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"real name is null");
+		}
+
+		// 判断身份证正反面地址是否为空
+		if (null == authInfoDto.getIdcardFrontImg()) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"idCardFrontImg  is null");
+		}
+
+		if (null == authInfoDto.getIdcardReverseImg()) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"idCardReverseImg  is null");
+		}
+
+		UserAuthInfoDO authInfoDo = new UserAuthInfoDO();
+		BeanUtils.copyProperties(authInfoDto, authInfoDo);
+
+		int result = userAuthInfoDao.updateAuthInfo(authInfoDo);
+
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public int deleteUserAuth(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+		UserDTO userDto = userManager.getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user is not exist");
+		}
+
+		int result = userAuthInfoDao.deleteUserAuth(userId);
+
+		return result;
+	}
+
+	@Override
+	public int restoreUserAuth(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+
+		int result = userAuthInfoDao.restoreUserAuth(userId);
+
+		return result;
+	}
+}

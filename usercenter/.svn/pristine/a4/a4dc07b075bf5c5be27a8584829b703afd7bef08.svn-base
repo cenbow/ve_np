@@ -1,0 +1,410 @@
+package com.ve.usercenter.core.manager.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.constant.ResponseCode;
+import com.ve.usercenter.common.dto.UserDTO;
+import com.ve.usercenter.common.qto.UserQTO;
+import com.ve.usercenter.core.dao.UserDao;
+import com.ve.usercenter.core.domain.UserDO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserManager;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.util.UserUtil;
+
+@Service
+public class UserManagerImpl implements UserManager {
+
+	@Resource
+	private UserDao userDao;
+
+	@Override
+	public UserDTO addUser(UserDTO userDto) throws UserException {
+		// TODO Auto-generated method stub
+
+		UserResponse response = null;
+
+		if (null == userDto) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"userDto is null");
+		}
+
+		Date date = new Date();
+		userDto.setGmtModified(date);
+		userDto.setGmtCreated(date);
+
+		// 判断用户的数据是否合法
+		ResponseCode responseCode = UserUtil.userInfoIsLegal(userDto);
+
+		if (null != responseCode) {
+			throw new UserException(responseCode);
+		}
+
+		// 判断用户名是否被注册
+		String name = userDto.getName();
+		if (name != null) {
+
+			if (null != getUserByName(name)) {
+				throw new UserException(ResponseCode.B_ADD_ERROR,
+						"username is already register");
+			}
+		}
+
+		// 判断邮箱是否被注册
+		String email = userDto.getEmail();
+		if (null != email) {
+			if (null != getUserByEmail(email)) {
+				throw new UserException(ResponseCode.B_ADD_ERROR,
+						"email is already register");
+			}
+		}
+
+		// 判断手机是否被注册
+		String mobile = userDto.getmPhoneNo();
+		if (null != mobile) {
+
+			if (null != getUserByMobile(mobile)) {
+				throw new UserException(ResponseCode.B_ADD_ERROR,
+						"phoneNo is already register");
+			}
+		}
+
+		UserDO userDo = new UserDO();
+		BeanUtils.copyProperties(userDto, userDo);
+		Long userId = userDao.addUser(userDo);
+
+		userDto = getUserById(userId);
+
+		return userDto;
+	}
+
+	@Override
+	public UserDTO getUserByName(String name) throws UserException {
+
+		if (null == name) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"username is null");
+		}
+		UserDO userDo = userDao.getUserByName(name);
+		UserDTO userDto = null;
+		if (null != userDo) {
+			userDto = new UserDTO();
+			BeanUtils.copyProperties(userDo, userDto);
+		}
+
+		return userDto;
+	}
+
+	@Override
+	public UserDTO getUserByEmail(String email) throws UserException {
+		// TODO Auto-generated method stub
+		if (null == email) {
+			throw new UserException(ResponseCode.P_PARAM_NULL, "email is null");
+		}
+		UserDO userDo = userDao.getUserByEmail(email);
+		UserDTO userDto = null;
+		if (null != userDo) {
+			userDto = new UserDTO();
+			BeanUtils.copyProperties(userDo, userDto);
+		}
+		return userDto;
+	}
+
+	@Override
+	public UserDTO getUserByMobile(String mobile) throws UserException {
+		// TODO Auto-generated method stub
+		if (null == mobile) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"phoneNo is null");
+		}
+		UserDO userDo = userDao.getUserByMobile(mobile);
+		UserDTO userDto = null;
+		if (null != userDo) {
+			userDto = new UserDTO();
+			BeanUtils.copyProperties(userDo, userDto);
+		}
+		return userDto;
+	}
+
+	@Override
+	public UserDTO getUserById(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+		if (null == userId) {
+			throw new UserException(ResponseCode.P_PARAM_NULL, "userId is null");
+		}
+
+		if (userId < 0) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"userId must greater than zero");
+		}
+
+		UserDO userDo = userDao.getUserById(userId);
+		UserDTO userDto = null;
+
+		if (null != userDo) {
+			userDto = new UserDTO();
+			BeanUtils.copyProperties(userDo, userDto);
+		}
+		return userDto;
+	}
+
+	@Override
+	public int updatePwd(Long userId, String oldPwd, String newPwd)
+			throws UserException {
+
+		if (null == newPwd) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"new password is null");
+		}
+
+		if (null == oldPwd) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"old password is null");
+		}
+
+		if (oldPwd.equals(newPwd)) {
+			throw new UserException(ResponseCode.B_UPDATE_ERROR,
+					"new password and old password is same");
+		}
+
+		if (!newPwd.matches("^[a-zA-Z0-9_]{8,20}$")) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"new password format is error");
+		}
+
+		UserDTO userDto = getUserById(userId);
+		if (userDto == null) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user is not exist");
+		}
+
+		if (!userDto.getPassword().equals(oldPwd)) {
+			throw new UserException(ResponseCode.B_UPDATE_ERROR,
+					"old password is error");
+		}
+
+		int result = userDao.updatePwd(userId, newPwd);
+
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public int updateEmail(Long userId, String email) throws UserException {
+		// TODO Auto-generated method stub
+		if (null == email) {
+			throw new UserException(ResponseCode.P_PARAM_NULL, "email is null");
+		}
+
+		if (!email
+				.matches("^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$")) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"email format error");
+		}
+
+		UserDTO userDto = getUserById(userId);
+
+		int result = userDao.updateEmail(userId, email);
+
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public int updateMobile(Long userId, String mobile) throws UserException {
+		// TODO Auto-generated method stub
+
+		if (null == mobile) {
+			throw new UserException(ResponseCode.P_PARAM_NULL,
+					"phoneNo is null");
+		}
+
+		if (mobile.length() != 11) {
+			throw new UserException(ResponseCode.P_PARAM_ERROR,
+					"phoneNo formart is error");
+		}
+
+		UserDTO userDto = getUserById(userId);
+
+		int result = userDao.updateMobile(userId, mobile);
+
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public int activeUser(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+
+		UserDTO userDto = getUserById(userId);
+
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user not exist");
+		}
+
+		int result = userDao.activeUser(userId);
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public int freezeUser(Long userId) throws UserException {
+
+		UserDTO userDto = getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user not exist");
+		}
+
+		int result = userDao.freezeUser(userId);
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public int moveUser(Long userId) throws UserException {
+
+		UserDTO userDto = getUserById(userId);
+
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user not exist");
+		}
+
+		int result = userDao.moveUser(userId);
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+		return result;
+	}
+
+	@Override
+	public int deleteUser(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+
+		UserDTO userDto = getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user not exist");
+		}
+		// 如果用的状态不为2，既用户不在回收站中，则不能删除
+		if (userDto.getDeleted() != 2) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user not exist");
+		}
+
+		int result = userDao.deleteUser(userId);
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "delete error");
+		}
+
+		return result;
+	}
+
+	@Override
+	public List<UserDTO> queryUser(UserQTO userQto) throws UserException {
+
+		// 没传入页数或者传入的页数大余500，默认第0页
+		if (null == userQto.getIndex() || userQto.getIndex() > 500) {
+			userQto.setIndex(0);
+		}
+
+		// 没传入每页显示总数或者每页显示的数量大于500的话，默认每页显示20条
+		if (null == userQto.getPageSize() || userQto.getPageSize() > 500) {
+			userQto.setPageSize(20);
+		}
+
+		UserDO userDo = new UserDO();
+		BeanUtils.copyProperties(userQto, userDo);
+
+		// 传入的页数大于最大页数，则跳入第一页
+		Long totalCount = userDao.getTotalCount(userDo);
+
+		Long maxIndex = totalCount % userQto.getPageSize() == 0 ? totalCount
+				/ userQto.getPageSize() : totalCount / userQto.getPageSize()
+				+ 1;
+		if (userQto.getIndex() > maxIndex) {
+			userQto.setIndex(0);
+		}
+
+		List<UserDO> userDos = userDao.queryUser(userQto);
+		List<UserDTO> userDtos = new ArrayList<UserDTO>();
+		UserDTO userDto = null;
+		if (userDos != null) {
+			for (UserDO userDo1 : userDos) {
+				userDto = new UserDTO();
+				BeanUtils.copyProperties(userDo1, userDto);
+				userDtos.add(userDto);
+			}
+		}
+
+		return userDtos;
+
+	}
+
+	@Override
+	public int setUserRole(Long userId, Byte role) throws UserException {
+
+		UserDTO userDto = getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user not exist");
+		}
+
+		if (role.byteValue() != 0 && role.byteValue() != 1) {
+			throw new UserException(ResponseCode.B_UPDATE_ERROR,
+					"role value is error");
+		}
+		int result = userDao.setUserRole(userId, role);
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+		return result;
+	}
+
+	@Override
+	public int restoreUser(Long userId) throws UserException {
+		// TODO Auto-generated method stub
+
+		UserDTO userDto = getUserById(userId);
+		if (null == userDto) {
+			throw new UserException(ResponseCode.B_SELECT_ERROR,
+					"user not exist");
+		}
+
+		// 如果用户不在回收站内，则不能修改
+		if (userDto.getDeleted() != 2) {
+			throw new UserException(ResponseCode.B_UPDATE_ERROR,
+					"user not in recycle bin");
+		}
+		int result = userDao.restoreUser(userId);
+		if (result != 1) {
+			throw new UserException(ResponseCode.B_DELETE_ERROR, "update error");
+		}
+
+		return result;
+	}
+}

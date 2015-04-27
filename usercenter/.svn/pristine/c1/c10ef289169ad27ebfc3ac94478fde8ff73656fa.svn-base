@@ -1,0 +1,78 @@
+package com.ve.usercenter.core.service.action.userbaby;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.ve.usercenter.common.action.ActionEnum;
+import com.ve.usercenter.common.constant.ResponseCode;
+import com.ve.usercenter.common.dto.UserBabyInfoDTO;
+import com.ve.usercenter.core.exception.UserException;
+import com.ve.usercenter.core.manager.UserBabyInfoManager;
+import com.ve.usercenter.core.service.RequestContext;
+import com.ve.usercenter.core.service.UserRequest;
+import com.ve.usercenter.core.service.UserResponse;
+import com.ve.usercenter.core.service.action.Action;
+
+@Service
+public class UpdateBabyInfoAction implements Action {
+
+	@Resource
+	private UserBabyInfoManager userBabyInfoManager;
+	@Resource
+	TransactionTemplate transactionTemplate;
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public UserResponse execute(final RequestContext context)
+			throws UserException {
+
+		UserResponse response = transactionTemplate
+				.execute(new TransactionCallback() {
+					@Override
+					public Object doInTransaction(TransactionStatus status) {
+						UserBabyInfoDTO babyInfoDto = null;
+
+						UserRequest userRequest = context.getRequest();
+						babyInfoDto = (UserBabyInfoDTO) userRequest
+								.getParam("userBabyDTO");
+						try {
+
+							if (null == babyInfoDto) {
+								throw new UserException(
+										ResponseCode.P_PARAM_NULL,
+										"babyInfoDto is null");
+							}
+
+							if (babyInfoDto.getIsDefault() == true) {
+								// 获取指定用户的默认baby，如果不存在默认的baby，则直接修改，如果存在默认的baby，则先将改baby的状态改为非默认
+								UserBabyInfoDTO babyDto = userBabyInfoManager
+										.getDefBabyInfo(babyInfoDto.getUserId());
+								if (babyDto != null) {
+									userBabyInfoManager.setNonDef(babyDto
+											.getId());
+								}
+							}
+							userBabyInfoManager.updateBabyInfo(babyInfoDto);
+						} catch (UserException e) {
+							log.error(e.getMessage(), e);
+							return new UserResponse(e.getResponseCode()
+									.getCode(), e.getMessage());
+						}
+
+						return new UserResponse(true);
+					}
+				});
+		return response;
+	}
+
+	@Override
+	public String getName() {
+
+		return ActionEnum.UPDATE_USER_BABY_INFO.getActionName();
+	}
+
+}

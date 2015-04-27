@@ -1,0 +1,142 @@
+package com.ve.deliverycenter.core.service.action.fee;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.junit.Test;
+
+import com.ve.deliverycenter.common.api.BaseRequest;
+import com.ve.deliverycenter.common.api.DeliveryService;
+import com.ve.deliverycenter.common.api.Request;
+import com.ve.deliverycenter.common.api.Response;
+import com.ve.deliverycenter.common.constant.ActionEnum;
+import com.ve.deliverycenter.common.dto.fee.RegionFeeDTO;
+import com.ve.deliverycenter.common.dto.fee.StdFeeDTO;
+import com.ve.deliverycenter.common.qto.fee.DeliveryFeeQTO;
+import com.ve.deliverycenter.common.qto.fee.StdFeeQTO;
+import com.ve.deliverycenter.core.service.BaseTest;
+
+public class StdFeeActionTest extends BaseTest {
+
+	@Resource
+	private DeliveryService deliveryService;
+
+	@Test
+	public void testAddStdFee() throws Exception {
+		// 创建一个DTO并赋值
+		StdFeeDTO stdFeeDTO = new StdFeeDTO();
+		stdFeeDTO.setAllowDefault(1);
+		stdFeeDTO.setCode("peisong");
+		stdFeeDTO.setContinueFee(3l);
+		stdFeeDTO.setContinueWeight(100l);
+		stdFeeDTO.setRemark("配送标准1");
+		stdFeeDTO.setFeeLimitMark(1);
+		stdFeeDTO.setFirstFee(10l);
+		stdFeeDTO.setFirstWeight(50l);
+		stdFeeDTO.setMaxFee(100l);
+		stdFeeDTO.setMinFee(10l);
+		stdFeeDTO.setName("运费标准1");
+		stdFeeDTO.setSort(1);
+		stdFeeDTO.setWeightUnit(1);
+		// 创建属性
+		List propertyList = new ArrayList();
+		RegionFeeDTO stdFeePropertyDTO = new RegionFeeDTO();
+		stdFeePropertyDTO.setContinueFee(3l);
+		stdFeePropertyDTO.setContinueWeight(50l);
+		stdFeePropertyDTO.setFirstFee(10l);
+		stdFeePropertyDTO.setFirstWeight(30l);
+		stdFeePropertyDTO.setRegionId(3);
+		RegionFeeDTO stdFeePropertyDTO1 = new RegionFeeDTO();
+		stdFeePropertyDTO1.setContinueFee(4l);
+		stdFeePropertyDTO1.setContinueWeight(60l);
+		stdFeePropertyDTO1.setFirstFee(15l);
+		stdFeePropertyDTO1.setFirstWeight(40l);
+		stdFeePropertyDTO1.setRegionId(2);
+		propertyList.add(stdFeePropertyDTO);
+		propertyList.add(stdFeePropertyDTO1);
+		stdFeeDTO.setRegionFeeDTOList(propertyList);
+		// 创建request对象并赋值
+		Request request = new BaseRequest();
+		request.setCommand(ActionEnum.ADD_STDFEE.getActionName());
+		request.setParam("stdFeeDTO", stdFeeDTO);
+		// 执行分发执行对应Action
+		Response response = deliveryService.execute(request);
+		System.out.println(response);
+	}
+
+	@Test
+	public void testUpdateStdFee() throws Exception {
+		// 创建一个DTO并赋值
+		StdFeeDTO stdFeeDTO = new StdFeeDTO();
+		stdFeeDTO.setId(9);
+		stdFeeDTO.setAllowDefault(2);
+		stdFeeDTO.setCode("2");
+		stdFeeDTO.setContinueFee(2l);
+		stdFeeDTO.setContinueWeight(2l);
+		stdFeeDTO.setRemark("2");
+		stdFeeDTO.setFeeLimitMark(2);
+		stdFeeDTO.setFirstFee(2l);
+		stdFeeDTO.setFirstWeight(2l);
+		stdFeeDTO.setMaxFee(2l);
+		stdFeeDTO.setMinFee(2l);
+		stdFeeDTO.setName("2");
+		stdFeeDTO.setSort(2);
+		stdFeeDTO.setWeightUnit(2);
+
+		// 创建request对象并赋值
+		Request request = new BaseRequest();
+		request.setCommand(ActionEnum.UPDATE_STDFEE.getActionName());
+		request.setParam("stdFeeDTO", stdFeeDTO);
+		// 执行分发执行对应Action
+		Response response = deliveryService.execute(request);
+		System.out.println(response);
+	}
+
+	@Test
+	public void testDeleteStdFee() throws Exception {
+		int id = 9;
+		// 创建request对象并赋值
+		Request request = new BaseRequest();
+		request.setCommand(ActionEnum.DELETE_STDFEE.getActionName());
+		request.setParam("id", id);
+		// 执行分发执行对应Action
+		Response response = deliveryService.execute(request);
+		System.out.println(response);
+	}
+
+	@Test
+	public void testQueryStdFee() throws Exception {
+		// 创建一个QTO并赋值
+		StdFeeQTO stdFeeQTO = new StdFeeQTO();
+		stdFeeQTO.setPageNo(1);
+		stdFeeQTO.setPageSize(50);
+		stdFeeQTO.setCode("peisong");
+		stdFeeQTO.setName("运费标准1");
+		// 创建request对象并赋值
+		Request request = new BaseRequest();
+		request.setCommand(ActionEnum.QUERY_STDFEE.getActionName());
+		request.setParam("stdFeeQTO", stdFeeQTO);
+		// 执行分发执行对应Action
+		Response response = deliveryService.execute(request);
+		System.out.println(response);
+	}
+
+	@Test
+	public void testQueryDeliveryFee() throws Exception {
+		// 创建一个QTO并赋值
+		DeliveryFeeQTO deliveryFeeQTO = new DeliveryFeeQTO();
+		deliveryFeeQTO.setPageNo(1);
+		deliveryFeeQTO.setPageSize(50);
+		deliveryFeeQTO.setWeight(30l);
+		deliveryFeeQTO.setRegionId(1l);
+		// 创建request对象并赋值
+		Request request = new BaseRequest();
+		request.setCommand(ActionEnum.QUERY_DELIVERYFEE.getActionName());
+		request.setParam("deliveryFeeQTO", deliveryFeeQTO);
+		// 执行分发执行对应Action
+		Response response = deliveryService.execute(request);
+		System.out.println(response);
+	}
+}

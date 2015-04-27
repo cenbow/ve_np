@@ -1,0 +1,59 @@
+package com.ve.tradecenter.common.constant;
+
+public enum ResponseCode {
+	/*
+	 * 处理成功
+	 */
+	RESPONSE_SUCCESS("200","请求处理成功！"),
+	/*
+	 * 系统级别错误
+	 */
+    SYS_E_DEFAULT_ERROR("S1009","%s 系统开小差中，请稍后再试"),
+    SYS_E_SERVICE_EXCEPTION("S1001","服务端异常"),
+    SYS_E_DATABASE_ERROR("S1002","数据库操作异常"),
+    SYS_E_REMOVE_CALL_ERROR("S1009","remote call error"),
+    /*
+     * 业务级别错误
+     */
+    PARAM_E_PARAM_INVALID("P2001","param is invalid"),
+    PARAM_E_PARAM_MISSING("P3001","param is null"),
+	/*
+	 * 参数错误
+	 */
+	BIZ_E_RECORD_NOT_EXIST("B3001","请求的记录不存在"),
+	BIZ_E_CART_EMPTY("B3002","购物车为空"),
+	BIZ_E_PAYMENT_TYPE_ERROR("B3101","支付方式错误"),
+	BIZ_E_COUPON_CONDITION_ERROR("B3301","未达到优惠券的使用条件"),
+//	BIZ_E_ADDRESSS_COD_NOT_SUPPORT("B3102","地区不支持货到付款")
+	BIZ_E_COD_NOT_SUPPORTED("B3201","不支持货到付款"),
+	BIZ_E_ITEM_NOT_EXIST("B3401","商品不存在"),
+	BIZ_E_ITEM_SALE_NOT_START("B3402","商品还未开售"),
+	BIZ_E_ITEM_SALE_END("B3403","商品销售已经结束"),
+	
+	BIZ_E_PAYMENT_NOTICE_NOT_EXIST("B4102","支付单不存在"),
+	BIZ_E_PAYMENT_SIGN_ERROR("B4101","数字签名错误"),
+	
+	BIZ_E_ORDER_STATUS_ERROR("B3501","order status error"),
+	BIZ_E_ORDER_CLOSED("B5103","order already closed ");
+	
+	/*private class ErrorMessage{
+		public final static String PAYMNET_TYPE_NOT_SUPPORT = "支付方式错误！"; 
+	}*/
+    
+    private String code;
+    private String comment;
+
+    private ResponseCode(String code, String comment){
+        this.code = code;
+        this.comment = comment;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+}

@@ -1,0 +1,23 @@
+package com.ve.deliverycenter.core.manager;
+
+import com.ve.deliverycenter.core.crud.inf.Crud;
+import com.ve.deliverycenter.core.crud.service.CrudService;
+import com.ve.deliverycenter.core.dao.BaseDao;
+
+public class BaseManager extends CrudService {
+	private BaseDao baseDao;
+
+	public BaseDao getBaseDao() {
+		return baseDao;
+	}
+
+	public void setBaseDao(BaseDao baseDao) {
+		this.baseDao = baseDao;
+	}
+
+	@Override
+	public Crud getCrudDao() {
+		return getBaseDao();
+	}
+
+}

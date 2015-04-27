@@ -1,0 +1,97 @@
+package com.ve.tradecenter.core.manager;
+
+import java.util.List;
+
+import com.ve.tradecenter.common.domain.CartItemDTO;
+import com.ve.tradecenter.core.domain.CartItemDO;
+import com.ve.tradecenter.core.exception.TradeException;
+
+/**
+ * 已登入用户购物车操作类 对应于表user_cart
+ * @author cwr
+ */
+public interface UserCartItemManager {
+	
+	/**
+	 * 已登入用户添加购物车
+	 * @param userCartItem
+	 * @return
+	 * @throws tradeException
+	 */
+	public Long addUserCartItem(CartItemDO cartItemDO)throws TradeException;
+	
+	/**
+	 * 购物车中移除商品
+	 * @param userCartItemDO
+	 * @return
+	 * @throws TradeException
+	 */
+	public int deleteUserCartItem(CartItemDO cartItemDO)throws TradeException;
+	
+	/**
+	 * 清空已登入用户的购物车
+	 * @param userId
+	 * @return
+	 * @throws TradeException
+	 */
+	public int cleanUserCart(Long userId)throws TradeException;
+	
+	/**
+	 *  修改购物车商品数量
+	 * @param number
+	 * @param id
+	 * @return
+	 * @throws TradeException
+	 */
+	public int updateUserCartItem(CartItemDO cartItemDO)throws TradeException;
+	
+	/**
+	 * 列出用户购物车列表
+	 * @param number
+	 * @param id
+	 * @param userId
+	 * @return
+	 * @throws TradeException
+	 */
+	public List<CartItemDO> queryUserCartItems(Long userId)throws TradeException;
+	
+	/**
+	 * 查询用户已经加入购物车的商品ID
+	 * @param userId
+	 * @return
+	 * @throws TrdaeException
+	 */
+	public List<Long> queryUserCartItemId(Long userId)throws TradeException;
+	
+	/**
+	 * 批量写入购物车商品
+	 * @param cartItemDOList
+	 * @return
+	 * @throws TradeException
+	 */
+	public int addBatchUserCartItem(List<CartItemDO> cartItemDOList)throws TradeException;
+	
+	/**
+	 * 移除用户购物车中的赠品
+	 * @param userId
+	 * @return
+	 */
+    public int deleteGiftItems(Long userId)throws TradeException;
+	
+	/**
+	 * 验证购物车商品字段
+	 * @param cartItem
+	 * @return
+	 */
+	public String validateCartItemFields4Add(CartItemDTO cartItem);
+
+	/**
+	 * 更新数量
+	 * @param cartItemDO
+	 * @return
+	 * @throws TradeException
+	 */
+	public int updateUserCartItemNumber(CartItemDO cartItemDO)throws TradeException;
+
+	
+}

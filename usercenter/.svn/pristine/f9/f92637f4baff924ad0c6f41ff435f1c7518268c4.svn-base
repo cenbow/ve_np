@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="user" >
+  <resultMap id="BaseResultMap" class="com.ve.usercenter.core.domain.UserDO" >
+    <result column="id" property="id" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="img_url" property="imgUrl" jdbcType="VARCHAR" />
+    <result column="integral" property="integral" jdbcType="BIGINT" />
+    <result column="experience" property="experience" jdbcType="BIGINT" />
+    <result column="phone_no" property="phoneNo" jdbcType="VARCHAR" />
+    <result column="m_phone_no" property="mPhoneNo" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="feature_mark" property="featureMark" jdbcType="BIGINT" />
+    <result column="role" property="role" jdbcType="TINYINT" />
+    <result column="recommender_id" property="recommenderId" jdbcType="BIGINT" />
+    <result column="inviter_id" property="inviterId" jdbcType="BIGINT" />
+    <result column="deleted" property="deleted" jdbcType="TINYINT" />
+    <result column="gmt_created" property="gmtCreated" jdbcType="TIMESTAMP" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <iterate property="oredCriteria" conjunction="or" prepend="where" removeFirstPrepend="iterate" >
+      <isEqual property="oredCriteria[].valid" compareValue="true" >
+        (
+        <iterate prepend="and" property="oredCriteria[].criteriaWithoutValue" conjunction="and" >
+          $oredCriteria[].criteriaWithoutValue[]$
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithSingleValue" conjunction="and" >
+          $oredCriteria[].criteriaWithSingleValue[].condition$ #oredCriteria[].criteriaWithSingleValue[].value#
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithListValue" conjunction="and" >
+          $oredCriteria[].criteriaWithListValue[].condition$
+          <iterate property="oredCriteria[].criteriaWithListValue[].values" open="(" close=")" conjunction="," >
+            #oredCriteria[].criteriaWithListValue[].values[]#
+          </iterate>
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithBetweenValue" conjunction="and" >
+          $oredCriteria[].criteriaWithBetweenValue[].condition$
+          #oredCriteria[].criteriaWithBetweenValue[].values[0]# and
+          #oredCriteria[].criteriaWithBetweenValue[].values[1]#
+        </iterate>
+        )
+      </isEqual>
+    </iterate>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, name, password, img_url, integral, experience, phone_no, m_phone_no, email, status, 
+     feature_mark, role, recommender_id, inviter_id, deleted, gmt_created, 
+    gmt_modified
+  </sql>
+  <insert id="insert" parameterClass="com.ve.usercenter.core.domain.UserDO">
+    insert into user
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="name" >
+        name
+      </isNotNull>
+      <isNotNull prepend="," property="password" >
+        password
+      </isNotNull>
+      <isNotNull prepend="," property="imgUrl" >
+        img_url
+      </isNotNull>
+      <isNotNull prepend="," property="integral" >
+        integral
+      </isNotNull>
+      <isNotNull prepend="," property="experience" >
+        experience
+      </isNotNull>
+      <isNotNull prepend="," property="phoneNo" >
+        phone_no
+      </isNotNull>
+      <isNotNull prepend="," property="mPhoneNo" >
+        m_phone_no
+      </isNotNull>
+      <isNotNull prepend="," property="email" >
+        email
+      </isNotNull>
+      <isNotNull prepend="," property="featureMark" >
+        feature_mark
+      </isNotNull>
+      <isNotNull prepend="," property="role" >
+        role
+      </isNotNull>
+      <isNotNull prepend="," property="recommenderId" >
+        recommender_id
+      </isNotNull>
+      <isNotNull prepend="," property="inviterId" >
+        inviter_id
+      </isNotNull>
+        ,status,deleted,gmt_created, gmt_modified
+      
+      )
+    </dynamic>
+    values
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="name" >
+        #name:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="password" >
+        #password:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="imgUrl" >
+        #imgUrl:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="integral" >
+        #integral:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="experience" >
+        #experience:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="phoneNo" >
+        #phoneNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="mPhoneNo" >
+        #mPhoneNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="email" >
+        #email:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="featureMark" >
+        #featureMark:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="role" >
+        #role:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="recommenderId" >
+        #recommenderId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="inviterId" >
+        #inviterId:BIGINT#
+      </isNotNull>
+       ,0,0,now(),now()
+      
+      )
+    </dynamic>
+    <selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+	</selectKey>
+  </insert> 
+  
+   <select id="selectByName" resultMap="BaseResultMap" parameterClass="java.lang.String" >
+    select 
+    <include refid="user.Base_Column_List" />
+    from user
+    where name = #name:VARCHAR# and deleted != 1 
+  </select>
+  <select id="selectByEmail" resultMap="BaseResultMap" parameterClass="java.lang.String" >
+    select 
+    <include refid="user.Base_Column_List" />
+    from user
+    where email = #email:VARCHAR# and deleted != 1 
+  </select>
+  <select id="selectByMobile" resultMap="BaseResultMap" parameterClass="java.lang.String" >
+    select 
+    <include refid="user.Base_Column_List" />
+    from user
+    where m_phone_no = #mPhoneNo:VARCHAR# and deleted != 1 
+  </select>
+  
+  <select id="selectById" resultMap="BaseResultMap" parameterClass="java.lang.Long" >
+    select 
+    <include refid="user.Base_Column_List" />
+    from user
+    where Id = #id:BIGINT# and deleted != 1 
+  </select>
+  
+  <select id="recycle" resultMap="BaseResultMap" parameterClass="java.lang.Long" >
+    select 
+    <include refid="user.Base_Column_List" />
+    from user
+    where Id = #id:BIGINT# and deleted = 2
+  </select>
+  
+  
+  <select id="queryUser" resultMap="BaseResultMap" parameterClass="com.ve.usercenter.common.qto.UserQTO">
+  	select 
+  	<include refid="user.Base_Column_List"/>
+  	from user
+  	where 
+  	deleted = 0
+  	<isNotNull prepend="and" property="name">
+  		name like concat('%',#name:VARCHAR#,'%')
+  	</isNotNull>
+  	<isNotNull prepend="and" property="email">
+  		email = #email:VARCHAR#
+  	</isNotNull>
+  	<isNotNull prepend="and" property="mPhoneNo">
+  		m_phone_no = #mPhoneNo:VARCHAR#
+  	</isNotNull>
+  	<isNotNull prepend="and" property="recommenderId">
+  		recommender_id = #recommenderId:BIGINT#
+  	</isNotNull>
+  	<isNotNull prepend="and" property="inviterId">
+  		inviter_id = #inviterId:BIGINT#
+  	</isNotNull>
+  	<isNotNull prepend="and" property="role">
+  		role = #role:TINYINT#
+  	</isNotNull>
+  	<isNotNull prepend="and" property="integralId">
+  		<![CDATA[(select g.id from user_group g where integral>g.min_integral and integral<=g.max_integral)=#integralId:INTEGER#]]>
+  	</isNotNull>
+  	  	
+  	order by id desc limit #pageNum:BIGINT#,#pageSize:BIGINT#
+  </select>
+  
+  <select id="totalCount" resultClass="java.lang.Long" parameterClass="com.ve.usercenter.core.domain.UserDO">
+  	select count(*) from user where deleted = 0
+  	<isNotNull prepend="and" property="name">
+  		name like concat('%',#name:VARCHAR#,'%')
+  	</isNotNull>
+  	<isNotNull prepend="and" property="email">
+  		email = #email:VARCHAR#
+  	</isNotNull>
+  	<isNotNull prepend="and" property="mPhoneNo">
+  		m_Phone_no = #mPhoneNo:VARCHAR#
+  	</isNotNull>
+  	<isNotNull prepend="and" property="recommenderId">
+  		recommender_id = #recommenderId:BIGINT#
+  	</isNotNull>
+  	<isNotNull prepend="and" property="inviterId">
+  		inviter_id = #inviterId:BIGINT#
+  	</isNotNull>
+  	<isNotNull prepend="and" property="role">
+  		role = #role:TINYINT#
+  	</isNotNull>  	
+  </select>
+  
+  <select id="selectByLoginName" resultMap="BaseResultMap" parameterClass="java.lang.String">
+  	select <include refid="user.Base_Column_List"/> from user where name = #loginName:VARCHAR# or email = #loginName:VARCHAR# or m_phone_no =#loginName:VARCHAR# and deleted = 0 and status = 0
+  </select>
+  
+  <select id="login" resultMap="BaseResultMap" parameterClass="com.ve.usercenter.core.domain.UserDO">
+  	select <include refid="user.Base_Column_List"/> from user where name = #name:VARCHAR# or email = #name:VARCHAR# or m_phone_no =#name:VARCHAR# and password = #password# and deleted = 0 and status = 0
+  </select>
+  
+  <update id="updateEmail" parameterClass="com.ve.usercenter.core.domain.UserDO" >
+    update user
+    set email = #email:VARCHAR#,gmt_modified = now() 
+    where id = #id:BIGINT# and deleted = 0
+  </update>
+  
+  <update id="updateMobile" parameterClass="com.ve.usercenter.core.domain.UserDO" >
+    update user
+    set m_phone_no = #mPhoneNo:VARCHAR#,gmt_modified = now()  
+    where id = #id:BIGINT# and deleted = 0
+  </update>
+  
+  <update id="updateName" parameterClass="com.ve.usercenter.core.domain.UserDO" >
+    update user
+    set name = #name:VARCHAR#,gmt_modified = now()  
+    where id = #id:BIGINT# and deleted = 0
+  </update>
+  
+   <update id="updateHeadImg" parameterClass="com.ve.usercenter.core.domain.UserDO" >
+    update user
+    set img_url = #imgUrl:VARCHAR#,gmt_modified = now() 
+    where id = #id:BIGINT# and deleted = 0
+  </update>
+  
+  <update id="updatePwd" parameterClass="com.ve.usercenter.core.domain.UserDO" >
+    update user
+    set password = #password:VARCHAR#,gmt_modified = now()  
+    where id = #id:BIGINT# and deleted = 0
+  </update>
+  
+  <update id="activeUser" parameterClass="java.lang.Long">
+  	update user
+    set status = 0,gmt_modified = now()  
+    where id = #id:BIGINT# and deleted = 0
+  </update>
+  
+  <update id="freezeUser" parameterClass="java.lang.Long">
+  	update user
+    set status = 1,gmt_modified = now()  
+    where id = #id:BIGINT# and deleted = 0
+  </update>
+  
+  
+  <update id="setRole" parameterClass="com.ve.usercenter.core.domain.UserDO">
+  	update user
+  	set role = #role:TINYINT#,gmt_modified = now() 
+  	where id = #id:BIGINT# and deleted = 0
+  </update>
+  
+  <update id="restore" parameterClass="java.lang.Long">
+  	update user
+  	set deleted = 0,gmt_modified = now() 
+    where id = #id:BIGINT# and deleted = 2
+  </update>
+  
+  <update id="moveToRecycle" parameterClass="java.lang.Long">
+  	update user
+  	set deleted = 2,gmt_modified = now() 
+    where id = #id:BIGINT# and deleted = 0
+  </update>
+  
+  <update id="delete" parameterClass="java.lang.Long">
+  	update user
+  	set deleted = 1,gmt_modified = now() 
+    where id = #id:BIGINT# and deleted = 2
+  </update>
+  
+  <update id="updateUser" parameterClass="com.ve.usercenter.core.domain.UserDO">
+  	 update user set gmt_modified = now()
+      <isNotNull prepend="," property="password" >
+        password = #password:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="imgUrl" >
+        img_url = #imgUrl:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="phoneNo" >
+        phone_no = #phoneNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="mPhoneNo" >
+        m_phone_no = #mPhoneNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="status" >
+        status = #status:TINYINT#
+      </isNotNull>
+      <isNotNull prepend="," property="featureMark" >
+        feature_mark = #featureMark:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="recommenderId" >
+        recommender_id = #recommenderId:BIGINT#
+      </isNotNull>
+      <isNotNull prepend="," property="inviterId" >
+        inviter_id = #inviterId:BIGINT#
+      </isNotNull>
+    where id = #id:BIGINT#
+  </update>
+  
+</sqlMap>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

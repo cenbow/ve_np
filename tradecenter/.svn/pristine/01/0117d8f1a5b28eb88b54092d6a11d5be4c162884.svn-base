@@ -1,0 +1,163 @@
+package com.ve.tradecenter.core.domain;
+
+public class PaymentDO {
+    private Integer id; // 主键
+
+    private String className;  
+
+    private Byte isEffect;
+
+    private Byte onlinePay;
+
+    private Long feeAmount;
+
+    private String name;
+
+    private String desc;
+
+    private Long totalAmount;
+
+    private String logo;
+
+    private Integer sort;
+
+    private Byte feeType;
+
+    private Byte isPc;
+
+    private Byte isWap;
+
+    private Byte isApp;
+
+    private String key;
+
+    private String config;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className == null ? null : className.trim();
+    }
+
+    public Byte getIsEffect() {
+        return isEffect;
+    }
+
+    public void setIsEffect(Byte isEffect) {
+        this.isEffect = isEffect;
+    }
+
+    public Byte getOnlinePay() {
+        return onlinePay;
+    }
+
+    public void setOnlinePay(Byte onlinePay) {
+        this.onlinePay = onlinePay;
+    }
+
+    public Long getFeeAmount() {
+        return feeAmount;
+    }
+
+    public void setFeeAmount(Long feeAmount) {
+        this.feeAmount = feeAmount;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name == null ? null : name.trim();
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc == null ? null : desc.trim();
+    }
+
+    public Long getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(Long totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public String getLogo() {
+        return logo;
+    }
+
+    public void setLogo(String logo) {
+        this.logo = logo == null ? null : logo.trim();
+    }
+
+    public Integer getSort() {
+        return sort;
+    }
+
+    public void setSort(Integer sort) {
+        this.sort = sort;
+    }
+
+    public Byte getFeeType() {
+        return feeType;
+    }
+
+    public void setFeeType(Byte feeType) {
+        this.feeType = feeType;
+    }
+
+    public Byte getIsPc() {
+        return isPc;
+    }
+
+    public void setIsPc(Byte isPc) {
+        this.isPc = isPc;
+    }
+
+    public Byte getIsWap() {
+        return isWap;
+    }
+
+    public void setIsWap(Byte isWap) {
+        this.isWap = isWap;
+    }
+
+    public Byte getIsApp() {
+        return isApp;
+    }
+
+    public void setIsApp(Byte isApp) {
+        this.isApp = isApp;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key == null ? null : key.trim();
+    }
+
+    public String getConfig() {
+        return config;
+    }
+
+    public void setConfig(String config) {
+        this.config = config == null ? null : config.trim();
+    }
+}

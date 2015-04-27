@@ -1,0 +1,31 @@
+package com.ve.usercenter.core.manager;
+
+import org.springframework.stereotype.Service;
+
+import com.ve.usercenter.common.dto.UserExtraInfoDTO;
+import com.ve.usercenter.core.exception.UserException;
+
+@Service
+public interface UserExtraInfoManage {
+	/**
+	 * 添加用户扩展属性
+	 * */
+	UserExtraInfoDTO addUserExtraInfo(UserExtraInfoDTO userExtraDto)
+			throws UserException;
+
+	/**
+	 * 根据扩展表的id得到用户的扩张信息
+	 * */
+	UserExtraInfoDTO getUserExtraInfoById(Long id) throws UserException;
+
+	/**
+	 * 根据用户id获取扩展表的信息
+	 * */
+	UserExtraInfoDTO getUserExtraInfoByUserId(Long userId) throws UserException;
+
+	/**
+	 * 修改买家用户的扩展信息
+	 * */
+	int updateUserExtraInfo(UserExtraInfoDTO userExtraDto) throws UserException;
+
+}

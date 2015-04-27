@@ -1,0 +1,41 @@
+package com.ve.itemcenter.core.dao.impl;
+
+import java.util.List;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+import org.springframework.stereotype.Service;
+
+import com.ve.itemcenter.common.constant.DBConst;
+import com.ve.itemcenter.common.domain.ItemImageQTO;
+import com.ve.itemcenter.core.dao.ItemImageDAO;
+import com.ve.itemcenter.core.domain.ItemImageDO;
+
+@Service
+public class ItemImageDAOImpl extends SqlMapClientDaoSupport implements ItemImageDAO {
+
+	public ItemImageDAOImpl() {
+		super();
+	}
+
+	public Long addItemImage(ItemImageDO itemImageDO) {
+		itemImageDO.setIsDeleted(DBConst.UN_DELETED.getCode());
+		Long newInsertedId = (Long) getSqlMapClientTemplate().insert("ItemImageDAO.addItemImage", itemImageDO);
+		return newInsertedId;
+	}
+
+	public ItemImageDO getItemImage(Long id) {
+		ItemImageDO record = (ItemImageDO) getSqlMapClientTemplate().queryForObject("ItemImageDAO.getItemImage", id);
+		return record;
+	}
+
+	public int updateItemImage(ItemImageDO itemImageDO) {
+		int rows = getSqlMapClientTemplate().update("ItemImageDAO.updateItemImage", itemImageDO);
+		return rows;
+	}
+
+	public List<ItemImageDO> queryItemImage(ItemImageQTO itemImageQTO) {
+		List<ItemImageDO> list = getSqlMapClientTemplate().queryForList("ItemImageDAO.queryItemImage", itemImageQTO);
+		return list;
+	}
+
+}
